@@ -656,12 +656,154 @@ function cancelEditClient() {
     "Laissez vide lors de la modification pour conserver le logo actuel";
 }
 
+let editingCategory = null;
+
+// Gestion des catégories
+document.getElementById('category-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('category-name').value;
+    const displayName = document.getElementById('category-display').value;
+    
+    try {
+        const url = editingCategory ? `/api/categories/${editingCategory}` : '/api/categories';
+        const method = editingCategory ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, displayName })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            document.getElementById('category-form').reset();
+            document.getElementById('category-submit-btn').textContent = 'Ajouter Catégorie';
+            editingCategory = null;
+            loadCategories();
+            loadCategoryOptions();
+            alert('Catégorie ' + (editingCategory ? 'modifiée' : 'ajoutée') + ' avec succès!');
+        } else {
+            alert('Erreur: ' + data.error);
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors de l\'opération');
+    }
+});
+
+// Charger les catégories
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const categoriesList = document.getElementById('categories-list');
+        categoriesList.innerHTML = '<h3>Catégories existantes</h3>';
+        
+        categories.forEach(category => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'project-item';
+            categoryDiv.innerHTML = `
+                <h4>${category.displayName}</h4>
+                <p><strong>Nom technique:</strong> ${category.name}</p>
+                <div style="margin-top: 10px;">
+                    <button onclick="editCategory(${category.id})" class="btn-edit">Modifier</button>
+                    <button onclick="deleteCategory(${category.id})" class="btn-delete">Supprimer</button>
+                </div>
+            `;
+            categoriesList.appendChild(categoryDiv);
+        });
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+// Charger les options de catégories dans le select
+async function loadCategoryOptions() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const categorySelect = document.getElementById('portfolio-category');
+        categorySelect.innerHTML = '<option value="">Sélectionner une catégorie</option>';
+        
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.name;
+            option.textContent = category.displayName;
+            categorySelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+// Modifier une catégorie
+async function editCategory(id) {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        const category = categories.find(c => c.id === id);
+        
+        if (category) {
+            document.getElementById('category-name').value = category.name;
+            document.getElementById('category-display').value = category.displayName;
+            document.getElementById('category-submit-btn').textContent = 'Modifier Catégorie';
+            editingCategory = id;
+            
+            document.getElementById('category-form').scrollIntoView({ behavior: 'smooth' });
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+// Supprimer une catégorie
+async function deleteCategory(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie?')) {
+        try {
+            const response = await fetch(`/api/categories/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                loadCategories();
+                loadCategoryOptions();
+                alert('Catégorie supprimée avec succès!');
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+}
+
+// Annuler la modification d'une catégorie
+function cancelEditCategory() {
+    document.getElementById('category-form').reset();
+    document.getElementById('category-submit-btn').textContent = 'Ajouter Catégorie';
+    editingCategory = null;
+}
+
 // Mettre à jour la fonction de chargement initial
 if (token) {
-  document.getElementById("login-section").style.display = "none";
-  document.getElementById("admin-panel").style.display = "block";
-  loadProjects();
-  loadTestimonials();
-  loadPortfolioProjects();
-  loadClients(); // Ajoutez cette ligne
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('admin-panel').style.display = 'block';
+    loadProjects();
+    loadTestimonials();
+    loadPortfolioProjects();
+    loadClients();
+    loadCategories();
+    loadCategoryOptions(); 
 }

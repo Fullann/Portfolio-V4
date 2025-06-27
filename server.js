@@ -86,6 +86,12 @@ let clientsData = [
     description: "Description du client 1",
   },
 ];
+let categoriesData = [
+  { id: 1, name: "web development", displayName: "Web Development" },
+  { id: 2, name: "applications", displayName: "Applications" },
+  { id: 3, name: "web design", displayName: "Web Design" },
+  { id: 4, name: "mobile apps", displayName: "Mobile Apps" },
+];
 // Utilisateur admin par défaut
 const adminUser = {
   username: "admin",
@@ -435,16 +441,100 @@ app.delete("/api/clients/:id", authenticateToken, async (req, res) => {
   await updateHtmlFile();
   res.json({ success: true });
 });
+// Routes pour les catégories
+app.get("/api/categories", (req, res) => {
+  res.json(categoriesData);
+});
+
+app.post("/api/categories", authenticateToken, async (req, res) => {
+  const { name, displayName } = req.body;
+
+  // Vérifier si la catégorie existe déjà
+  const existingCategory = categoriesData.find(
+    (c) => c.name.toLowerCase() === name.toLowerCase()
+  );
+  if (existingCategory) {
+    return res.status(400).json({ error: "Cette catégorie existe déjà" });
+  }
+
+  lastUpdate = Date.now();
+
+  const newCategory = {
+    id: Date.now(),
+    name: name.toLowerCase().replace(/\s+/g, " ").trim(),
+    displayName: displayName || name,
+  };
+
+  categoriesData.push(newCategory);
+  await updateHtmlFile();
+  res.json(newCategory);
+});
+
+app.put("/api/categories/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { name, displayName } = req.body;
+
+  lastUpdate = Date.now();
+
+  const categoryIndex = categoriesData.findIndex((c) => c.id == id);
+  if (categoryIndex === -1) {
+    return res.status(404).json({ error: "Catégorie non trouvée" });
+  }
+
+  const category = categoriesData[categoryIndex];
+  const oldName = category.name;
+
+  category.name = name
+    ? name.toLowerCase().replace(/\s+/g, " ").trim()
+    : category.name;
+  category.displayName = displayName || category.displayName;
+
+  // Mettre à jour tous les projets qui utilisent cette catégorie
+  portfolioProjects.forEach((project) => {
+    if (project.filterCategory === oldName) {
+      project.filterCategory = category.name;
+      project.category = category.displayName;
+    }
+  });
+
+  await updateHtmlFile();
+  res.json(category);
+});
+
+app.delete("/api/categories/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  const category = categoriesData.find((c) => c.id == id);
+  if (!category) {
+    return res.status(404).json({ error: "Catégorie non trouvée" });
+  }
+
+  // Vérifier si des projets utilisent cette catégorie
+  const projectsUsingCategory = portfolioProjects.filter(
+    (p) => p.filterCategory === category.name
+  );
+  if (projectsUsingCategory.length > 0) {
+    return res.status(400).json({
+      error: `Impossible de supprimer cette catégorie. ${projectsUsingCategory.length} projet(s) l'utilisent encore.`,
+      projects: projectsUsingCategory.map((p) => p.title),
+    });
+  }
+
+  lastUpdate = Date.now();
+  categoriesData = categoriesData.filter((c) => c.id != id);
+  await updateHtmlFile();
+  res.json({ success: true });
+});
 
 // Fonction pour mettre à jour le fichier HTML
 async function updateHtmlFile() {
-  try {
-    let htmlContent = await fs.readFile("public/index.html", "utf8");
-
-    // Générer le HTML pour les projets (section "What i'm doing")
-    const projectsHtml = portfolioData.projects
-      .map(
-        (project) => `
+    try {
+        let htmlContent = await fs.readFile("public/index.html", "utf8");
+        
+        // Générer le HTML pour les projets (section "What i'm doing")
+        const projectsHtml = portfolioData.projects
+            .map(
+                (project) => `
                 <li class="service-item">
                     <div class="service-icon-box">
                         <img src="${project.image}" alt="${project.title}" width="40">
@@ -456,13 +546,13 @@ async function updateHtmlFile() {
                         </p>
                     </div>
                 </li>`
-      )
-      .join("\n");
-
-    // Générer le HTML pour les témoignages
-    const testimonialsHtml = portfolioData.testimonials
-      .map(
-        (testimonial) => `
+            )
+            .join("\n");
+        
+        // Générer le HTML pour les témoignages
+        const testimonialsHtml = portfolioData.testimonials
+            .map(
+                (testimonial) => `
                 <li class="testimonials-item">
                     <div class="content-card" data-testimonials-item>
                         <figure class="testimonials-avatar-box">
@@ -474,96 +564,102 @@ async function updateHtmlFile() {
                         </div>
                     </div>
                 </li>`
-      )
-      .join("\n");
-
-    // Générer le HTML pour les projets portfolio
-    const portfolioProjectsHtml = portfolioProjects
-      .map(
-        (project) => `
-                <li class="project-item active" data-filter-item data-category="${
-                  project.filterCategory
-                }">
+            )
+            .join("\n");
+        
+        // Générer le HTML pour les projets portfolio
+        const portfolioProjectsHtml = portfolioProjects
+            .map(
+                (project) => `
+                <li class="project-item active" data-filter-item data-category="${project.filterCategory}">
                     <div class="project-links">
-                        ${
-                          project.repoLink
-                            ? `<a href="${project.repoLink}" target="_blank" class="project-link repo-link" title="Voir le code">
+                        ${project.repoLink ? `<a href="${project.repoLink}" target="_blank" class="project-link repo-link" title="Voir le code">
                             <ion-icon name="logo-github"></ion-icon>
-                        </a>`
-                            : ""
-                        }
-                        ${
-                          project.liveLink
-                            ? `<a href="${project.liveLink}" target="_blank" class="project-link live-link" title="Voir le site">
+                        </a>` : ''}
+                        ${project.liveLink ? `<a href="${project.liveLink}" target="_blank" class="project-link live-link" title="Voir le site">
                             <ion-icon name="eye-outline"></ion-icon>
-                        </a>`
-                            : ""
-                        }
+                        </a>` : ''}
                     </div>
                     <figure class="project-img">
                         <div class="project-item-icon-box">
                             <ion-icon name="eye-outline"></ion-icon>
                         </div>
-                        <img src="${project.image}" alt="${
-          project.title
-        }" loading="lazy" />
+                        <img src="${project.image}" alt="${project.title}" loading="lazy" />
                     </figure>
                     <h3 class="project-title">${project.title}</h3>
                     <p class="project-category">${project.category}</p>
                 </li>`
-      )
-      .join("\n");
-
-    // Générer le HTML pour les clients
-    const clientsHtml = clientsData
-      .map(
-        (client) => `
+            )
+            .join("\n");
+        
+        // Générer le HTML pour les clients
+        const clientsHtml = clientsData
+            .map(
+                (client) => `
                 <li class="clients-item">
                     <a href="${client.website}" target="_blank" title="${client.name}">
                         <img src="${client.logo}" alt="${client.name} logo" />
                     </a>
                 </li>`
-      )
-      .join("\n");
-
-    // Remplacer les sections
-    const projectsRegex =
-      /(<!-- PROJECTS_START -->)([\s\S]*?)(<!-- PROJECTS_END -->)/;
-    if (projectsRegex.test(htmlContent)) {
-      htmlContent = htmlContent.replace(
-        projectsRegex,
-        `$1\n${projectsHtml}\n$3`
-      );
+            )
+            .join("\n");
+        
+        // Générer les filtres de catégories
+        const categoryFiltersHtml = categoriesData
+            .map(
+                (category) => `
+                <li class="filter-item">
+                    <button data-filter-btn>${category.displayName}</button>
+                </li>`
+            )
+            .join("\n");
+        
+        const categorySelectHtml = categoriesData
+            .map(
+                (category) => `
+                <li class="select-item">
+                    <button data-select-item>${category.displayName}</button>
+                </li>`
+            )
+            .join("\n");
+        
+        // Remplacer les sections
+        const projectsRegex = /(<!-- PROJECTS_START -->)([\s\S]*?)(<!-- PROJECTS_END -->)/;
+        if (projectsRegex.test(htmlContent)) {
+            htmlContent = htmlContent.replace(projectsRegex, `$1\n${projectsHtml}\n$3`);
+        }
+        
+        const testimonialsRegex = /(<!-- TESTIMONIALS_START -->)([\s\S]*?)(<!-- TESTIMONIALS_END -->)/;
+        if (testimonialsRegex.test(htmlContent)) {
+            htmlContent = htmlContent.replace(testimonialsRegex, `$1\n${testimonialsHtml}\n$3`);
+        }
+        
+        const portfolioRegex = /(<!-- PORTFOLIO_START -->)([\s\S]*?)(<!-- PORTFOLIO_END -->)/;
+        if (portfolioRegex.test(htmlContent)) {
+            htmlContent = htmlContent.replace(portfolioRegex, `$1\n${portfolioProjectsHtml}\n$3`);
+        }
+        
+        const clientsRegex = /(<!-- CLIENTS_START -->)([\s\S]*?)(<!-- CLIENTS_END -->)/;
+        if (clientsRegex.test(htmlContent)) {
+            htmlContent = htmlContent.replace(clientsRegex, `$1\n${clientsHtml}\n$3`);
+        }
+        
+        // Remplacer les filtres de catégories
+        const categoryFiltersRegex = /(<!-- CATEGORY_FILTERS_START -->)([\s\S]*?)(<!-- CATEGORY_FILTERS_END -->)/;
+        if (categoryFiltersRegex.test(htmlContent)) {
+            htmlContent = htmlContent.replace(categoryFiltersRegex, `$1\n${categoryFiltersHtml}\n$3`);
+        }
+        
+        const categorySelectRegex = /(<!-- CATEGORY_SELECT_START -->)([\s\S]*?)(<!-- CATEGORY_SELECT_END -->)/;
+        if (categorySelectRegex.test(htmlContent)) {
+            htmlContent = htmlContent.replace(categorySelectRegex, `$1\n${categorySelectHtml}\n$3`);
+        }
+        
+        await fs.writeFile("public/index.html", htmlContent, "utf8");
+        console.log("Fichier HTML mis à jour avec succès");
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour du fichier HTML:", error);
     }
-
-    const testimonialsRegex =
-      /(<!-- TESTIMONIALS_START -->)([\s\S]*?)(<!-- TESTIMONIALS_END -->)/;
-    if (testimonialsRegex.test(htmlContent)) {
-      htmlContent = htmlContent.replace(
-        testimonialsRegex,
-        `$1\n${testimonialsHtml}\n$3`
-      );
-    }
-
-    const portfolioRegex =
-      /(<!-- PORTFOLIO_START -->)([\s\S]*?)(<!-- PORTFOLIO_END -->)/;
-    if (portfolioRegex.test(htmlContent)) {
-      htmlContent = htmlContent.replace(
-        portfolioRegex,
-        `$1\n${portfolioProjectsHtml}\n$3`
-      );
-    }
-
-    const clientsRegex =
-      /(<!-- CLIENTS_START -->)([\s\S]*?)(<!-- CLIENTS_END -->)/;
-    if (clientsRegex.test(htmlContent)) {
-      htmlContent = htmlContent.replace(clientsRegex, `$1\n${clientsHtml}\n$3`);
-    }
-
-    await fs.writeFile("public/index.html", htmlContent, "utf8");
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du fichier HTML:", error);
-  }
 }
 
 // Route pour vérifier les mises à jour
@@ -573,10 +669,6 @@ app.get("/api/last-update", (req, res) => {
     timestamp: lastUpdate,
   });
 });
-
-// Mettre à jour le timestamp lors des modifications
-// Ajoutez ceci dans vos routes POST/PUT/DELETE
-lastUpdate = Date.now();
 
 // Route pour servir la page d'administration
 app.get("/admin", (req, res) => {

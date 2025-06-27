@@ -182,6 +182,47 @@
         </div>
 
         <div id="testimonials-list"></div>
+        <div class="form-section">
+          <h2>Gestion des Catégories</h2>
+          <form id="category-form">
+            <div class="form-group">
+              <label>Nom de la catégorie (technique):</label>
+              <input
+                type="text"
+                id="category-name"
+                required
+                placeholder="web development"
+              />
+              <small
+                >Utilisé pour les filtres (minuscules, espaces autorisés)</small
+              >
+            </div>
+            <div class="form-group">
+              <label>Nom d'affichage:</label>
+              <input
+                type="text"
+                id="category-display"
+                required
+                placeholder="Web Development"
+              />
+              <small>Nom affiché dans l'interface utilisateur</small>
+            </div>
+            <div class="button-group">
+              <button type="submit" id="category-submit-btn">
+                Ajouter Catégorie
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditCategory()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="categories-list"></div>
 
         <div class="form-section">
           <h2>Gestion du Portfolio</h2>
@@ -194,11 +235,10 @@
               <label>Catégorie:</label>
               <select id="portfolio-category" required>
                 <option value="">Sélectionner une catégorie</option>
-                <option value="web development">Web Development</option>
-                <option value="applications">Applications</option>
-                <option value="web design">Web Design</option>
+                <!-- Les options seront chargées dynamiquement -->
               </select>
             </div>
+
             <div class="form-group">
               <label>Description:</label>
               <textarea id="portfolio-description" required></textarea>
