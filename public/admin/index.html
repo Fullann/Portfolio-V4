@@ -93,6 +93,13 @@
       .button-group {
         margin-top: 15px;
       }
+      .danger-zone {
+        border: 2px solid #dc3545;
+        background: #fff5f5;
+    }
+    .danger-zone h2 {
+        color: #dc3545 !important;
+    }
     </style>
   </head>
   <body>
@@ -115,6 +122,20 @@
       </div>
 
       <div id="admin-panel" style="display: none">
+        <div class="form-section danger-zone">
+          <h2 style="color: #dc3545">Zone Dangereuse</h2>
+          <p style="color: #666">
+            Cette action supprimera TOUTES les données (projets, témoignages,
+            portfolio, clients, blogs)
+          </p>
+          <button
+            onclick="deleteAllData()"
+            class="btn-delete"
+            style="background: #dc3545"
+          >
+            🗑️ Supprimer TOUTES les données
+          </button>
+        </div>
         <div class="form-section">
           <h2>Gestion des Projets</h2>
           <form id="project-form">
@@ -330,6 +351,71 @@
         </div>
 
         <div id="clients-list"></div>
+
+        <!-- Section Gestion des Blogs -->
+        <div class="form-section">
+          <h2>Gestion des Blogs</h2>
+          <form id="blog-form">
+            <div class="form-group">
+              <label>Titre du blog:</label>
+              <input type="text" id="blog-title" required />
+            </div>
+            <div class="form-group">
+              <label>Catégorie:</label>
+              <input
+                type="text"
+                id="blog-category"
+                required
+                placeholder="Design, Tech, etc."
+              />
+            </div>
+            <div class="form-group">
+              <label>Extrait (résumé court):</label>
+              <textarea
+                id="blog-excerpt"
+                required
+                placeholder="Résumé du blog affiché sur la page principale"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label>Contenu (Markdown):</label>
+              <textarea
+                id="blog-content"
+                required
+                style="min-height: 200px"
+                placeholder="# Titre principal&#10;&#10;Votre contenu en **Markdown**&#10;&#10;## Sous-titre&#10;&#10;- Liste à puces&#10;- Autre élément"
+              ></textarea>
+              <small
+                >Utilisez la syntaxe Markdown : **gras**, *italique*, # Titre,
+                ## Sous-titre, - Liste</small
+              >
+            </div>
+            <div class="form-group">
+              <label>Auteur:</label>
+              <input type="text" id="blog-author" placeholder="Admin" />
+            </div>
+            <div class="form-group">
+              <label>Image du blog:</label>
+              <input type="file" id="blog-image" accept="image/*" />
+              <small
+                >Laissez vide lors de la modification pour conserver l'image
+                actuelle</small
+              >
+            </div>
+            <div class="button-group">
+              <button type="submit" id="blog-submit-btn">Ajouter Blog</button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditBlog()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="blogs-list"></div>
       </div>
     </div>
 

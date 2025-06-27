@@ -796,6 +796,171 @@ function cancelEditCategory() {
     editingCategory = null;
 }
 
+let editingBlog = null;
+
+// Gestion des blogs
+document.getElementById('blog-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('title', document.getElementById('blog-title').value);
+    formData.append('category', document.getElementById('blog-category').value);
+    formData.append('excerpt', document.getElementById('blog-excerpt').value);
+    formData.append('content', document.getElementById('blog-content').value);
+    formData.append('author', document.getElementById('blog-author').value);
+    
+    const imageFile = document.getElementById('blog-image').files[0];
+    if (imageFile) {
+        formData.append('image', imageFile);
+    }
+    
+    try {
+        const url = editingBlog ? `/api/blogs/${editingBlog}` : '/api/blogs';
+        const method = editingBlog ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            document.getElementById('blog-form').reset();
+            document.getElementById('blog-submit-btn').textContent = 'Ajouter Blog';
+            editingBlog = null;
+            loadBlogs();
+            alert('Blog ' + (editingBlog ? 'modifié' : 'ajouté') + ' avec succès!');
+        } else {
+            alert('Erreur lors de l\'opération');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+});
+
+// Charger les blogs
+async function loadBlogs() {
+    try {
+        const response = await fetch('/api/blogs');
+        const blogs = await response.json();
+        
+        const blogsList = document.getElementById('blogs-list');
+        blogsList.innerHTML = '<h3>Blogs existants</h3>';
+        
+        blogs.forEach(blog => {
+            const blogDiv = document.createElement('div');
+            blogDiv.className = 'project-item';
+            blogDiv.innerHTML = `
+                <h4>${blog.title}</h4>
+                <p><strong>Catégorie:</strong> ${blog.category}</p>
+                <p><strong>Auteur:</strong> ${blog.author}</p>
+                <p><strong>Date:</strong> ${blog.date}</p>
+                <p><strong>Extrait:</strong> ${blog.excerpt}</p>
+                <p><strong>Lien:</strong> <a href="/blog/${blog.slug}" target="_blank">Voir le blog</a></p>
+                ${blog.image ? `<img src="${blog.image}" alt="${blog.title}" style="max-width: 100px; margin: 10px 0;">` : ''}
+                <div style="margin-top: 10px;">
+                    <button onclick="editBlog(${blog.id})" class="btn-edit">Modifier</button>
+                    <button onclick="deleteBlog(${blog.id})" class="btn-delete">Supprimer</button>
+                </div>
+            `;
+            blogsList.appendChild(blogDiv);
+        });
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+// Modifier un blog
+async function editBlog(id) {
+    try {
+        const response = await fetch('/api/blogs');
+        const blogs = await response.json();
+        const blog = blogs.find(b => b.id === id);
+        
+        if (blog) {
+            document.getElementById('blog-title').value = blog.title;
+            document.getElementById('blog-category').value = blog.category;
+            document.getElementById('blog-excerpt').value = blog.excerpt;
+            document.getElementById('blog-content').value = blog.content;
+            document.getElementById('blog-author').value = blog.author;
+            document.getElementById('blog-submit-btn').textContent = 'Modifier Blog';
+            editingBlog = id;
+            
+            document.getElementById('blog-form').scrollIntoView({ behavior: 'smooth' });
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+// Supprimer un blog
+async function deleteBlog(id) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce blog?')) {
+        try {
+            const response = await fetch(`/api/blogs/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                loadBlogs();
+                alert('Blog supprimé avec succès!');
+            } else {
+                alert('Erreur lors de la suppression');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
+    }
+}
+
+// Annuler la modification d'un blog
+function cancelEditBlog() {
+    document.getElementById('blog-form').reset();
+    document.getElementById('blog-submit-btn').textContent = 'Ajouter Blog';
+    editingBlog = null;
+}
+
+// Supprimer toutes les données
+async function deleteAllData() {
+    const confirmation = prompt('ATTENTION! Cette action supprimera TOUTES vos données.\nTapez "SUPPRIMER TOUT" pour confirmer:');
+    
+    if (confirmation === 'SUPPRIMER TOUT') {
+        try {
+            const response = await fetch('/api/delete-all', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert('Toutes les données ont été supprimées avec succès!');
+                // Recharger toutes les listes
+                loadProjects();
+                loadTestimonials();
+                loadPortfolioProjects();
+                loadClients();
+                loadCategories();
+                loadBlogs();
+            } else {
+                alert('Erreur: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            alert('Erreur lors de la suppression');
+        }
+    } else {
+        alert('Suppression annulée');
+    }
+}
+
 // Mettre à jour la fonction de chargement initial
 if (token) {
     document.getElementById('login-section').style.display = 'none';
@@ -805,5 +970,7 @@ if (token) {
     loadPortfolioProjects();
     loadClients();
     loadCategories();
-    loadCategoryOptions(); 
+    loadCategoryOptions();
+    loadBlogs(); 
 }
+

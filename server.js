@@ -6,6 +6,7 @@ const fs = require("fs").promises;
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { marked } = require("marked");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -91,6 +92,20 @@ let categoriesData = [
   { id: 2, name: "applications", displayName: "Applications" },
   { id: 3, name: "web design", displayName: "Web Design" },
   { id: 4, name: "mobile apps", displayName: "Mobile Apps" },
+];
+let blogsData = [
+  {
+    id: 1,
+    title: "Design conferences in 2022",
+    category: "Design",
+    excerpt:
+      "Veritatis et quasi architecto beatae vitae dicta sunt, explicabo.",
+    content: `# Design Conferences 2022\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. **Sed do eiusmod** tempor incididunt ut labore.\n\n## Les principales conférences\n\n- UX Design Summit\n- Creative Conference\n- Design Week\n\n### Conclusion\n\nCes conférences sont essentielles pour rester à jour.`,
+    image: "./assets/images/blog-1.jpg",
+    date: "2022-02-23",
+    author: "Admin",
+    slug: "design-conferences-2022",
+  },
 ];
 // Utilisateur admin par défaut
 const adminUser = {
@@ -525,16 +540,200 @@ app.delete("/api/categories/:id", authenticateToken, async (req, res) => {
   await updateHtmlFile();
   res.json({ success: true });
 });
+// Routes pour les blogs
+app.get("/api/blogs", (req, res) => {
+  res.json(blogsData);
+});
+
+app.get("/api/blogs/:slug", (req, res) => {
+  const { slug } = req.params;
+  const blog = blogsData.find((b) => b.slug === slug);
+  if (!blog) {
+    return res.status(404).json({ error: "Blog non trouvé" });
+  }
+
+  // Convertir le markdown en HTML
+  const blogWithHtml = {
+    ...blog,
+    contentHtml: marked(blog.content),
+  };
+
+  res.json(blogWithHtml);
+});
+
+app.post(
+  "/api/blogs",
+  authenticateToken,
+  upload.single("image"),
+  async (req, res) => {
+    const { title, category, excerpt, content, author } = req.body;
+    const image = req.file ? `./assets/images/${req.file.filename}` : null;
+
+    // Générer un slug à partir du titre
+    const slug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    lastUpdate = Date.now();
+
+    const newBlog = {
+      id: Date.now(),
+      title,
+      category,
+      excerpt,
+      content,
+      image,
+      date: new Date().toISOString().split("T")[0],
+      author: author || "Admin",
+      slug,
+    };
+
+    blogsData.push(newBlog);
+    await updateHtmlFile();
+    res.json(newBlog);
+  }
+);
+
+app.put(
+  "/api/blogs/:id",
+  authenticateToken,
+  upload.single("image"),
+  async (req, res) => {
+    const { id } = req.params;
+    const { title, category, excerpt, content, author } = req.body;
+
+    lastUpdate = Date.now();
+
+    const blogIndex = blogsData.findIndex((b) => b.id == id);
+    if (blogIndex === -1) {
+      return res.status(404).json({ error: "Blog non trouvé" });
+    }
+
+    const blog = blogsData[blogIndex];
+    blog.title = title || blog.title;
+    blog.category = category || blog.category;
+    blog.excerpt = excerpt || blog.excerpt;
+    blog.content = content || blog.content;
+    blog.author = author || blog.author;
+
+    // Régénérer le slug si le titre change
+    if (title) {
+      blog.slug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+    }
+
+    if (req.file) {
+      blog.image = `./assets/images/${req.file.filename}`;
+    }
+
+    await updateHtmlFile();
+    res.json(blog);
+  }
+);
+
+app.delete("/api/blogs/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  lastUpdate = Date.now();
+
+  blogsData = blogsData.filter((b) => b.id != id);
+  await updateHtmlFile();
+  res.json({ success: true });
+});
+// Route pour afficher un blog complet
+app.get("/blog/:slug", async (req, res) => {
+  const { slug } = req.params;
+  const blog = blogsData.find((b) => b.slug === slug);
+
+  if (!blog) {
+    return res.status(404).send("Blog non trouvé");
+  }
+
+  const contentHtml = marked(blog.content);
+
+  const blogPageHtml = `
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>${blog.title}</title>
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+            .blog-header { text-align: center; margin-bottom: 30px; }
+            .blog-image { width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; }
+            .blog-meta { color: #666; margin: 20px 0; text-align: center; }
+            .blog-content { margin-top: 30px; }
+            .blog-content h1, .blog-content h2, .blog-content h3 { color: #333; }
+            .blog-content p { margin-bottom: 15px; }
+            .blog-content ul, .blog-content ol { margin-bottom: 15px; padding-left: 30px; }
+            .back-button { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px; }
+            .back-button:hover { background: #0056b3; }
+        </style>
+    </head>
+    <body>
+        <a href="/" class="back-button">← Retour au portfolio</a>
+        
+        <article class="blog-article">
+            <header class="blog-header">
+                <img src="${blog.image}" alt="${blog.title}" class="blog-image">
+                <h1>${blog.title}</h1>
+                <div class="blog-meta">
+                    <span>Par ${blog.author}</span> • 
+                    <span>${blog.category}</span> • 
+                    <time>${new Date(blog.date).toLocaleDateString("fr-FR", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}</time>
+                </div>
+            </header>
+            
+            <div class="blog-content">
+                ${contentHtml}
+            </div>
+        </article>
+    </body>
+    </html>
+    `;
+
+  res.send(blogPageHtml);
+});
+
+// Route pour supprimer TOUT
+app.delete("/api/delete-all", authenticateToken, async (req, res) => {
+  try {
+    // Vider toutes les données
+    portfolioData.projects = [];
+    portfolioData.testimonials = [];
+    portfolioProjects = [];
+    clientsData = [];
+    blogsData = [];
+
+    lastUpdate = Date.now();
+    await updateHtmlFile();
+
+    res.json({
+      success: true,
+      message: "Toutes les données ont été supprimées avec succès",
+    });
+  } catch (error) {
+    console.error("Erreur lors de la suppression:", error);
+    res.status(500).json({ error: "Erreur lors de la suppression" });
+  }
+});
 
 // Fonction pour mettre à jour le fichier HTML
 async function updateHtmlFile() {
-    try {
-        let htmlContent = await fs.readFile("public/index.html", "utf8");
-        
-        // Générer le HTML pour les projets (section "What i'm doing")
-        const projectsHtml = portfolioData.projects
-            .map(
-                (project) => `
+  try {
+    let htmlContent = await fs.readFile("public/index.html", "utf8");
+
+    // Générer le HTML pour les projets (section "What i'm doing")
+    const projectsHtml = portfolioData.projects
+      .map(
+        (project) => `
                 <li class="service-item">
                     <div class="service-icon-box">
                         <img src="${project.image}" alt="${project.title}" width="40">
@@ -546,13 +745,13 @@ async function updateHtmlFile() {
                         </p>
                     </div>
                 </li>`
-            )
-            .join("\n");
-        
-        // Générer le HTML pour les témoignages
-        const testimonialsHtml = portfolioData.testimonials
-            .map(
-                (testimonial) => `
+      )
+      .join("\n");
+
+    // Générer le HTML pour les témoignages
+    const testimonialsHtml = portfolioData.testimonials
+      .map(
+        (testimonial) => `
                 <li class="testimonials-item">
                     <div class="content-card" data-testimonials-item>
                         <figure class="testimonials-avatar-box">
@@ -564,102 +763,169 @@ async function updateHtmlFile() {
                         </div>
                     </div>
                 </li>`
-            )
-            .join("\n");
-        
-        // Générer le HTML pour les projets portfolio
-        const portfolioProjectsHtml = portfolioProjects
-            .map(
-                (project) => `
-                <li class="project-item active" data-filter-item data-category="${project.filterCategory}">
+      )
+      .join("\n");
+
+    // Générer le HTML pour les projets portfolio
+    const portfolioProjectsHtml = portfolioProjects
+      .map(
+        (project) => `
+                <li class="project-item active" data-filter-item data-category="${
+                  project.filterCategory
+                }">
                     <div class="project-links">
-                        ${project.repoLink ? `<a href="${project.repoLink}" target="_blank" class="project-link repo-link" title="Voir le code">
+                        ${
+                          project.repoLink
+                            ? `<a href="${project.repoLink}" target="_blank" class="project-link repo-link" title="Voir le code">
                             <ion-icon name="logo-github"></ion-icon>
-                        </a>` : ''}
-                        ${project.liveLink ? `<a href="${project.liveLink}" target="_blank" class="project-link live-link" title="Voir le site">
+                        </a>`
+                            : ""
+                        }
+                        ${
+                          project.liveLink
+                            ? `<a href="${project.liveLink}" target="_blank" class="project-link live-link" title="Voir le site">
                             <ion-icon name="eye-outline"></ion-icon>
-                        </a>` : ''}
+                        </a>`
+                            : ""
+                        }
                     </div>
                     <figure class="project-img">
                         <div class="project-item-icon-box">
                             <ion-icon name="eye-outline"></ion-icon>
                         </div>
-                        <img src="${project.image}" alt="${project.title}" loading="lazy" />
+                        <img src="${project.image}" alt="${
+          project.title
+        }" loading="lazy" />
                     </figure>
                     <h3 class="project-title">${project.title}</h3>
                     <p class="project-category">${project.category}</p>
                 </li>`
-            )
-            .join("\n");
-        
-        // Générer le HTML pour les clients
-        const clientsHtml = clientsData
-            .map(
-                (client) => `
+      )
+      .join("\n");
+
+    // Générer le HTML pour les clients
+    const clientsHtml = clientsData
+      .map(
+        (client) => `
                 <li class="clients-item">
                     <a href="${client.website}" target="_blank" title="${client.name}">
                         <img src="${client.logo}" alt="${client.name} logo" />
                     </a>
                 </li>`
-            )
-            .join("\n");
-        
-        // Générer les filtres de catégories
-        const categoryFiltersHtml = categoriesData
-            .map(
-                (category) => `
+      )
+      .join("\n");
+
+    // Générer les filtres de catégories
+    const categoryFiltersHtml = categoriesData
+      .map(
+        (category) => `
                 <li class="filter-item">
                     <button data-filter-btn>${category.displayName}</button>
                 </li>`
-            )
-            .join("\n");
-        
-        const categorySelectHtml = categoriesData
-            .map(
-                (category) => `
+      )
+      .join("\n");
+
+    const categorySelectHtml = categoriesData
+      .map(
+        (category) => `
                 <li class="select-item">
                     <button data-select-item>${category.displayName}</button>
                 </li>`
-            )
-            .join("\n");
-        
-        // Remplacer les sections
-        const projectsRegex = /(<!-- PROJECTS_START -->)([\s\S]*?)(<!-- PROJECTS_END -->)/;
-        if (projectsRegex.test(htmlContent)) {
-            htmlContent = htmlContent.replace(projectsRegex, `$1\n${projectsHtml}\n$3`);
-        }
-        
-        const testimonialsRegex = /(<!-- TESTIMONIALS_START -->)([\s\S]*?)(<!-- TESTIMONIALS_END -->)/;
-        if (testimonialsRegex.test(htmlContent)) {
-            htmlContent = htmlContent.replace(testimonialsRegex, `$1\n${testimonialsHtml}\n$3`);
-        }
-        
-        const portfolioRegex = /(<!-- PORTFOLIO_START -->)([\s\S]*?)(<!-- PORTFOLIO_END -->)/;
-        if (portfolioRegex.test(htmlContent)) {
-            htmlContent = htmlContent.replace(portfolioRegex, `$1\n${portfolioProjectsHtml}\n$3`);
-        }
-        
-        const clientsRegex = /(<!-- CLIENTS_START -->)([\s\S]*?)(<!-- CLIENTS_END -->)/;
-        if (clientsRegex.test(htmlContent)) {
-            htmlContent = htmlContent.replace(clientsRegex, `$1\n${clientsHtml}\n$3`);
-        }
-        
-        // Remplacer les filtres de catégories
-        const categoryFiltersRegex = /(<!-- CATEGORY_FILTERS_START -->)([\s\S]*?)(<!-- CATEGORY_FILTERS_END -->)/;
-        if (categoryFiltersRegex.test(htmlContent)) {
-            htmlContent = htmlContent.replace(categoryFiltersRegex, `$1\n${categoryFiltersHtml}\n$3`);
-        }
-        
-        const categorySelectRegex = /(<!-- CATEGORY_SELECT_START -->)([\s\S]*?)(<!-- CATEGORY_SELECT_END -->)/;
-        if (categorySelectRegex.test(htmlContent)) {
-            htmlContent = htmlContent.replace(categorySelectRegex, `$1\n${categorySelectHtml}\n$3`);
-        }
-        
-        await fs.writeFile("public/index.html", htmlContent, "utf8");
-        console.log("Fichier HTML mis à jour avec succès");
-    } catch (error) {
-        console.error("Erreur lors de la mise à jour du fichier HTML:", error);
+      )
+      .join("\n");
+    // Générer le HTML pour les blogs
+    const blogsHtml = blogsData
+      .map(
+        (blog) => `
+                <li class="blog-post-item">
+                    <a href="/blog/${blog.slug}">
+                        <figure class="blog-banner-box">
+                            <img src="${blog.image}" alt="${
+          blog.title
+        }" loading="lazy" />
+                        </figure>
+                        <div class="blog-content">
+                            <div class="blog-meta">
+                                <p class="blog-category">${blog.category}</p>
+                                <span class="dot"></span>
+                                <time datetime="${blog.date}">${new Date(
+          blog.date
+        ).toLocaleDateString("fr-FR", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}</time>
+                            </div>
+                            <h3 class="h3 blog-item-title">${blog.title}</h3>
+                            <p class="blog-text">${blog.excerpt}</p>
+                        </div>
+                    </a>
+                </li>`
+      )
+      .join("\n");
+    // Remplacer les sections
+    const projectsRegex =
+      /(<!-- PROJECTS_START -->)([\s\S]*?)(<!-- PROJECTS_END -->)/;
+    if (projectsRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        projectsRegex,
+        `$1\n${projectsHtml}\n$3`
+      );
     }
+
+    const testimonialsRegex =
+      /(<!-- TESTIMONIALS_START -->)([\s\S]*?)(<!-- TESTIMONIALS_END -->)/;
+    if (testimonialsRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        testimonialsRegex,
+        `$1\n${testimonialsHtml}\n$3`
+      );
+    }
+
+    const portfolioRegex =
+      /(<!-- PORTFOLIO_START -->)([\s\S]*?)(<!-- PORTFOLIO_END -->)/;
+    if (portfolioRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        portfolioRegex,
+        `$1\n${portfolioProjectsHtml}\n$3`
+      );
+    }
+
+    const clientsRegex =
+      /(<!-- CLIENTS_START -->)([\s\S]*?)(<!-- CLIENTS_END -->)/;
+    if (clientsRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(clientsRegex, `$1\n${clientsHtml}\n$3`);
+    }
+
+    // Remplacer les filtres de catégories
+    const categoryFiltersRegex =
+      /(<!-- CATEGORY_FILTERS_START -->)([\s\S]*?)(<!-- CATEGORY_FILTERS_END -->)/;
+    if (categoryFiltersRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        categoryFiltersRegex,
+        `$1\n${categoryFiltersHtml}\n$3`
+      );
+    }
+
+    const categorySelectRegex =
+      /(<!-- CATEGORY_SELECT_START -->)([\s\S]*?)(<!-- CATEGORY_SELECT_END -->)/;
+    if (categorySelectRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        categorySelectRegex,
+        `$1\n${categorySelectHtml}\n$3`
+      );
+    }
+
+    const blogsRegex = /(<!-- BLOGS_START -->)([\s\S]*?)(<!-- BLOGS_END -->)/;
+    if (blogsRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(blogsRegex, `$1\n${blogsHtml}\n$3`);
+    }
+
+    await fs.writeFile("public/index.html", htmlContent, "utf8");
+    console.log("Fichier HTML mis à jour avec succès");
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du fichier HTML:", error);
+  }
 }
 
 // Route pour vérifier les mises à jour
