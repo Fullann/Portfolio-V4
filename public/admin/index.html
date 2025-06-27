@@ -96,10 +96,10 @@
       .danger-zone {
         border: 2px solid #dc3545;
         background: #fff5f5;
-    }
-    .danger-zone h2 {
+      }
+      .danger-zone h2 {
         color: #dc3545 !important;
-    }
+      }
     </style>
   </head>
   <body>
@@ -136,6 +136,116 @@
             🗑️ Supprimer TOUTES les données
           </button>
         </div>
+
+        <!-- Section Informations Personnelles -->
+        <div class="form-section">
+          <h2>Informations Personnelles</h2>
+          <form id="personal-info-form">
+            <div class="form-group">
+              <label>Avatar:</label>
+              <input type="file" id="personal-avatar" accept="image/*" />
+              <small
+                >Laissez vide lors de la modification pour conserver l'avatar
+                actuel</small
+              >
+            </div>
+            <div class="form-group">
+              <label>Nom complet:</label>
+              <input type="text" id="personal-name" required />
+            </div>
+            <div class="form-group">
+              <label>Titre professionnel:</label>
+              <input type="text" id="personal-title" required />
+            </div>
+            <div class="form-group">
+              <label>Email:</label>
+              <input type="email" id="personal-email" required />
+            </div>
+            <div class="form-group">
+              <label>Téléphone:</label>
+              <input type="tel" id="personal-phone" required />
+            </div>
+            <div class="form-group">
+              <label>Date de naissance:</label>
+              <input type="date" id="personal-birthday" required />
+            </div>
+            <div class="form-group">
+              <label>Localisation:</label>
+              <input type="text" id="personal-location" required />
+            </div>
+            <div class="form-group">
+              <label>Texte de présentation:</label>
+              <textarea
+                id="personal-about"
+                style="min-height: 150px"
+                required
+                placeholder="Séparez les paragraphes par des sauts de ligne"
+              ></textarea>
+              <small>Chaque saut de ligne créera un nouveau paragraphe</small>
+            </div>
+            <div class="button-group">
+              <button type="submit">Mettre à jour les informations</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Section Liens Sociaux -->
+        <div class="form-section">
+          <h2>Gestion des Liens Sociaux</h2>
+          <form id="social-form">
+            <div class="form-group">
+              <label>Nom du réseau social:</label>
+              <input
+                type="text"
+                id="social-name"
+                required
+                placeholder="Facebook, Twitter, etc."
+              />
+            </div>
+            <div class="form-group">
+              <label>Icône (nom Ion-icon):</label>
+              <select id="social-icon" required>
+                <option value="">Sélectionner une icône</option>
+                <option value="logo-facebook">Facebook</option>
+                <option value="logo-twitter">Twitter</option>
+                <option value="logo-instagram">Instagram</option>
+                <option value="logo-linkedin">LinkedIn</option>
+                <option value="logo-github">GitHub</option>
+                <option value="logo-youtube">YouTube</option>
+                <option value="logo-tiktok">TikTok</option>
+                <option value="logo-snapchat">Snapchat</option>
+                <option value="logo-pinterest">Pinterest</option>
+                <option value="logo-discord">Discord</option>
+                <option value="logo-whatsapp">WhatsApp</option>
+                <option value="logo-telegram">Telegram</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>URL du profil:</label>
+              <input
+                type="url"
+                id="social-url"
+                required
+                placeholder="https://facebook.com/username"
+              />
+            </div>
+            <div class="button-group">
+              <button type="submit" id="social-submit-btn">
+                Ajouter Lien Social
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditSocial()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="social-links-list"></div>
+
         <div class="form-section">
           <h2>Gestion des Projets</h2>
           <form id="project-form">

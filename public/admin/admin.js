@@ -36,7 +36,6 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   }
 });
 
-
 // Gestion des projets
 document
   .getElementById("project-form")
@@ -659,56 +658,65 @@ function cancelEditClient() {
 let editingCategory = null;
 
 // Gestion des catégories
-document.getElementById('category-form').addEventListener('submit', async (e) => {
+document
+  .getElementById("category-form")
+  .addEventListener("submit", async (e) => {
     e.preventDefault();
-    
-    const name = document.getElementById('category-name').value;
-    const displayName = document.getElementById('category-display').value;
-    
+
+    const name = document.getElementById("category-name").value;
+    const displayName = document.getElementById("category-display").value;
+
     try {
-        const url = editingCategory ? `/api/categories/${editingCategory}` : '/api/categories';
-        const method = editingCategory ? 'PUT' : 'POST';
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ name, displayName })
-        });
-        
-        const data = await response.json();
-        
-        if (response.ok) {
-            document.getElementById('category-form').reset();
-            document.getElementById('category-submit-btn').textContent = 'Ajouter Catégorie';
-            editingCategory = null;
-            loadCategories();
-            loadCategoryOptions();
-            alert('Catégorie ' + (editingCategory ? 'modifiée' : 'ajoutée') + ' avec succès!');
-        } else {
-            alert('Erreur: ' + data.error);
-        }
+      const url = editingCategory
+        ? `/api/categories/${editingCategory}`
+        : "/api/categories";
+      const method = editingCategory ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, displayName }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        document.getElementById("category-form").reset();
+        document.getElementById("category-submit-btn").textContent =
+          "Ajouter Catégorie";
+        editingCategory = null;
+        loadCategories();
+        loadCategoryOptions();
+        alert(
+          "Catégorie " +
+            (editingCategory ? "modifiée" : "ajoutée") +
+            " avec succès!"
+        );
+      } else {
+        alert("Erreur: " + data.error);
+      }
     } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur lors de l\'opération');
+      console.error("Erreur:", error);
+      alert("Erreur lors de l'opération");
     }
-});
+  });
 
 // Charger les catégories
 async function loadCategories() {
-    try {
-        const response = await fetch('/api/categories');
-        const categories = await response.json();
-        
-        const categoriesList = document.getElementById('categories-list');
-        categoriesList.innerHTML = '<h3>Catégories existantes</h3>';
-        
-        categories.forEach(category => {
-            const categoryDiv = document.createElement('div');
-            categoryDiv.className = 'project-item';
-            categoryDiv.innerHTML = `
+  try {
+    const response = await fetch("/api/categories");
+    const categories = await response.json();
+
+    const categoriesList = document.getElementById("categories-list");
+    categoriesList.innerHTML = "<h3>Catégories existantes</h3>";
+
+    categories.forEach((category) => {
+      const categoryDiv = document.createElement("div");
+      categoryDiv.className = "project-item";
+      categoryDiv.innerHTML = `
                 <h4>${category.displayName}</h4>
                 <p><strong>Nom technique:</strong> ${category.name}</p>
                 <div style="margin-top: 10px;">
@@ -716,261 +724,484 @@ async function loadCategories() {
                     <button onclick="deleteCategory(${category.id})" class="btn-delete">Supprimer</button>
                 </div>
             `;
-            categoriesList.appendChild(categoryDiv);
-        });
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
+      categoriesList.appendChild(categoryDiv);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
 // Charger les options de catégories dans le select
 async function loadCategoryOptions() {
-    try {
-        const response = await fetch('/api/categories');
-        const categories = await response.json();
-        
-        const categorySelect = document.getElementById('portfolio-category');
-        categorySelect.innerHTML = '<option value="">Sélectionner une catégorie</option>';
-        
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.name;
-            option.textContent = category.displayName;
-            categorySelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
+  try {
+    const response = await fetch("/api/categories");
+    const categories = await response.json();
+
+    const categorySelect = document.getElementById("portfolio-category");
+    categorySelect.innerHTML =
+      '<option value="">Sélectionner une catégorie</option>';
+
+    categories.forEach((category) => {
+      const option = document.createElement("option");
+      option.value = category.name;
+      option.textContent = category.displayName;
+      categorySelect.appendChild(option);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
 // Modifier une catégorie
 async function editCategory(id) {
-    try {
-        const response = await fetch('/api/categories');
-        const categories = await response.json();
-        const category = categories.find(c => c.id === id);
-        
-        if (category) {
-            document.getElementById('category-name').value = category.name;
-            document.getElementById('category-display').value = category.displayName;
-            document.getElementById('category-submit-btn').textContent = 'Modifier Catégorie';
-            editingCategory = id;
-            
-            document.getElementById('category-form').scrollIntoView({ behavior: 'smooth' });
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
+  try {
+    const response = await fetch("/api/categories");
+    const categories = await response.json();
+    const category = categories.find((c) => c.id === id);
+
+    if (category) {
+      document.getElementById("category-name").value = category.name;
+      document.getElementById("category-display").value = category.displayName;
+      document.getElementById("category-submit-btn").textContent =
+        "Modifier Catégorie";
+      editingCategory = id;
+
+      document
+        .getElementById("category-form")
+        .scrollIntoView({ behavior: "smooth" });
     }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
 // Supprimer une catégorie
 async function deleteCategory(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette catégorie?')) {
-        try {
-            const response = await fetch(`/api/categories/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                loadCategories();
-                loadCategoryOptions();
-                alert('Catégorie supprimée avec succès!');
-            } else {
-                alert('Erreur: ' + data.error);
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette catégorie?")) {
+    try {
+      const response = await fetch(`/api/categories/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        loadCategories();
+        loadCategoryOptions();
+        alert("Catégorie supprimée avec succès!");
+      } else {
+        alert("Erreur: " + data.error);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
     }
+  }
 }
 
 // Annuler la modification d'une catégorie
 function cancelEditCategory() {
-    document.getElementById('category-form').reset();
-    document.getElementById('category-submit-btn').textContent = 'Ajouter Catégorie';
-    editingCategory = null;
+  document.getElementById("category-form").reset();
+  document.getElementById("category-submit-btn").textContent =
+    "Ajouter Catégorie";
+  editingCategory = null;
 }
 
 let editingBlog = null;
 
 // Gestion des blogs
-document.getElementById('blog-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData();
-    formData.append('title', document.getElementById('blog-title').value);
-    formData.append('category', document.getElementById('blog-category').value);
-    formData.append('excerpt', document.getElementById('blog-excerpt').value);
-    formData.append('content', document.getElementById('blog-content').value);
-    formData.append('author', document.getElementById('blog-author').value);
-    
-    const imageFile = document.getElementById('blog-image').files[0];
-    if (imageFile) {
-        formData.append('image', imageFile);
+document.getElementById("blog-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("title", document.getElementById("blog-title").value);
+  formData.append("category", document.getElementById("blog-category").value);
+  formData.append("excerpt", document.getElementById("blog-excerpt").value);
+  formData.append("content", document.getElementById("blog-content").value);
+  formData.append("author", document.getElementById("blog-author").value);
+
+  const imageFile = document.getElementById("blog-image").files[0];
+  if (imageFile) {
+    formData.append("image", imageFile);
+  }
+
+  try {
+    const url = editingBlog ? `/api/blogs/${editingBlog}` : "/api/blogs";
+    const method = editingBlog ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    if (response.ok) {
+      document.getElementById("blog-form").reset();
+      document.getElementById("blog-submit-btn").textContent = "Ajouter Blog";
+      editingBlog = null;
+      loadBlogs();
+      alert("Blog " + (editingBlog ? "modifié" : "ajouté") + " avec succès!");
+    } else {
+      alert("Erreur lors de l'opération");
     }
-    
-    try {
-        const url = editingBlog ? `/api/blogs/${editingBlog}` : '/api/blogs';
-        const method = editingBlog ? 'PUT' : 'POST';
-        
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        if (response.ok) {
-            document.getElementById('blog-form').reset();
-            document.getElementById('blog-submit-btn').textContent = 'Ajouter Blog';
-            editingBlog = null;
-            loadBlogs();
-            alert('Blog ' + (editingBlog ? 'modifié' : 'ajouté') + ' avec succès!');
-        } else {
-            alert('Erreur lors de l\'opération');
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 });
 
 // Charger les blogs
 async function loadBlogs() {
-    try {
-        const response = await fetch('/api/blogs');
-        const blogs = await response.json();
-        
-        const blogsList = document.getElementById('blogs-list');
-        blogsList.innerHTML = '<h3>Blogs existants</h3>';
-        
-        blogs.forEach(blog => {
-            const blogDiv = document.createElement('div');
-            blogDiv.className = 'project-item';
-            blogDiv.innerHTML = `
+  try {
+    const response = await fetch("/api/blogs");
+    const blogs = await response.json();
+
+    const blogsList = document.getElementById("blogs-list");
+    blogsList.innerHTML = "<h3>Blogs existants</h3>";
+
+    blogs.forEach((blog) => {
+      const blogDiv = document.createElement("div");
+      blogDiv.className = "project-item";
+      blogDiv.innerHTML = `
                 <h4>${blog.title}</h4>
                 <p><strong>Catégorie:</strong> ${blog.category}</p>
                 <p><strong>Auteur:</strong> ${blog.author}</p>
                 <p><strong>Date:</strong> ${blog.date}</p>
                 <p><strong>Extrait:</strong> ${blog.excerpt}</p>
-                <p><strong>Lien:</strong> <a href="/blog/${blog.slug}" target="_blank">Voir le blog</a></p>
-                ${blog.image ? `<img src="${blog.image}" alt="${blog.title}" style="max-width: 100px; margin: 10px 0;">` : ''}
+                <p><strong>Lien:</strong> <a href="/blog/${
+                  blog.slug
+                }" target="_blank">Voir le blog</a></p>
+                ${
+                  blog.image
+                    ? `<img src="${blog.image}" alt="${blog.title}" style="max-width: 100px; margin: 10px 0;">`
+                    : ""
+                }
                 <div style="margin-top: 10px;">
-                    <button onclick="editBlog(${blog.id})" class="btn-edit">Modifier</button>
-                    <button onclick="deleteBlog(${blog.id})" class="btn-delete">Supprimer</button>
+                    <button onclick="editBlog(${
+                      blog.id
+                    })" class="btn-edit">Modifier</button>
+                    <button onclick="deleteBlog(${
+                      blog.id
+                    })" class="btn-delete">Supprimer</button>
                 </div>
             `;
-            blogsList.appendChild(blogDiv);
-        });
-    } catch (error) {
-        console.error('Erreur:', error);
-    }
+      blogsList.appendChild(blogDiv);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
 // Modifier un blog
 async function editBlog(id) {
+  try {
+    const response = await fetch("/api/blogs");
+    const blogs = await response.json();
+    const blog = blogs.find((b) => b.id === id);
+
+    if (blog) {
+      document.getElementById("blog-title").value = blog.title;
+      document.getElementById("blog-category").value = blog.category;
+      document.getElementById("blog-excerpt").value = blog.excerpt;
+      document.getElementById("blog-content").value = blog.content;
+      document.getElementById("blog-author").value = blog.author;
+      document.getElementById("blog-submit-btn").textContent = "Modifier Blog";
+      editingBlog = id;
+
+      document
+        .getElementById("blog-form")
+        .scrollIntoView({ behavior: "smooth" });
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Supprimer un blog
+async function deleteBlog(id) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer ce blog?")) {
     try {
-        const response = await fetch('/api/blogs');
-        const blogs = await response.json();
-        const blog = blogs.find(b => b.id === id);
+      const response = await fetch(`/api/blogs/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        loadBlogs();
+        alert("Blog supprimé avec succès!");
+      } else {
+        alert("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  }
+}
+
+// Annuler la modification d'un blog
+function cancelEditBlog() {
+  document.getElementById("blog-form").reset();
+  document.getElementById("blog-submit-btn").textContent = "Ajouter Blog";
+  editingBlog = null;
+}
+
+// Supprimer toutes les données
+async function deleteAllData() {
+  const confirmation = prompt(
+    'ATTENTION! Cette action supprimera TOUTES vos données.\nTapez "SUPPRIMER TOUT" pour confirmer:'
+  );
+
+  if (confirmation === "SUPPRIMER TOUT") {
+    try {
+      const response = await fetch("/api/delete-all", {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Toutes les données ont été supprimées avec succès!");
+        // Recharger toutes les listes
+        loadProjects();
+        loadTestimonials();
+        loadPortfolioProjects();
+        loadClients();
+        loadCategories();
+        loadBlogs();
+      } else {
+        alert("Erreur: " + data.error);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur lors de la suppression");
+    }
+  } else {
+    alert("Suppression annulée");
+  }
+}
+
+let editingSocial = null;
+
+// Gestion des informations personnelles
+document
+  .getElementById("personal-info-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("name", document.getElementById("personal-name").value);
+    formData.append("title", document.getElementById("personal-title").value);
+    formData.append("email", document.getElementById("personal-email").value);
+    formData.append("phone", document.getElementById("personal-phone").value);
+    formData.append(
+      "birthday",
+      document.getElementById("personal-birthday").value
+    );
+    formData.append(
+      "location",
+      document.getElementById("personal-location").value
+    );
+    formData.append(
+      "aboutText",
+      document.getElementById("personal-about").value
+    );
+
+    const avatarFile = document.getElementById("personal-avatar").files[0];
+    if (avatarFile) {
+      formData.append("avatar", avatarFile);
+    }
+
+    try {
+      const response = await fetch("/api/personal-info", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert("Informations personnelles mises à jour avec succès!");
+        loadPersonalInfo(); // Recharger les infos
+      } else {
+        alert("Erreur lors de la mise à jour");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  });
+
+// Gestion des liens sociaux
+document.getElementById("social-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const socialData = {
+    name: document.getElementById("social-name").value,
+    icon: document.getElementById("social-icon").value,
+    url: document.getElementById("social-url").value,
+  };
+
+  try {
+    const url = editingSocial
+      ? `/api/social-links/${editingSocial}`
+      : "/api/social-links";
+    const method = editingSocial ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(socialData),
+    });
+
+    if (response.ok) {
+      document.getElementById("social-form").reset();
+      document.getElementById("social-submit-btn").textContent =
+        "Ajouter Lien Social";
+      editingSocial = null;
+      loadSocialLinks();
+      alert(
+        "Lien social " +
+          (editingSocial ? "modifié" : "ajouté") +
+          " avec succès!"
+      );
+    } else {
+      alert("Erreur lors de l'opération");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+});
+
+// Charger les informations personnelles
+async function loadPersonalInfo() {
+    try {
+        const response = await fetch('/api/personal-info');
+        const info = await response.json();
         
-        if (blog) {
-            document.getElementById('blog-title').value = blog.title;
-            document.getElementById('blog-category').value = blog.category;
-            document.getElementById('blog-excerpt').value = blog.excerpt;
-            document.getElementById('blog-content').value = blog.content;
-            document.getElementById('blog-author').value = blog.author;
-            document.getElementById('blog-submit-btn').textContent = 'Modifier Blog';
-            editingBlog = id;
-            
-            document.getElementById('blog-form').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('personal-name').value = info.name;
+        document.getElementById('personal-title').value = info.title;
+        document.getElementById('personal-email').value = info.email;
+        document.getElementById('personal-phone').value = info.phone;
+        document.getElementById('personal-birthday').value = info.birthday;
+        document.getElementById('personal-location').value = info.location;
+        document.getElementById('personal-about').value = info.aboutText.join('\n');
+        
+        // Afficher l'avatar actuel si disponible
+        if (info.avatar) {
+            const avatarInput = document.getElementById('personal-avatar');
+            avatarInput.parentNode.querySelector('small').textContent = 
+                `Avatar actuel : ${info.avatar.split('/').pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
         }
     } catch (error) {
         console.error('Erreur:', error);
     }
 }
 
-// Supprimer un blog
-async function deleteBlog(id) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce blog?')) {
-        try {
-            const response = await fetch(`/api/blogs/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (response.ok) {
-                loadBlogs();
-                alert('Blog supprimé avec succès!');
-            } else {
-                alert('Erreur lors de la suppression');
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-        }
-    }
+// Charger les liens sociaux
+async function loadSocialLinks() {
+  try {
+    const response = await fetch("/api/social-links");
+    const socialLinks = await response.json();
+
+    const socialList = document.getElementById("social-links-list");
+    socialList.innerHTML = "<h3>Liens Sociaux existants</h3>";
+
+    socialLinks.forEach((social) => {
+      const socialDiv = document.createElement("div");
+      socialDiv.className = "project-item";
+      socialDiv.innerHTML = `
+                <h4>${social.name}</h4>
+                <p><strong>Icône:</strong> <ion-icon name="${social.icon}"></ion-icon> ${social.icon}</p>
+                <p><strong>URL:</strong> <a href="${social.url}" target="_blank">Visiter</a></p>
+                <div style="margin-top: 10px;">
+                    <button onclick="editSocial(${social.id})" class="btn-edit">Modifier</button>
+                    <button onclick="deleteSocial(${social.id})" class="btn-delete">Supprimer</button>
+                </div>
+            `;
+      socialList.appendChild(socialDiv);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
-// Annuler la modification d'un blog
-function cancelEditBlog() {
-    document.getElementById('blog-form').reset();
-    document.getElementById('blog-submit-btn').textContent = 'Ajouter Blog';
-    editingBlog = null;
+// Modifier un lien social
+async function editSocial(id) {
+  try {
+    const response = await fetch("/api/social-links");
+    const socialLinks = await response.json();
+    const social = socialLinks.find((s) => s.id === id);
+
+    if (social) {
+      document.getElementById("social-name").value = social.name;
+      document.getElementById("social-icon").value = social.icon;
+      document.getElementById("social-url").value = social.url;
+      document.getElementById("social-submit-btn").textContent =
+        "Modifier Lien Social";
+      editingSocial = id;
+
+      document
+        .getElementById("social-form")
+        .scrollIntoView({ behavior: "smooth" });
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
-// Supprimer toutes les données
-async function deleteAllData() {
-    const confirmation = prompt('ATTENTION! Cette action supprimera TOUTES vos données.\nTapez "SUPPRIMER TOUT" pour confirmer:');
-    
-    if (confirmation === 'SUPPRIMER TOUT') {
-        try {
-            const response = await fetch('/api/delete-all', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            const data = await response.json();
-            
-            if (response.ok) {
-                alert('Toutes les données ont été supprimées avec succès!');
-                // Recharger toutes les listes
-                loadProjects();
-                loadTestimonials();
-                loadPortfolioProjects();
-                loadClients();
-                loadCategories();
-                loadBlogs();
-            } else {
-                alert('Erreur: ' + data.error);
-            }
-        } catch (error) {
-            console.error('Erreur:', error);
-            alert('Erreur lors de la suppression');
-        }
-    } else {
-        alert('Suppression annulée');
+// Supprimer un lien social
+async function deleteSocial(id) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer ce lien social?")) {
+    try {
+      const response = await fetch(`/api/social-links/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        loadSocialLinks();
+        alert("Lien social supprimé avec succès!");
+      } else {
+        alert("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
     }
+  }
+}
+
+// Annuler la modification d'un lien social
+function cancelEditSocial() {
+  document.getElementById("social-form").reset();
+  document.getElementById("social-submit-btn").textContent =
+    "Ajouter Lien Social";
+  editingSocial = null;
 }
 
 // Mettre à jour la fonction de chargement initial
 if (token) {
-    document.getElementById('login-section').style.display = 'none';
-    document.getElementById('admin-panel').style.display = 'block';
-    loadProjects();
-    loadTestimonials();
-    loadPortfolioProjects();
-    loadClients();
-    loadCategories();
-    loadCategoryOptions();
-    loadBlogs(); 
+  document.getElementById("login-section").style.display = "none";
+  document.getElementById("admin-panel").style.display = "block";
+  loadProjects();
+  loadTestimonials();
+  loadPortfolioProjects();
+  loadClients();
+  loadCategories();
+  loadCategoryOptions();
+  loadBlogs();
+  loadPersonalInfo();
+  loadSocialLinks();
 }
-

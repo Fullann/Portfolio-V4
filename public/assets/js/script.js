@@ -139,18 +139,77 @@ for (let i = 0; i < navigationLinks.length; i++) {
 }
 
 function refreshSections() {
-    // Recharger seulement les sections modifiées
-    location.reload();
+  // Recharger seulement les sections modifiées
+  location.reload();
 }
 
 // Vérifier les mises à jour toutes les 30 secondes (optionnel)
 setInterval(() => {
-    fetch('/api/last-update')
-        .then(response => response.json())
-        .then(data => {
-            if (data.updated) {
-                refreshSections();
-            }
-        })
-        .catch(error => console.log('Pas de mise à jour'));
+  fetch("/api/last-update")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.updated) {
+        refreshSections();
+      }
+    })
+    .catch((error) => console.log("Pas de mise à jour"));
 }, 30000);
+// Gestion du formulaire de contact
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.querySelector("[data-form]");
+  const formBtn = document.querySelector("[data-form-btn]");
+  const formInputs = document.querySelectorAll("[data-form-input]");
+
+  // Activer/désactiver le bouton selon la validation
+  formInputs.forEach((input) => {
+    input.addEventListener("input", function () {
+      let allValid = true;
+      formInputs.forEach((inp) => {
+        if (!inp.value.trim()) allValid = false;
+      });
+      formBtn.disabled = !allValid;
+    });
+  });
+
+  // Gestion de l'envoi du formulaire
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const formData = new FormData(form);
+    const data = {
+      fullname: formData.get("fullname"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+    };
+
+    formBtn.disabled = true;
+    formBtn.innerHTML =
+      '<ion-icon name="hourglass-outline"></ion-icon><span>Envoi...</span>';
+
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Message envoyé avec succès !");
+        form.reset();
+        formBtn.disabled = true;
+      } else {
+        alert("Erreur : " + result.error);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur lors de l'envoi du message");
+    } finally {
+      formBtn.innerHTML =
+        '<ion-icon name="paper-plane"></ion-icon><span>Send Message</span>';
+    }
+  });
+});

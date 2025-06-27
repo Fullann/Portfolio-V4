@@ -43,18 +43,21 @@
 
       <aside class="sidebar" data-sidebar>
         <div class="sidebar-info">
-          <figure class="avatar-box">
-            <img
-              src="./assets/images/my-avatar.png"
-              alt="Richard hanrick"
-              width="80"
-            />
-          </figure>
+          <!-- AVATAR_START -->
+
+                <figure class="avatar-box">
+                    <img src="undefined" alt="Votre Nom" width="80" />
+                </figure>
+            
+<!-- AVATAR_END -->
 
           <div class="info-content">
-            <h1 class="name" title="Richard hanrick">Richard hanrick</h1>
+            <!-- PERSONAL_INFO_START -->
 
-            <p class="title">Web developer</p>
+                <h1 class="name" title="Votre Nom">Votre Nom</h1>
+                <p class="title">Votre Titre</p>
+            
+<!-- PERSONAL_INFO_END -->
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
@@ -68,79 +71,57 @@
           <div class="separator"></div>
 
           <ul class="contacts-list">
-            <li class="contact-item">
-              <div class="icon-box">
+            <!-- CONTACT_INFO_START -->
+
+        <li class="contact-item">
+            <div class="icon-box">
                 <ion-icon name="mail-outline"></ion-icon>
-              </div>
-
-              <div class="contact-info">
+            </div>
+            <div class="contact-info">
                 <p class="contact-title">Email</p>
+                <a href="mailto:votre@email.com" class="contact-link">votre@email.com</a>
+            </div>
+        </li>
 
-                <a href="mailto:richard@example.com" class="contact-link"
-                  >richard@example.com</a
-                >
-              </div>
-            </li>
-
-            <li class="contact-item">
-              <div class="icon-box">
+        <li class="contact-item">
+            <div class="icon-box">
                 <ion-icon name="phone-portrait-outline"></ion-icon>
-              </div>
-
-              <div class="contact-info">
+            </div>
+            <div class="contact-info">
                 <p class="contact-title">Phone</p>
+                <a href="tel:+33123456789" class="contact-link">+33 1 23 45 67 89</a>
+            </div>
+        </li>
 
-                <a href="tel:+12133522795" class="contact-link"
-                  >+1 (213) 352-2795</a
-                >
-              </div>
-            </li>
-
-            <li class="contact-item">
-              <div class="icon-box">
+        <li class="contact-item">
+            <div class="icon-box">
                 <ion-icon name="calendar-outline"></ion-icon>
-              </div>
-
-              <div class="contact-info">
+            </div>
+            <div class="contact-info">
                 <p class="contact-title">Birthday</p>
+                <time datetime="1990-01-01">January 1, 1990</time>
+            </div>
+        </li>
 
-                <time datetime="1982-06-23">June 23, 1982</time>
-              </div>
-            </li>
-
-            <li class="contact-item">
-              <div class="icon-box">
+        <li class="contact-item">
+            <div class="icon-box">
                 <ion-icon name="location-outline"></ion-icon>
-              </div>
-
-              <div class="contact-info">
+            </div>
+            <div class="contact-info">
                 <p class="contact-title">Location</p>
-
-                <address>Sacramento, California, USA</address>
-              </div>
-            </li>
+                <address>Votre Ville, Pays</address>
+            </div>
+        </li>
+    
+<!-- CONTACT_INFO_END -->
           </ul>
 
           <div class="separator"></div>
 
           <ul class="social-list">
-            <li class="social-item">
-              <a href="#" class="social-link">
-                <ion-icon name="logo-facebook"></ion-icon>
-              </a>
-            </li>
+            <!-- SOCIAL_LINKS_START -->
 
-            <li class="social-item">
-              <a href="#" class="social-link">
-                <ion-icon name="logo-twitter"></ion-icon>
-              </a>
-            </li>
-
-            <li class="social-item">
-              <a href="#" class="social-link">
-                <ion-icon name="logo-instagram"></ion-icon>
-              </a>
-            </li>
+<!-- SOCIAL_LINKS_END -->
           </ul>
         </div>
       </aside>
@@ -188,20 +169,9 @@
           </header>
 
           <section class="about-text">
-            <p>
-              I'm Creative Director and UI/UX Designer from Sydney, Australia,
-              working in web development and print media. I enjoy turning
-              complex problems into simple, beautiful and intuitive designs.
-            </p>
-
-            <p>
-              My job is to build your website so that it is functional and
-              user-friendly but at the same time attractive. Moreover, I add
-              personal touch to your product and make sure that is eye-catching
-              and easy to use. My aim is to bring across your message and
-              identity in the most creative way. I created web design for many
-              famous brand companies.
-            </p>
+            <!-- ABOUT_TEXT_START -->
+<p>Votre présentation personnelle ici.</p>
+<!-- ABOUT_TEXT_END -->
           </section>
 
           <!--
@@ -466,6 +436,21 @@
               </li>
               <!-- CATEGORY_FILTERS_START -->
 
+                <li class="filter-item">
+                    <button data-filter-btn>Web Development</button>
+                </li>
+
+                <li class="filter-item">
+                    <button data-filter-btn>Applications</button>
+                </li>
+
+                <li class="filter-item">
+                    <button data-filter-btn>Web Design</button>
+                </li>
+
+                <li class="filter-item">
+                    <button data-filter-btn>Mobile Apps</button>
+                </li>
 <!-- CATEGORY_FILTERS_END -->
             </ul>
 
@@ -484,6 +469,21 @@
                 </li>
                 <!-- CATEGORY_SELECT_START -->
 
+                <li class="select-item">
+                    <button data-select-item>Web Development</button>
+                </li>
+
+                <li class="select-item">
+                    <button data-select-item>Applications</button>
+                </li>
+
+                <li class="select-item">
+                    <button data-select-item>Web Design</button>
+                </li>
+
+                <li class="select-item">
+                    <button data-select-item>Mobile Apps</button>
+                </li>
 <!-- CATEGORY_SELECT_END -->
               </ul>
             </div>
@@ -524,19 +524,25 @@
 
           <section class="mapbox" data-mapbox>
             <figure>
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d199666.5651251294!2d-121.58334177520186!3d38.56165006739519!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x809ac672b28397f9%3A0x921f6aaa74197fdb!2sSacramento%2C%20CA%2C%20USA!5e0!3m2!1sen!2sbd!4v1647608789441!5m2!1sen!2sbd"
-                width="400"
-                height="300"
-                loading="lazy"
-              ></iframe>
+              <!-- MAP_START -->
+
+                <iframe
+                    src="https://maps.google.com/maps?q=Votre%20Ville%2C%20Pays&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                    width="400"
+                    height="300"
+                    loading="lazy"
+                    style="border:0;"
+                    allowfullscreen="">
+                </iframe>
+            
+<!-- MAP_END -->
             </figure>
           </section>
 
           <section class="contact-form">
             <h3 class="h3 form-title">Contact Form</h3>
 
-            <form action="#" class="form" data-form>
+            <form action="/api/send-email" method="POST" class="form" data-form>
               <div class="input-wrapper">
                 <input
                   type="text"
@@ -565,7 +571,7 @@
                 data-form-input
               ></textarea>
 
-              <button class="form-btn" type="submit" disabled data-form-btn>
+              <button class="form-btn" type="submit" data-form-btn>
                 <ion-icon name="paper-plane"></ion-icon>
                 <span>Send Message</span>
               </button>

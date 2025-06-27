@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
@@ -35,13 +36,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 app.use("/admin", express.static("admin"));
-
 // Configuration de Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail", // ou votre service email
   auth: {
-    user: process.env.EMAIL_USER || "votre-email@gmail.com",
-    pass: process.env.EMAIL_PASS || "votre-mot-de-passe-app",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -107,6 +107,48 @@ let blogsData = [
     slug: "design-conferences-2022",
   },
 ];
+
+let personalInfo = {
+  name: "Richard hanrick",
+  title: "Web developer",
+  email: "richard@example.com",
+  phone: "+1 (213) 352-2795",
+  birthday: "1982-06-23",
+  location: "Sacramento, California, USA",
+  avatar: "./assets/images/my-avatar.png",
+  aboutText: [
+    "I'm Creative Director and UI/UX Designer from Sydney, Australia, working in web development and print media. I enjoy turning complex problems into simple, beautiful and intuitive designs.",
+    "My job is to build your website so that it is functional and user-friendly but at the same time attractive. Moreover, I add personal touch to your product and make sure that is eye-catching and easy to use. My aim is to bring across your message and identity in the most creative way. I created web design for many famous brand companies.",
+  ],
+};
+
+let socialLinks = [
+  {
+    id: 1,
+    name: "Facebook",
+    icon: "logo-facebook",
+    url: "https://facebook.com/username",
+  },
+  {
+    id: 2,
+    name: "Twitter",
+    icon: "logo-twitter",
+    url: "https://twitter.com/username",
+  },
+  {
+    id: 3,
+    name: "Instagram",
+    icon: "logo-instagram",
+    url: "https://instagram.com/username",
+  },
+  {
+    id: 4,
+    name: "LinkedIn",
+    icon: "logo-linkedin",
+    url: "https://linkedin.com/in/username",
+  },
+];
+
 // Utilisateur admin par défaut
 const adminUser = {
   username: "admin",
@@ -161,7 +203,7 @@ app.post("/api/send-email", async (req, res) => {
   try {
     const mailOptions = {
       from: email,
-      to: process.env.ADMIN_EMAIL || "votre-email@gmail.com",
+      to: process.env.ADMIN_EMAIL,
       subject: `Nouveau message de ${fullname}`,
       html: `
         <h3>Nouveau message depuis votre portfolio</h3>
@@ -711,6 +753,18 @@ app.delete("/api/delete-all", authenticateToken, async (req, res) => {
     portfolioProjects = [];
     clientsData = [];
     blogsData = [];
+    socialLinks = [];
+
+    // Réinitialiser les informations personnelles aux valeurs par défaut
+    personalInfo = {
+      name: "Votre Nom",
+      title: "Votre Titre",
+      email: "votre@email.com",
+      phone: "+33 1 23 45 67 89",
+      birthday: "1990-01-01",
+      location: "Votre Ville, Pays",
+      aboutText: ["Votre présentation personnelle ici."],
+    };
 
     lastUpdate = Date.now();
     await updateHtmlFile();
@@ -723,6 +777,100 @@ app.delete("/api/delete-all", authenticateToken, async (req, res) => {
     console.error("Erreur lors de la suppression:", error);
     res.status(500).json({ error: "Erreur lors de la suppression" });
   }
+});
+
+// Routes pour les informations personnelles
+app.get("/api/personal-info", (req, res) => {
+  res.json(personalInfo);
+});
+
+app.put(
+  "/api/personal-info",
+  authenticateToken,
+  upload.single("avatar"),
+  async (req, res) => {
+    const { name, title, email, phone, birthday, location, aboutText } =
+      req.body;
+
+    lastUpdate = Date.now();
+
+    personalInfo.name = name || personalInfo.name;
+    personalInfo.title = title || personalInfo.title;
+    personalInfo.email = email || personalInfo.email;
+    personalInfo.phone = phone || personalInfo.phone;
+    personalInfo.birthday = birthday || personalInfo.birthday;
+    personalInfo.location = location || personalInfo.location;
+
+    // Gestion de l'avatar
+    if (req.file) {
+      personalInfo.avatar = `./assets/images/${req.file.filename}`;
+    }
+
+    // aboutText peut être un array ou une string
+    if (aboutText) {
+      if (Array.isArray(aboutText)) {
+        personalInfo.aboutText = aboutText;
+      } else {
+        personalInfo.aboutText = aboutText
+          .split("\n")
+          .filter((p) => p.trim() !== "");
+      }
+    }
+
+    await updateHtmlFile();
+    res.json(personalInfo);
+  }
+);
+
+// Routes pour les liens sociaux
+app.get("/api/social-links", (req, res) => {
+  res.json(socialLinks);
+});
+
+app.post("/api/social-links", authenticateToken, async (req, res) => {
+  const { name, icon, url } = req.body;
+
+  lastUpdate = Date.now();
+
+  const newSocialLink = {
+    id: Date.now(),
+    name,
+    icon,
+    url,
+  };
+
+  socialLinks.push(newSocialLink);
+  await updateHtmlFile();
+  res.json(newSocialLink);
+});
+
+app.put("/api/social-links/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { name, icon, url } = req.body;
+
+  lastUpdate = Date.now();
+
+  const socialIndex = socialLinks.findIndex((s) => s.id == id);
+  if (socialIndex === -1) {
+    return res.status(404).json({ error: "Lien social non trouvé" });
+  }
+
+  const social = socialLinks[socialIndex];
+  social.name = name || social.name;
+  social.icon = icon || social.icon;
+  social.url = url || social.url;
+
+  await updateHtmlFile();
+  res.json(social);
+});
+
+app.delete("/api/social-links/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  lastUpdate = Date.now();
+
+  socialLinks = socialLinks.filter((s) => s.id != id);
+  await updateHtmlFile();
+  res.json({ success: true });
 });
 
 // Fonction pour mettre à jour le fichier HTML
@@ -815,24 +963,6 @@ async function updateHtmlFile() {
       )
       .join("\n");
 
-    // Générer les filtres de catégories
-    const categoryFiltersHtml = categoriesData
-      .map(
-        (category) => `
-                <li class="filter-item">
-                    <button data-filter-btn>${category.displayName}</button>
-                </li>`
-      )
-      .join("\n");
-
-    const categorySelectHtml = categoriesData
-      .map(
-        (category) => `
-                <li class="select-item">
-                    <button data-select-item>${category.displayName}</button>
-                </li>`
-      )
-      .join("\n");
     // Générer le HTML pour les blogs
     const blogsHtml = blogsData
       .map(
@@ -863,6 +993,43 @@ async function updateHtmlFile() {
                 </li>`
       )
       .join("\n");
+
+    // Générer les filtres de catégories
+    const categoryFiltersHtml = categoriesData
+      .map(
+        (category) => `
+                <li class="filter-item">
+                    <button data-filter-btn>${category.displayName}</button>
+                </li>`
+      )
+      .join("\n");
+
+    const categorySelectHtml = categoriesData
+      .map(
+        (category) => `
+                <li class="select-item">
+                    <button data-select-item>${category.displayName}</button>
+                </li>`
+      )
+      .join("\n");
+
+    // Générer le HTML pour les liens sociaux
+    const socialLinksHtml = socialLinks
+      .map(
+        (social) => `
+                <li class="social-item">
+                    <a href="${social.url}" class="social-link" target="_blank" title="${social.name}">
+                        <ion-icon name="${social.icon}"></ion-icon>
+                    </a>
+                </li>`
+      )
+      .join("\n");
+
+    // Générer le HTML pour le texte de présentation
+    const aboutTextHtml = personalInfo.aboutText
+      .map((paragraph) => `<p>${paragraph}</p>`)
+      .join("\n");
+
     // Remplacer les sections
     const projectsRegex =
       /(<!-- PROJECTS_START -->)([\s\S]*?)(<!-- PROJECTS_END -->)/;
@@ -897,7 +1064,11 @@ async function updateHtmlFile() {
       htmlContent = htmlContent.replace(clientsRegex, `$1\n${clientsHtml}\n$3`);
     }
 
-    // Remplacer les filtres de catégories
+    const blogsRegex = /(<!-- BLOGS_START -->)([\s\S]*?)(<!-- BLOGS_END -->)/;
+    if (blogsRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(blogsRegex, `$1\n${blogsHtml}\n$3`);
+    }
+
     const categoryFiltersRegex =
       /(<!-- CATEGORY_FILTERS_START -->)([\s\S]*?)(<!-- CATEGORY_FILTERS_END -->)/;
     if (categoryFiltersRegex.test(htmlContent)) {
@@ -916,10 +1087,126 @@ async function updateHtmlFile() {
       );
     }
 
-    const blogsRegex = /(<!-- BLOGS_START -->)([\s\S]*?)(<!-- BLOGS_END -->)/;
-    if (blogsRegex.test(htmlContent)) {
-      htmlContent = htmlContent.replace(blogsRegex, `$1\n${blogsHtml}\n$3`);
+    // Remplacer les informations personnelles
+    const personalInfoRegex =
+      /(<!-- PERSONAL_INFO_START -->)([\s\S]*?)(<!-- PERSONAL_INFO_END -->)/;
+    if (personalInfoRegex.test(htmlContent)) {
+      const personalInfoHtml = `
+                <h1 class="name" title="${personalInfo.name}">${personalInfo.name}</h1>
+                <p class="title">${personalInfo.title}</p>
+            `;
+      htmlContent = htmlContent.replace(
+        personalInfoRegex,
+        `$1\n${personalInfoHtml}\n$3`
+      );
     }
+
+    // Dans la fonction updateHtmlFile(), remplacez la section contact par :
+    const contactInfoRegex =
+      /(<!-- CONTACT_INFO_START -->)([\s\S]*?)(<!-- CONTACT_INFO_END -->)/;
+    if (contactInfoRegex.test(htmlContent)) {
+      const contactInfoHtml = `
+        <li class="contact-item">
+            <div class="icon-box">
+                <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+                <p class="contact-title">Email</p>
+                <a href="mailto:${personalInfo.email}" class="contact-link">${
+        personalInfo.email
+      }</a>
+            </div>
+        </li>
+
+        <li class="contact-item">
+            <div class="icon-box">
+                <ion-icon name="phone-portrait-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+                <p class="contact-title">Phone</p>
+                <a href="tel:${personalInfo.phone.replace(
+                  /\s/g,
+                  ""
+                )}" class="contact-link">${personalInfo.phone}</a>
+            </div>
+        </li>
+
+        <li class="contact-item">
+            <div class="icon-box">
+                <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+                <p class="contact-title">Birthday</p>
+                <time datetime="${personalInfo.birthday}">${new Date(
+        personalInfo.birthday
+      ).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}</time>
+            </div>
+        </li>
+
+        <li class="contact-item">
+            <div class="icon-box">
+                <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+                <p class="contact-title">Location</p>
+                <address>${personalInfo.location}</address>
+            </div>
+        </li>
+    `;
+      htmlContent = htmlContent.replace(
+        contactInfoRegex,
+        `$1\n${contactInfoHtml}\n$3`
+      );
+    }
+
+    const socialLinksRegex =
+      /(<!-- SOCIAL_LINKS_START -->)([\s\S]*?)(<!-- SOCIAL_LINKS_END -->)/;
+    if (socialLinksRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        socialLinksRegex,
+        `$1\n${socialLinksHtml}\n$3`
+      );
+    }
+
+    const aboutTextRegex =
+      /(<!-- ABOUT_TEXT_START -->)([\s\S]*?)(<!-- ABOUT_TEXT_END -->)/;
+    if (aboutTextRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        aboutTextRegex,
+        `$1\n${aboutTextHtml}\n$3`
+      );
+    }
+
+    const avatarRegex =
+      /(<!-- AVATAR_START -->)([\s\S]*?)(<!-- AVATAR_END -->)/;
+    if (avatarRegex.test(htmlContent)) {
+      const avatarHtml = `
+                <figure class="avatar-box">
+                    <img src="${personalInfo.avatar}" alt="${personalInfo.name}" width="80" />
+                </figure>
+            `;
+      htmlContent = htmlContent.replace(avatarRegex, `$1\n${avatarHtml}\n$3`);
+    }
+
+    const mapRegex = /(<!-- MAP_START -->)([\s\S]*?)(<!-- MAP_END -->)/;
+        if (mapRegex.test(htmlContent)) {
+            const encodedLocation = encodeURIComponent(personalInfo.location);
+            const mapHtml = `
+                <iframe
+                    src="https://maps.google.com/maps?q=${encodedLocation}&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                    width="400"
+                    height="300"
+                    loading="lazy"
+                    style="border:0;"
+                    allowfullscreen="">
+                </iframe>
+            `;
+            htmlContent = htmlContent.replace(mapRegex, `$1\n${mapHtml}\n$3`);
+        }
 
     await fs.writeFile("public/index.html", htmlContent, "utf8");
     console.log("Fichier HTML mis à jour avec succès");
