@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Administration Portfolio</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        color: #333;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 10px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .btn-edit {
+        background: #28a745;
+      }
+      .btn-edit:hover {
+        background: #218838;
+      }
+      .btn-delete {
+        background: #dc3545;
+      }
+      .btn-delete:hover {
+        background: #c82333;
+      }
+      .btn-cancel {
+        background: #6c757d;
+      }
+      .btn-cancel:hover {
+        background: #5a6268;
+      }
+      .project-item,
+      .testimonial-item {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 4px;
+        background: #f8f9fa;
+      }
+      .form-section {
+        background: #fff;
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+      }
+      h1,
+      h2,
+      h3 {
+        color: #333;
+      }
+      .button-group {
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Administration Portfolio</h1>
+
+      <div id="login-section">
+        <h2>Connexion</h2>
+        <form id="login-form">
+          <div class="form-group">
+            <label>Nom d'utilisateur:</label>
+            <input type="text" id="username" required />
+          </div>
+          <div class="form-group">
+            <label>Mot de passe:</label>
+            <input type="password" id="password" required />
+          </div>
+          <button type="submit">Se connecter</button>
+        </form>
+      </div>
+
+      <div id="admin-panel" style="display: none">
+        <div class="form-section">
+          <h2>Gestion des Projets</h2>
+          <form id="project-form">
+            <div class="form-group">
+              <label>Titre:</label>
+              <input type="text" id="project-title" required />
+            </div>
+            <div class="form-group">
+              <label>Catégorie:</label>
+              <input type="text" id="project-category" required />
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea id="project-description" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Image:</label>
+              <input type="file" id="project-image" accept="image/*" />
+            </div>
+            <div class="button-group">
+              <button type="submit" id="project-submit-btn">
+                Ajouter Projet
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditProject()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="projects-list"></div>
+
+        <div class="form-section">
+          <h2>Gestion des Témoignages</h2>
+          <form id="testimonial-form">
+            <div class="form-group">
+              <label>Nom:</label>
+              <input type="text" id="testimonial-name" required />
+            </div>
+            <div class="form-group">
+              <label>Témoignage:</label>
+              <textarea id="testimonial-text" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Avatar:</label>
+              <input type="file" id="testimonial-avatar" accept="image/*" />
+            </div>
+            <div class="button-group">
+              <button type="submit" id="testimonial-submit-btn">
+                Ajouter Témoignage
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditTestimonial()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="testimonials-list"></div>
+
+        <div class="form-section">
+          <h2>Gestion du Portfolio</h2>
+          <form id="portfolio-form">
+            <div class="form-group">
+              <label>Titre du projet:</label>
+              <input type="text" id="portfolio-title" required />
+            </div>
+            <div class="form-group">
+              <label>Catégorie:</label>
+              <select id="portfolio-category" required>
+                <option value="">Sélectionner une catégorie</option>
+                <option value="web development">Web Development</option>
+                <option value="applications">Applications</option>
+                <option value="web design">Web Design</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea id="portfolio-description" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Lien vers le repository GitHub:</label>
+              <input
+                type="url"
+                id="portfolio-repo"
+                placeholder="https://github.com/username/project"
+              />
+            </div>
+            <div class="form-group">
+              <label>Lien vers le site en ligne:</label>
+              <input
+                type="url"
+                id="portfolio-live"
+                placeholder="https://monsite.com"
+              />
+            </div>
+            <div class="form-group">
+              <label>Image du projet:</label>
+              <input
+                type="file"
+                id="portfolio-image"
+                accept="image/*"
+                required
+              />
+            </div>
+            <div class="button-group">
+              <button type="submit" id="portfolio-submit-btn">
+                Ajouter au Portfolio
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditPortfolio()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="portfolio-list"></div>
+        <div class="form-section">
+          <h2>Gestion des Clients</h2>
+          <form id="client-form">
+            <div class="form-group">
+              <label>Nom du client:</label>
+              <input type="text" id="client-name" required />
+            </div>
+            <div class="form-group">
+              <label>Site web (optionnel):</label>
+              <input
+                type="url"
+                id="client-website"
+                placeholder="https://client.com"
+              />
+            </div>
+            <div class="form-group">
+              <label>Description (optionnel):</label>
+              <textarea
+                id="client-description"
+                placeholder="Description du client"
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label>Logo du client:</label>
+              <input type="file" id="client-logo" accept="image/*" />
+              <small
+                >Laissez vide lors de la modification pour conserver le logo
+                actuel</small
+              >
+            </div>
+            <div class="button-group">
+              <button type="submit" id="client-submit-btn">
+                Ajouter Client
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditClient()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="clients-list"></div>
+      </div>
+    </div>
+
+    <script src="admin.js"></script>
+  </body>
+</html>
