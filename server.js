@@ -20,18 +20,45 @@ let lastUpdate = Date.now();
 // Configuration du stockage pour les images
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/assets/images/");
+    if (file.fieldname === "cv") {
+      cb(null, "public/assets/documents/");
+    } else {
+      cb(null, "public/assets/images/");
+    }
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(
-      null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-    );
+    if (file.fieldname === "cv") {
+      cb(null, "cv-" + uniqueSuffix + ".pdf");
+    } else {
+      cb(
+        null,
+        file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+      );
+    }
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.fieldname === "cv") {
+      // Accepter seulement les PDFs pour le CV
+      if (file.mimetype === "application/pdf") {
+        cb(null, true);
+      } else {
+        cb(new Error("Seuls les fichiers PDF sont acceptés pour le CV"));
+      }
+    } else {
+      // Accepter les images pour les autres champs
+      if (file.mimetype.startsWith("image/")) {
+        cb(null, true);
+      } else {
+        cb(new Error("Seules les images sont acceptées"));
+      }
+    }
+  },
+});
 
 // Middleware
 app.use(cors());
@@ -106,6 +133,7 @@ function formatPersonalInfo(dbData) {
     birthday: dbData.birthday,
     location: dbData.location,
     avatar: dbData.avatar,
+    cvFile: dbData.cv_file,
     aboutText: JSON.parse(dbData.about_text || "[]"),
   };
 }
@@ -895,7 +923,10 @@ app.get("/api/personal-info", (req, res) => {
 app.put(
   "/api/personal-info",
   authenticateToken,
-  upload.single("avatar"),
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "cv", maxCount: 1 },
+  ]),
   async (req, res) => {
     try {
       const { name, title, email, phone, birthday, location, aboutText } =
@@ -905,8 +936,14 @@ app.put(
 
       const updateData = { name, title, email, phone, birthday, location };
 
-      if (req.file) {
-        updateData.avatar = `/assets/images/${req.file.filename}`;
+      // Gestion de l'avatar
+      if (req.files && req.files.avatar) {
+        updateData.avatar = `/assets/images/${req.files.avatar[0].filename}`;
+      }
+
+      // Gestion du CV
+      if (req.files && req.files.cv) {
+        updateData.cvFile = `/assets/documents/${req.files.cv[0].filename}`;
       }
 
       if (aboutText) {
@@ -930,6 +967,24 @@ app.put(
     }
   }
 );
+// Route pour servir les documents (CV)
+app.use("/assets/documents", express.static("public/assets/documents"));
+
+// Route pour télécharger le CV
+app.get("/download-cv", (req, res) => {
+  try {
+    const personalInfo = dbOperations.personalInfo.get();
+    if (personalInfo && personalInfo.cv_file) {
+      const filePath = path.join(__dirname, "public", personalInfo.cv_file);
+      res.download(filePath, "CV.pdf");
+    } else {
+      res.status(404).json({ error: "CV non trouvé" });
+    }
+  } catch (error) {
+    console.error("Erreur téléchargement CV:", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
 
 // Routes pour les liens sociaux
 app.get("/api/social-links", (req, res) => {
@@ -1736,7 +1791,50 @@ async function updateHtmlFile() {
         htmlContent = htmlContent.replace(mapRegex, `$1\n${mapHtml}\n$3`);
       }
     }
-
+    if (personalInfo && personalInfo.cvFile) {
+      const cvRegex =
+        /(<!-- CV_SECTION_START -->)([\s\S]*?)(<!-- CV_SECTION_END -->)/;
+      if (cvRegex.test(htmlContent)) {
+        const cvHtml = `
+            <div class="cv-container">
+                <div class="cv-preview">
+                    <div class="cv-info">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                        <div class="cv-details">
+                            <h4>Télécharger mon CV</h4>
+                            <p>Consultez mon parcours complet au format PDF</p>
+                        </div>
+                    </div>
+                    <div class="cv-actions">
+                        <a href="/download-cv" class="cv-download-btn" target="_blank">
+                            <ion-icon name="download-outline"></ion-icon>
+                            <span>Télécharger PDF</span>
+                        </a>
+                        <button onclick="viewCVInline()" class="cv-view-btn">
+                            <ion-icon name="eye-outline"></ion-icon>
+                            <span>Aperçu</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="cv-viewer" class="cv-viewer" style="display: none;">
+                    <iframe src="${personalInfo.cvFile}" width="100%" height="600px"></iframe>
+                </div>
+            </div>
+        `;
+        htmlContent = htmlContent.replace(cvRegex, `$1\n${cvHtml}\n$3`);
+      }
+    } else {
+      const cvRegex =
+        /(<!-- CV_SECTION_START -->)([\s\S]*?)(<!-- CV_SECTION_END -->)/;
+      if (cvRegex.test(htmlContent)) {
+        const cvHtml = `
+            <div class="cv-container">
+                <p class="cv-not-available">CV non disponible pour le moment</p>
+            </div>
+        `;
+        htmlContent = htmlContent.replace(cvRegex, `$1\n${cvHtml}\n$3`);
+      }
+    }
     await fs.writeFile("public/index.html", htmlContent, "utf8");
     console.log("✅ Fichier HTML mis à jour avec succès");
   } catch (error) {

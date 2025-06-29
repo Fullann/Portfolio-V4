@@ -307,7 +307,44 @@
 <!-- EXPERIENCE_END -->
             </ol>
           </section>
+          <section class="timeline">
+            <div class="title-wrapper">
+              <div class="icon-box">
+                <ion-icon name="document-text-outline"></ion-icon>
+              </div>
+              <h3 class="h3">Mon CV</h3>
+            </div>
+            <div>
+              <!-- CV_SECTION_START -->
 
+            <div class="cv-container">
+                <div class="cv-preview">
+                    <div class="cv-info">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                        <div class="cv-details">
+                            <h4>Télécharger mon CV</h4>
+                            <p>Consultez mon parcours complet au format PDF</p>
+                        </div>
+                    </div>
+                    <div class="cv-actions">
+                        <a href="/download-cv" class="cv-download-btn" target="_blank">
+                            <ion-icon name="download-outline"></ion-icon>
+                            <span>Télécharger PDF</span>
+                        </a>
+                        <button onclick="viewCVInline()" class="cv-view-btn">
+                            <ion-icon name="eye-outline"></ion-icon>
+                            <span>Aperçu</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="cv-viewer" class="cv-viewer" style="display: none;">
+                    <iframe src="/assets/documents/cv-1751202410058-570558993.pdf" width="100%" height="600px"></iframe>
+                </div>
+            </div>
+        
+<!-- CV_SECTION_END -->
+            </div>
+          </section>
           <section class="skill">
             <h3 class="h3 skills-title">My skills</h3>
 

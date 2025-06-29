@@ -280,3 +280,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+function viewCVInline() {
+  const viewer = document.getElementById("cv-viewer");
+  if (viewer.style.display === "none") {
+    viewer.style.display = "block";
+    document.querySelector(".cv-view-btn span").textContent = "Masquer";
+  } else {
+    viewer.style.display = "none";
+    document.querySelector(".cv-view-btn span").textContent = "Aperçu";
+  }
+}

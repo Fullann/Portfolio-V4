@@ -97,6 +97,7 @@ function initializeDatabase() {
             location TEXT NOT NULL,
             avatar TEXT,
             about_text TEXT,
+            cv_file TEXT,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
@@ -512,6 +513,7 @@ const dbOperations = {
                     location = COALESCE(?, location),
                     avatar = COALESCE(?, avatar),
                     about_text = COALESCE(?, about_text),
+                    cv_file = COALESCE(?, cv_file),
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = 1
             `);
@@ -523,7 +525,8 @@ const dbOperations = {
         data.birthday,
         data.location,
         data.avatar,
-        data.aboutText
+        data.aboutText,
+        data.cvFile
       );
       return dbOperations.personalInfo.get();
     },

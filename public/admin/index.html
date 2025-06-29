@@ -141,6 +141,28 @@
         height: 100%;
         transition: width 0.3s ease;
       }
+      .btn-view {
+        background: #17a2b8;
+        color: white;
+        padding: 5px 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn-view:hover {
+        background: #138496;
+      }
+
+      .cv-info {
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+        border-left: 4px solid #28a745;
+        margin-top: 10px;
+      }
     </style>
   </head>
   <body>
@@ -210,6 +232,32 @@
                 >Laissez vide lors de la modification pour conserver l'avatar
                 actuel</small
               >
+            </div>
+            <div class="form-group">
+              <label>CV (PDF):</label>
+              <input type="file" id="personal-cv" accept=".pdf" />
+              <small
+                >Fichier PDF uniquement. Laissez vide pour conserver le CV
+                actuel.</small
+              >
+              <div id="current-cv-info" style="margin-top: 10px; display: none">
+                <span style="color: #28a745">✓ CV actuel disponible</span>
+                <button
+                  type="button"
+                  onclick="viewCurrentCV()"
+                  class="btn-view"
+                  style="
+                    margin-left: 10px;
+                    background: #17a2b8;
+                    color: white;
+                    padding: 5px 10px;
+                    border: none;
+                    border-radius: 3px;
+                  "
+                >
+                  Voir le CV actuel
+                </button>
+              </div>
             </div>
             <div class="form-group">
               <label>Nom complet:</label>

@@ -608,9 +608,9 @@ main {
 
 /* Animation de transition pour la navbar */
 .navbar {
-  transition: background-color var(--transition-1), 
-              border-color var(--transition-1),
-              box-shadow var(--transition-1);
+  transition: background-color var(--transition-1),
+    border-color var(--transition-1),
+    box-shadow var(--transition-1);
 }
 
 .navbar-link {
@@ -2368,5 +2368,138 @@ textarea.form-input::-webkit-resizer {
     width: 45px;
     height: 45px;
     font-size: 18px;
+  }
+}
+
+/*-----------------------------------*\
+  #CV SECTION
+\*-----------------------------------*/
+
+.cv-container {
+  background: var(--border-gradient-onyx);
+  border: 1px solid var(--jet);
+  border-radius: 20px;
+  padding: 20px;
+}
+
+.cv-preview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.cv-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+}
+
+.cv-info ion-icon {
+  font-size: 40px;
+  color: var(--orange-yellow-crayola);
+}
+
+.cv-details h4 {
+  color: var(--white-2);
+  font-size: var(--fs-5);
+  margin-bottom: 5px;
+}
+
+.cv-details p {
+  color: var(--light-gray);
+  font-size: var(--fs-7);
+}
+
+.cv-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cv-download-btn,
+.cv-view-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: var(--fs-6);
+  text-decoration: none;
+  transition: var(--transition-1);
+  border: none;
+  cursor: pointer;
+}
+
+.cv-download-btn {
+  background: var(--orange-yellow-crayola);
+  color: var(--smoky-black);
+  font-weight: var(--fw-500);
+}
+
+.cv-download-btn:hover {
+  background: var(--vegas-gold);
+  transform: translateY(-2px);
+}
+
+.cv-view-btn {
+  background: transparent;
+  color: var(--orange-yellow-crayola);
+  border: 1px solid var(--orange-yellow-crayola);
+}
+
+.cv-view-btn:hover {
+  background: var(--orange-yellow-crayola);
+  color: var(--smoky-black);
+}
+
+.cv-viewer {
+  margin-top: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--jet);
+}
+
+.cv-viewer iframe {
+  border: none;
+  width: 100%;
+  min-height: 600px;
+}
+
+.cv-not-available {
+  text-align: center;
+  color: var(--light-gray);
+  font-style: italic;
+  padding: 40px 20px;
+}
+
+/* Mode clair */
+[data-theme="light"] .cv-container {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--jet);
+}
+
+[data-theme="light"] .cv-details h4 {
+  color: var(--white-2);
+}
+
+/* Responsive */
+@media (max-width: 580px) {
+  .cv-preview {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .cv-actions {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .cv-download-btn,
+  .cv-view-btn {
+    flex: 1;
+    justify-content: center;
   }
 }

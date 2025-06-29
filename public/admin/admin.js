@@ -990,53 +990,90 @@ async function deleteAllData() {
 let editingSocial = null;
 
 // Gestion des informations personnelles
-document
-  .getElementById("personal-info-form")
-  .addEventListener("submit", async (e) => {
+// Modifiez la gestion des informations personnelles
+document.getElementById('personal-info-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-
+    
     const formData = new FormData();
-    formData.append("name", document.getElementById("personal-name").value);
-    formData.append("title", document.getElementById("personal-title").value);
-    formData.append("email", document.getElementById("personal-email").value);
-    formData.append("phone", document.getElementById("personal-phone").value);
-    formData.append(
-      "birthday",
-      document.getElementById("personal-birthday").value
-    );
-    formData.append(
-      "location",
-      document.getElementById("personal-location").value
-    );
-    formData.append(
-      "aboutText",
-      document.getElementById("personal-about").value
-    );
-
-    const avatarFile = document.getElementById("personal-avatar").files[0];
+    formData.append('name', document.getElementById('personal-name').value);
+    formData.append('title', document.getElementById('personal-title').value);
+    formData.append('email', document.getElementById('personal-email').value);
+    formData.append('phone', document.getElementById('personal-phone').value);
+    formData.append('birthday', document.getElementById('personal-birthday').value);
+    formData.append('location', document.getElementById('personal-location').value);
+    formData.append('aboutText', document.getElementById('personal-about').value);
+    
+    const avatarFile = document.getElementById('personal-avatar').files[0];
     if (avatarFile) {
-      formData.append("avatar", avatarFile);
+        formData.append('avatar', avatarFile);
     }
-
+    
+    const cvFile = document.getElementById('personal-cv').files[0];
+    if (cvFile) {
+        formData.append('cv', cvFile);
+    }
+    
     try {
-      const response = await fetch("/api/personal-info", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        alert("Informations personnelles mises à jour avec succès!");
-        loadPersonalInfo(); // Recharger les infos
-      } else {
-        alert("Erreur lors de la mise à jour");
-      }
+        const response = await fetch('/api/personal-info', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        if (response.ok) {
+            alert('Informations personnelles mises à jour avec succès!');
+            loadPersonalInfo();
+        } else {
+            const errorData = await response.json();
+            alert('Erreur: ' + errorData.error);
+        }
     } catch (error) {
-      console.error("Erreur:", error);
+        console.error('Erreur:', error);
+        alert('Erreur lors de la mise à jour');
     }
-  });
+});
+
+// Modifiez loadPersonalInfo pour inclure le CV
+async function loadPersonalInfo() {
+    try {
+        const response = await fetch('/api/personal-info');
+        const info = await response.json();
+        
+        document.getElementById('personal-name').value = info.name;
+        document.getElementById('personal-title').value = info.title;
+        document.getElementById('personal-email').value = info.email;
+        document.getElementById('personal-phone').value = info.phone;
+        document.getElementById('personal-birthday').value = info.birthday;
+        document.getElementById('personal-location').value = info.location;
+        document.getElementById('personal-about').value = info.aboutText.join('\n');
+        
+        // Afficher l'avatar actuel
+        if (info.avatar) {
+            const avatarInput = document.getElementById('personal-avatar');
+            avatarInput.parentNode.querySelector('small').textContent = 
+                `Avatar actuel : ${info.avatar.split('/').pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
+        }
+        
+        // Afficher le CV actuel
+        const cvInfo = document.getElementById('current-cv-info');
+        if (info.cvFile) {
+            cvInfo.style.display = 'block';
+        } else {
+            cvInfo.style.display = 'none';
+        }
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+    }
+}
+
+// Fonction pour voir le CV actuel
+function viewCurrentCV() {
+    window.open('/download-cv', '_blank');
+}
+
 
 // Gestion des liens sociaux
 document.getElementById("social-form").addEventListener("submit", async (e) => {
@@ -1081,34 +1118,6 @@ document.getElementById("social-form").addEventListener("submit", async (e) => {
     console.error("Erreur:", error);
   }
 });
-
-// Charger les informations personnelles
-async function loadPersonalInfo() {
-  try {
-    const response = await fetch("/api/personal-info");
-    const info = await response.json();
-
-    document.getElementById("personal-name").value = info.name;
-    document.getElementById("personal-title").value = info.title;
-    document.getElementById("personal-email").value = info.email;
-    document.getElementById("personal-phone").value = info.phone;
-    document.getElementById("personal-birthday").value = info.birthday;
-    document.getElementById("personal-location").value = info.location;
-    document.getElementById("personal-about").value = info.aboutText.join("\n");
-
-    // Afficher l'avatar actuel si disponible
-    if (info.avatar) {
-      const avatarInput = document.getElementById("personal-avatar");
-      avatarInput.parentNode.querySelector(
-        "small"
-      ).textContent = `Avatar actuel : ${info.avatar
-        .split("/")
-        .pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
 
 // Charger les liens sociaux
 async function loadSocialLinks() {
