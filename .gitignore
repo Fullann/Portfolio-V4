@@ -136,7 +136,9 @@ dist
 .pnp.*
 public/assets/.DS_Store
 .DS_Store
-/public/assets/images
+/public/assets/images/*.jpg
+/public/assets/images/*.svg
+/public/assets/images/*.png
 portfolio.db
 portfolio.db-shm
 portfolio.db-wal
