@@ -143,3 +143,4 @@ portfolio.db
 portfolio.db-shm
 portfolio.db-wal
 /public/assets/documents/*.pdf
+package-lock.json
