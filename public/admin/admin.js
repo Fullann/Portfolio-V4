@@ -712,12 +712,11 @@ async function loadCategories() {
 
     const categoriesList = document.getElementById("categories-list");
     categoriesList.innerHTML = "<h3>Catégories existantes</h3>";
-
     categories.forEach((category) => {
       const categoryDiv = document.createElement("div");
       categoryDiv.className = "project-item";
       categoryDiv.innerHTML = `
-                <h4>${category.displayName}</h4>
+                <h4>${category.display_name}</h4>
                 <p><strong>Nom technique:</strong> ${category.name}</p>
                 <div style="margin-top: 10px;">
                     <button onclick="editCategory(${category.id})" class="btn-edit">Modifier</button>
@@ -744,7 +743,7 @@ async function loadCategoryOptions() {
     categories.forEach((category) => {
       const option = document.createElement("option");
       option.value = category.name;
-      option.textContent = category.displayName;
+      option.textContent = category.display_name;
       categorySelect.appendChild(option);
     });
   } catch (error) {
@@ -761,7 +760,7 @@ async function editCategory(id) {
 
     if (category) {
       document.getElementById("category-name").value = category.name;
-      document.getElementById("category-display").value = category.displayName;
+      document.getElementById("category-display").value = category.display_name;
       document.getElementById("category-submit-btn").textContent =
         "Modifier Catégorie";
       editingCategory = id;
