@@ -111,18 +111,18 @@ function formatPersonalInfo(dbData) {
 }
 
 function formatPortfolioProject(dbData) {
-    const category = dbOperations.categories.getByName(dbData.filter_category);
-    
-    return {
-        id: dbData.id,
-        title: dbData.title,
-        category: category ? category.display_name : dbData.category, 
-        image: dbData.image,
-        description: dbData.description,
-        repoLink: dbData.repo_link,
-        liveLink: dbData.live_link,
-        filterCategory: dbData.filter_category,
-    };
+  const category = dbOperations.categories.getByName(dbData.filter_category);
+
+  return {
+    id: dbData.id,
+    title: dbData.title,
+    category: category ? category.display_name : dbData.category,
+    image: dbData.image,
+    description: dbData.description,
+    repoLink: dbData.repo_link,
+    liveLink: dbData.live_link,
+    filterCategory: dbData.filter_category,
+  };
 }
 
 // Routes d'authentification
@@ -194,7 +194,7 @@ app.post(
   async (req, res) => {
     try {
       const { title, category, description } = req.body;
-      const image = req.file ? `./assets/images/${req.file.filename}` : null;
+      const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
       lastUpdate = Date.now();
 
@@ -227,7 +227,7 @@ app.put(
 
       const updateData = { title, category, description };
       if (req.file) {
-        updateData.image = `./assets/images/${req.file.filename}`;
+        updateData.image = `/assets/images/${req.file.filename}`;
       }
 
       const updatedProject = dbOperations.projects.update(id, updateData);
@@ -281,8 +281,8 @@ app.post(
     try {
       const { name, text, date } = req.body;
       const avatar = req.file
-        ? `./assets/images/${req.file.filename}`
-        : "./assets/images/avatar-default.png";
+        ? `/assets/images/${req.file.filename}`
+        : "/assets/images/avatar-default.png";
 
       lastUpdate = Date.now();
 
@@ -317,7 +317,7 @@ app.put(
 
       const updateData = { name, text, date };
       if (req.file) {
-        updateData.avatar = `./assets/images/${req.file.filename}`;
+        updateData.avatar = `/assets/images/${req.file.filename}`;
       }
 
       const updatedTestimonial = dbOperations.testimonials.update(
@@ -384,7 +384,7 @@ app.post(
         liveLink,
         filterCategory,
       } = req.body;
-      const image = req.file ? `./assets/images/${req.file.filename}` : null;
+      const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
       lastUpdate = Date.now();
 
@@ -436,7 +436,7 @@ app.put(
         filterCategory,
       };
       if (req.file) {
-        updateData.image = `./assets/images/${req.file.filename}`;
+        updateData.image = `/assets/images/${req.file.filename}`;
       }
 
       const updatedProject = dbOperations.portfolioProjects.update(
@@ -498,7 +498,7 @@ app.post(
   async (req, res) => {
     try {
       const { name, website, description } = req.body;
-      const logo = req.file ? `./assets/images/${req.file.filename}` : null;
+      const logo = req.file ? `/assets/images/${req.file.filename}` : null;
 
       lastUpdate = Date.now();
 
@@ -531,7 +531,7 @@ app.put(
 
       const updateData = { name, website, description };
       if (req.file) {
-        updateData.logo = `./assets/images/${req.file.filename}`;
+        updateData.logo = `/assets/images/${req.file.filename}`;
       }
 
       const updatedClient = dbOperations.clients.update(id, updateData);
@@ -719,7 +719,7 @@ app.post(
   async (req, res) => {
     try {
       const { title, category, excerpt, content, author } = req.body;
-      const image = req.file ? `./assets/images/${req.file.filename}` : null;
+      const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
       const slug = title
         .toLowerCase()
@@ -769,7 +769,7 @@ app.put(
       }
 
       if (req.file) {
-        updateData.image = `./assets/images/${req.file.filename}`;
+        updateData.image = `/assets/images/${req.file.filename}`;
       }
 
       const updatedBlog = dbOperations.blogs.update(id, updateData);
@@ -811,14 +811,23 @@ app.get("/blog/:slug", async (req, res) => {
     }
 
     const contentHtml = marked(blog.content);
+    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+
+    const metaTags = generateMetaTags({
+      title: `${blog.title} - Portfolio Blog`,
+      description: blog.excerpt,
+      image: `${baseUrl}${blog.image}`,
+      url: `${baseUrl}/blog/${blog.slug}`,
+      type: "article",
+      author: blog.author,
+    });
 
     const blogPageHtml = `
         <!DOCTYPE html>
         <html lang="fr">
         <head>
             <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>${blog.title}</title>
+            ${metaTags}
             <style>
                 body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
                 .blog-header { text-align: center; margin-bottom: 30px; }
@@ -877,11 +886,9 @@ app.get("/api/personal-info", (req, res) => {
     res.json(formatPersonalInfo(personalInfo));
   } catch (error) {
     console.error("Erreur:", error);
-    res
-      .status(500)
-      .json({
-        error: "Erreur lors de la récupération des informations personnelles",
-      });
+    res.status(500).json({
+      error: "Erreur lors de la récupération des informations personnelles",
+    });
   }
 });
 
@@ -899,7 +906,7 @@ app.put(
       const updateData = { name, title, email, phone, birthday, location };
 
       if (req.file) {
-        updateData.avatar = `./assets/images/${req.file.filename}`;
+        updateData.avatar = `/assets/images/${req.file.filename}`;
       }
 
       if (aboutText) {
@@ -917,11 +924,9 @@ app.put(
       res.json(formatPersonalInfo(updatedInfo));
     } catch (error) {
       console.error("Erreur:", error);
-      res
-        .status(500)
-        .json({
-          error: "Erreur lors de la mise à jour des informations personnelles",
-        });
+      res.status(500).json({
+        error: "Erreur lors de la mise à jour des informations personnelles",
+      });
     }
   }
 );
@@ -1270,7 +1275,89 @@ app.get("/api/last-update", (req, res) => {
   });
 });
 
-// Fonction updateHtmlFile adaptée pour SQLite
+// Route pour générer le sitemap.xml
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+    const currentDate = new Date().toISOString();
+
+    // Récupérer toutes les données
+    const blogs = dbOperations.blogs.getAll();
+    const portfolioProjects = dbOperations.portfolioProjects.getAll();
+
+    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- Page d'accueil -->
+    <url>
+        <loc>${baseUrl}/</loc>
+        <lastmod>${currentDate}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+    </url>
+    
+    <!-- Pages statiques -->
+    <url>
+        <loc>${baseUrl}/#about</loc>
+        <lastmod>${currentDate}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <url>
+        <loc>${baseUrl}/#resume</loc>
+        <lastmod>${currentDate}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <url>
+        <loc>${baseUrl}/#portfolio</loc>
+        <lastmod>${currentDate}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <url>
+        <loc>${baseUrl}/#contact</loc>
+        <lastmod>${currentDate}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>`;
+
+    // Ajouter les blogs
+    blogs.forEach((blog) => {
+      sitemap += `
+    <url>
+        <loc>${baseUrl}/blog/${blog.slug}</loc>
+        <lastmod>${blog.created_at || currentDate}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>`;
+    });
+
+    sitemap += `
+</urlset>`;
+
+    res.set("Content-Type", "application/xml");
+    res.send(sitemap);
+  } catch (error) {
+    console.error("Erreur génération sitemap:", error);
+    res.status(500).send("Erreur lors de la génération du sitemap");
+  }
+});
+
+// Route pour robots.txt
+app.get("/robots.txt", (req, res) => {
+  const baseUrl = process.env.BASE_URL || "http://localhost:3000";
+  const robots = `User-agent: *
+Allow: /
+
+Sitemap: ${baseUrl}/sitemap.xml`;
+
+  res.set("Content-Type", "text/plain");
+  res.send(robots);
+});
+
 async function updateHtmlFile() {
   try {
     let htmlContent = await fs.readFile("public/index.html", "utf8");
@@ -1657,6 +1744,44 @@ async function updateHtmlFile() {
   }
 }
 
+function generateMetaTags(data) {
+  const {
+    title = process.env.NAME_SITE,
+    description = process.env.DESCRIPTION_SITE,
+    image = "/assets/images/og-image.jpg",
+    url = "/",
+    type = "website",
+    author = process.env.AUTHOR,
+  } = data;
+
+  return `
+    <!-- Meta tags essentiels -->
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    <meta name="author" content="${author}">
+    <meta name="keywords" content="développeur web, portfolio, Node.js, React, JavaScript, développement">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="${type}">
+    <meta property="og:url" content="${url}">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${image}">
+    <meta property="og:site_name" content="Portfolio - ${author}">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="${url}">
+    <meta property="twitter:title" content="${title}">
+    <meta property="twitter:description" content="${description}">
+    <meta property="twitter:image" content="${image}">
+    
+    <!-- Meta tags techniques -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <link rel="canonical" href="${url}">`;
+}
 // Démarrer le serveur
 app.listen(PORT, async () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);
