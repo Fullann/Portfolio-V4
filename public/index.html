@@ -35,7 +35,16 @@
     <!--
     - #MAIN
   -->
-
+    <div class="theme-toggle">
+      <button
+        id="theme-toggle-btn"
+        class="theme-toggle-btn"
+        aria-label="Basculer le thème"
+      >
+        <ion-icon name="sunny-outline" class="light-icon"></ion-icon>
+        <ion-icon name="moon-outline" class="dark-icon"></ion-icon>
+      </button>
+    </div>
     <main>
       <!--
       - #SIDEBAR
@@ -45,23 +54,19 @@
         <div class="sidebar-info">
           <!-- AVATAR_START -->
 
-          <figure class="avatar-box">
-            <img
-              src="./assets/images/my-avatar.png"
-              alt="Votre Nom"
-              width="80"
-            />
-          </figure>
-
-          <!-- AVATAR_END -->
+                    <figure class="avatar-box">
+                        <img src="./assets/images/my-avatar.png" alt="Votre Nom" width="80" />
+                    </figure>
+                
+<!-- AVATAR_END -->
 
           <div class="info-content">
             <!-- PERSONAL_INFO_START -->
 
-            <h1 class="name" title="Votre Nom">Votre Nom</h1>
-            <p class="title">Votre Titre</p>
-
-            <!-- PERSONAL_INFO_END -->
+                    <h1 class="name" title="Votre Nom">Votre Nom</h1>
+                    <p class="title">Votre Titre</p>
+                
+<!-- PERSONAL_INFO_END -->
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
@@ -77,51 +82,47 @@
           <ul class="contacts-list">
             <!-- CONTACT_INFO_START -->
 
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="mail-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title">Email</p>
-                <a href="mailto:votre@email.com" class="contact-link"
-                  >votre@email.com</a
-                >
-              </div>
-            </li>
+                    <li class="contact-item">
+                        <div class="icon-box">
+                            <ion-icon name="mail-outline"></ion-icon>
+                        </div>
+                        <div class="contact-info">
+                            <p class="contact-title">Email</p>
+                            <a href="mailto:votre@email.com" class="contact-link">votre@email.com</a>
+                        </div>
+                    </li>
 
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="phone-portrait-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title">Phone</p>
-                <a href="tel:+33123456789" class="contact-link"
-                  >+33 1 23 45 67 89</a
-                >
-              </div>
-            </li>
+                    <li class="contact-item">
+                        <div class="icon-box">
+                            <ion-icon name="phone-portrait-outline"></ion-icon>
+                        </div>
+                        <div class="contact-info">
+                            <p class="contact-title">Phone</p>
+                            <a href="tel:+33123456789" class="contact-link">+33 1 23 45 67 89</a>
+                        </div>
+                    </li>
 
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="calendar-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title">Birthday</p>
-                <time datetime="1990-01-01">January 1, 1990</time>
-              </div>
-            </li>
+                    <li class="contact-item">
+                        <div class="icon-box">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                        </div>
+                        <div class="contact-info">
+                            <p class="contact-title">Birthday</p>
+                            <time datetime="1990-01-01">January 1, 1990</time>
+                        </div>
+                    </li>
 
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="location-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title">Location</p>
-                <address>Votre Ville, Pays</address>
-              </div>
-            </li>
-
-            <!-- CONTACT_INFO_END -->
+                    <li class="contact-item">
+                        <div class="icon-box">
+                            <ion-icon name="location-outline"></ion-icon>
+                        </div>
+                        <div class="contact-info">
+                            <p class="contact-title">Location</p>
+                            <address>Votre Ville, Pays</address>
+                        </div>
+                    </li>
+                
+<!-- CONTACT_INFO_END -->
           </ul>
 
           <div class="separator"></div>
@@ -129,7 +130,7 @@
           <ul class="social-list">
             <!-- SOCIAL_LINKS_START -->
 
-            <!-- SOCIAL_LINKS_END -->
+<!-- SOCIAL_LINKS_END -->
           </ul>
         </div>
       </aside>
@@ -178,8 +179,8 @@
 
           <section class="about-text">
             <!-- ABOUT_TEXT_START -->
-            <p>Votre présentation personnelle ici.</p>
-            <!-- ABOUT_TEXT_END -->
+<p>Votre présentation personnelle ici.</p>
+<!-- ABOUT_TEXT_END -->
           </section>
 
           <!--
@@ -191,7 +192,16 @@
             <ul class="service-list">
               <!-- PROJECTS_START -->
 
-              <!-- PROJECTS_END -->
+                <li class="service-item">
+                    <div class="service-icon-box">
+                        <img src="./assets/images/project-1.jpg" alt="Finance" width="40">
+                    </div>
+                    <div class="service-content-box">
+                        <h4 class="h4 service-item-title">Finance</h4>
+                        <p class="service-item-text">Projet de développement web financier</p>
+                    </div>
+                </li>
+<!-- PROJECTS_END -->
             </ul>
           </section>
 
@@ -204,7 +214,18 @@
             <ul class="testimonials-list has-scrollbar">
               <!-- TESTIMONIALS_START -->
 
-              <!-- TESTIMONIALS_END -->
+                <li class="testimonials-item">
+                    <div class="content-card" data-testimonials-item>
+                        <figure class="testimonials-avatar-box">
+                            <img src="./assets/images/avatar-1.png" alt="Daniel Lewis" width="60" data-testimonials-avatar>
+                        </figure>
+                        <h4 class="h4 testimonials-item-title" data-testimonials-title>Daniel Lewis</h4>
+                        <div class="testimonials-text" data-testimonials-text>
+                            <p>Richard was hired to create a corporate identity. We were very pleased with the work done.</p>
+                        </div>
+                    </div>
+                </li>
+<!-- TESTIMONIALS_END -->
             </ul>
           </section>
 
@@ -263,7 +284,7 @@
             <ul class="clients-list has-scrollbar">
               <!-- CLIENTS_START -->
 
-              <!-- CLIENTS_END -->
+<!-- CLIENTS_END -->
             </ul>
           </section>
         </article>
@@ -288,7 +309,7 @@
             <ol class="timeline-list">
               <!-- EDUCATION_START -->
 
-              <!-- EDUCATION_END -->
+<!-- EDUCATION_END -->
             </ol>
           </section>
 
@@ -303,7 +324,12 @@
             <ol class="timeline-list">
               <!-- EXPERIENCE_START -->
 
-              <!-- EXPERIENCE_END -->
+                <li class="timeline-item">
+                    <h4 class="h4 timeline-item-title">asd</h4>
+                    <span>asd</span>
+                    <p class="timeline-text">asd</p>
+                </li>
+<!-- EXPERIENCE_END -->
             </ol>
           </section>
 
@@ -313,7 +339,46 @@
             <ul class="skills-list content-card">
               <!-- SKILLS_START -->
 
-              <!-- SKILLS_END -->
+                <li class="skills-item">
+                    <div class="title-wrapper">
+                        <h5 class="h5">Web design</h5>
+                        <data value="80">80%</data>
+                    </div>
+                    <div class="skill-progress-bg">
+                        <div class="skill-progress-fill" style="width: 80%"></div>
+                    </div>
+                </li>
+
+                <li class="skills-item">
+                    <div class="title-wrapper">
+                        <h5 class="h5">Graphic design</h5>
+                        <data value="70">70%</data>
+                    </div>
+                    <div class="skill-progress-bg">
+                        <div class="skill-progress-fill" style="width: 70%"></div>
+                    </div>
+                </li>
+
+                <li class="skills-item">
+                    <div class="title-wrapper">
+                        <h5 class="h5">Branding</h5>
+                        <data value="90">90%</data>
+                    </div>
+                    <div class="skill-progress-bg">
+                        <div class="skill-progress-fill" style="width: 90%"></div>
+                    </div>
+                </li>
+
+                <li class="skills-item">
+                    <div class="title-wrapper">
+                        <h5 class="h5">WordPress</h5>
+                        <data value="50">50%</data>
+                    </div>
+                    <div class="skill-progress-bg">
+                        <div class="skill-progress-fill" style="width: 50%"></div>
+                    </div>
+                </li>
+<!-- SKILLS_END -->
             </ul>
           </section>
         </article>
@@ -335,7 +400,22 @@
               </li>
               <!-- CATEGORY_FILTERS_START -->
 
-              <!-- CATEGORY_FILTERS_END -->
+                <li class="filter-item">
+                    <button data-filter-btn>Applications</button>
+                </li>
+
+                <li class="filter-item">
+                    <button data-filter-btn>Mobile Apps</button>
+                </li>
+
+                <li class="filter-item">
+                    <button data-filter-btn>Web Design</button>
+                </li>
+
+                <li class="filter-item">
+                    <button data-filter-btn>Web Development</button>
+                </li>
+<!-- CATEGORY_FILTERS_END -->
             </ul>
 
             <div class="filter-select-box">
@@ -353,14 +433,29 @@
                 </li>
                 <!-- CATEGORY_SELECT_START -->
 
-                <!-- CATEGORY_SELECT_END -->
+                <li class="select-item">
+                    <button data-select-item>Applications</button>
+                </li>
+
+                <li class="select-item">
+                    <button data-select-item>Mobile Apps</button>
+                </li>
+
+                <li class="select-item">
+                    <button data-select-item>Web Design</button>
+                </li>
+
+                <li class="select-item">
+                    <button data-select-item>Web Development</button>
+                </li>
+<!-- CATEGORY_SELECT_END -->
               </ul>
             </div>
 
             <ul class="project-list">
               <!-- PORTFOLIO_START -->
 
-              <!-- PORTFOLIO_END -->
+<!-- PORTFOLIO_END -->
             </ul>
           </section>
         </article>
@@ -378,7 +473,7 @@
             <ul class="blog-posts-list">
               <!-- BLOGS_START -->
 
-              <!-- BLOGS_END -->
+<!-- BLOGS_END -->
             </ul>
           </section>
         </article>
@@ -395,17 +490,16 @@
             <figure>
               <!-- MAP_START -->
 
-              <iframe
-                src="https://maps.google.com/maps?q=Votre%20Ville%2C%20Pays&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                width="400"
-                height="300"
-                loading="lazy"
-                style="border: 0"
-                allowfullscreen=""
-              >
-              </iframe>
-
-              <!-- MAP_END -->
+                    <iframe
+                        src="https://maps.google.com/maps?q=Votre%20Ville%2C%20Pays&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                        width="400"
+                        height="300"
+                        loading="lazy"
+                        style="border:0;"
+                        allowfullscreen="">
+                    </iframe>
+                
+<!-- MAP_END -->
             </figure>
           </section>
 

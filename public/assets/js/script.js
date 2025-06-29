@@ -137,7 +137,64 @@ for (let i = 0; i < navigationLinks.length; i++) {
     }
   });
 }
+class ThemeManager {
+  constructor() {
+    this.themeToggleBtn = document.getElementById("theme-toggle-btn");
+    this.currentTheme = localStorage.getItem("theme") || "dark";
 
+    this.init();
+  }
+
+  init() {
+    // Appliquer le thème sauvegardé
+    this.applyTheme(this.currentTheme);
+
+    // Écouter les clics sur le bouton
+    this.themeToggleBtn.addEventListener("click", () => {
+      this.toggleTheme();
+    });
+
+    // Écouter les changements de préférence système
+    window
+      .matchMedia("(prefers-color-scheme: dark)")
+      .addEventListener("change", (e) => {
+        if (this.currentTheme === "auto") {
+          this.applyTheme("auto");
+        }
+      });
+  }
+
+  toggleTheme() {
+    this.currentTheme = this.currentTheme === "dark" ? "light" : "dark";
+    this.applyTheme(this.currentTheme);
+    this.saveTheme();
+  }
+
+  applyTheme(theme) {
+    const html = document.documentElement;
+
+    if (theme === "light") {
+      html.setAttribute("data-theme", "light");
+    } else if (theme === "dark") {
+      html.removeAttribute("data-theme");
+    } else if (theme === "auto") {
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      if (prefersDark) {
+        html.removeAttribute("data-theme");
+      } else {
+        html.setAttribute("data-theme", "light");
+      }
+    }
+
+    this.currentTheme = theme;
+  }
+
+  saveTheme() {
+    localStorage.setItem("theme", this.currentTheme);
+  }
+}
 function refreshSections() {
   // Recharger seulement les sections modifiées
   location.reload();
@@ -160,6 +217,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const formBtn = document.querySelector("[data-form-btn]");
   const formInputs = document.querySelectorAll("[data-form-input]");
 
+  new ThemeManager();
+  const themeBtn = document.getElementById("theme-toggle-btn");
+
+  themeBtn.addEventListener("mouseenter", () => {
+    themeBtn.style.transform = "scale(1.1) rotate(10deg)";
+  });
+
+  themeBtn.addEventListener("mouseleave", () => {
+    themeBtn.style.transform = "scale(1) rotate(0deg)";
+  });
   // Activer/désactiver le bouton selon la validation
   formInputs.forEach((input) => {
     input.addEventListener("input", function () {
