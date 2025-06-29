@@ -1085,27 +1085,30 @@ document.getElementById("social-form").addEventListener("submit", async (e) => {
 
 // Charger les informations personnelles
 async function loadPersonalInfo() {
-    try {
-        const response = await fetch('/api/personal-info');
-        const info = await response.json();
-        
-        document.getElementById('personal-name').value = info.name;
-        document.getElementById('personal-title').value = info.title;
-        document.getElementById('personal-email').value = info.email;
-        document.getElementById('personal-phone').value = info.phone;
-        document.getElementById('personal-birthday').value = info.birthday;
-        document.getElementById('personal-location').value = info.location;
-        document.getElementById('personal-about').value = info.aboutText.join('\n');
-        
-        // Afficher l'avatar actuel si disponible
-        if (info.avatar) {
-            const avatarInput = document.getElementById('personal-avatar');
-            avatarInput.parentNode.querySelector('small').textContent = 
-                `Avatar actuel : ${info.avatar.split('/').pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
-        }
-    } catch (error) {
-        console.error('Erreur:', error);
+  try {
+    const response = await fetch("/api/personal-info");
+    const info = await response.json();
+
+    document.getElementById("personal-name").value = info.name;
+    document.getElementById("personal-title").value = info.title;
+    document.getElementById("personal-email").value = info.email;
+    document.getElementById("personal-phone").value = info.phone;
+    document.getElementById("personal-birthday").value = info.birthday;
+    document.getElementById("personal-location").value = info.location;
+    document.getElementById("personal-about").value = info.aboutText.join("\n");
+
+    // Afficher l'avatar actuel si disponible
+    if (info.avatar) {
+      const avatarInput = document.getElementById("personal-avatar");
+      avatarInput.parentNode.querySelector(
+        "small"
+      ).textContent = `Avatar actuel : ${info.avatar
+        .split("/")
+        .pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
     }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
 // Charger les liens sociaux
@@ -1190,6 +1193,413 @@ function cancelEditSocial() {
     "Ajouter Lien Social";
   editingSocial = null;
 }
+let editingEducation = null;
+let editingExperience = null;
+
+// Gestion de l'éducation
+document
+  .getElementById("education-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const educationData = {
+      institution: document.getElementById("education-institution").value,
+      period: document.getElementById("education-period").value,
+      description: document.getElementById("education-description").value,
+    };
+
+    try {
+      const url = editingEducation
+        ? `/api/education/${editingEducation}`
+        : "/api/education";
+      const method = editingEducation ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(educationData),
+      });
+
+      if (response.ok) {
+        document.getElementById("education-form").reset();
+        document.getElementById("education-submit-btn").textContent =
+          "Ajouter Formation";
+        editingEducation = null;
+        loadEducation();
+        alert(
+          "Formation " +
+            (editingEducation ? "modifiée" : "ajoutée") +
+            " avec succès!"
+        );
+      } else {
+        alert("Erreur lors de l'opération");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  });
+
+// Gestion de l'expérience
+document
+  .getElementById("experience-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const experienceData = {
+      position: document.getElementById("experience-position").value,
+      period: document.getElementById("experience-period").value,
+      description: document.getElementById("experience-description").value,
+    };
+
+    try {
+      const url = editingExperience
+        ? `/api/experience/${editingExperience}`
+        : "/api/experience";
+      const method = editingExperience ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method: method,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(experienceData),
+      });
+
+      if (response.ok) {
+        document.getElementById("experience-form").reset();
+        document.getElementById("experience-submit-btn").textContent =
+          "Ajouter Expérience";
+        editingExperience = null;
+        loadExperience();
+        alert(
+          "Expérience " +
+            (editingExperience ? "modifiée" : "ajoutée") +
+            " avec succès!"
+        );
+      } else {
+        alert("Erreur lors de l'opération");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  });
+
+// Charger l'éducation
+async function loadEducation() {
+  try {
+    const response = await fetch("/api/education");
+    const education = await response.json();
+
+    const educationList = document.getElementById("education-list");
+    educationList.innerHTML = "<h3>Formations existantes</h3>";
+
+    education.forEach((edu) => {
+      const eduDiv = document.createElement("div");
+      eduDiv.className = "project-item";
+      eduDiv.innerHTML = `
+                <h4>${edu.institution}</h4>
+                <p><strong>Période:</strong> ${edu.period}</p>
+                <p><strong>Description:</strong> ${edu.description}</p>
+                <div style="margin-top: 10px;">
+                    <button onclick="editEducation(${edu.id})" class="btn-edit">Modifier</button>
+                    <button onclick="deleteEducation(${edu.id})" class="btn-delete">Supprimer</button>
+                </div>
+            `;
+      educationList.appendChild(eduDiv);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Charger l'expérience
+async function loadExperience() {
+  try {
+    const response = await fetch("/api/experience");
+    const experience = await response.json();
+
+    const experienceList = document.getElementById("experience-list");
+    experienceList.innerHTML = "<h3>Expériences existantes</h3>";
+
+    experience.forEach((exp) => {
+      const expDiv = document.createElement("div");
+      expDiv.className = "project-item";
+      expDiv.innerHTML = `
+                <h4>${exp.position}</h4>
+                <p><strong>Période:</strong> ${exp.period}</p>
+                <p><strong>Description:</strong> ${exp.description}</p>
+                <div style="margin-top: 10px;">
+                    <button onclick="editExperience(${exp.id})" class="btn-edit">Modifier</button>
+                    <button onclick="deleteExperience(${exp.id})" class="btn-delete">Supprimer</button>
+                </div>
+            `;
+      experienceList.appendChild(expDiv);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Modifier une formation
+async function editEducation(id) {
+  try {
+    const response = await fetch("/api/education");
+    const education = await response.json();
+    const edu = education.find((e) => e.id === id);
+
+    if (edu) {
+      document.getElementById("education-institution").value = edu.institution;
+      document.getElementById("education-period").value = edu.period;
+      document.getElementById("education-description").value = edu.description;
+      document.getElementById("education-submit-btn").textContent =
+        "Modifier Formation";
+      editingEducation = id;
+
+      document
+        .getElementById("education-form")
+        .scrollIntoView({ behavior: "smooth" });
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Modifier une expérience
+async function editExperience(id) {
+  try {
+    const response = await fetch("/api/experience");
+    const experience = await response.json();
+    const exp = experience.find((e) => e.id === id);
+
+    if (exp) {
+      document.getElementById("experience-position").value = exp.position;
+      document.getElementById("experience-period").value = exp.period;
+      document.getElementById("experience-description").value = exp.description;
+      document.getElementById("experience-submit-btn").textContent =
+        "Modifier Expérience";
+      editingExperience = id;
+
+      document
+        .getElementById("experience-form")
+        .scrollIntoView({ behavior: "smooth" });
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Supprimer une formation
+async function deleteEducation(id) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette formation?")) {
+    try {
+      const response = await fetch(`/api/education/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        loadEducation();
+        alert("Formation supprimée avec succès!");
+      } else {
+        alert("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  }
+}
+
+// Supprimer une expérience
+async function deleteExperience(id) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette expérience?")) {
+    try {
+      const response = await fetch(`/api/experience/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        loadExperience();
+        alert("Expérience supprimée avec succès!");
+      } else {
+        alert("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  }
+}
+
+// Annuler les modifications
+function cancelEditEducation() {
+  document.getElementById("education-form").reset();
+  document.getElementById("education-submit-btn").textContent =
+    "Ajouter Formation";
+  editingEducation = null;
+}
+
+function cancelEditExperience() {
+  document.getElementById("experience-form").reset();
+  document.getElementById("experience-submit-btn").textContent =
+    "Ajouter Expérience";
+  editingExperience = null;
+}
+
+let editingSkill = null;
+
+// Fonction de déconnexion
+function logout() {
+  if (confirm("Êtes-vous sûr de vouloir vous déconnecter?")) {
+    localStorage.removeItem("adminToken");
+    token = null;
+    document.getElementById("login-section").style.display = "block";
+    document.getElementById("admin-panel").style.display = "none";
+
+    // Réinitialiser les formulaires
+    document.getElementById("login-form").reset();
+    alert("Déconnexion réussie!");
+  }
+}
+
+// Gestion des compétences
+document.getElementById("skill-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const skillData = {
+    name: document.getElementById("skill-name").value,
+    percentage: document.getElementById("skill-percentage").value,
+  };
+
+  try {
+    const url = editingSkill ? `/api/skills/${editingSkill}` : "/api/skills";
+    const method = editingSkill ? "PUT" : "POST";
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(skillData),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      document.getElementById("skill-form").reset();
+      document.getElementById("skill-submit-btn").textContent =
+        "Ajouter Compétence";
+      editingSkill = null;
+      loadSkills();
+      alert(
+        "Compétence " +
+          (editingSkill ? "modifiée" : "ajoutée") +
+          " avec succès!"
+      );
+    } else {
+      alert("Erreur: " + data.error);
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+    alert("Erreur lors de l'opération");
+  }
+});
+
+// Charger les compétences
+async function loadSkills() {
+  try {
+    const response = await fetch("/api/skills");
+    const skills = await response.json();
+
+    const skillsList = document.getElementById("skills-list");
+    skillsList.innerHTML = "<h3>Compétences existantes</h3>";
+
+    skills.forEach((skill) => {
+      const skillDiv = document.createElement("div");
+      skillDiv.className = "project-item";
+      skillDiv.innerHTML = `
+                <h4>${skill.name}</h4>
+                <div style="margin: 10px 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span><strong>Niveau:</strong> ${skill.percentage}%</span>
+                    </div>
+                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: #007bff; height: 100%; width: ${skill.percentage}%; transition: width 0.3s ease;"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button onclick="editSkill(${skill.id})" class="btn-edit">Modifier</button>
+                    <button onclick="deleteSkill(${skill.id})" class="btn-delete">Supprimer</button>
+                </div>
+            `;
+      skillsList.appendChild(skillDiv);
+    });
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Modifier une compétence
+async function editSkill(id) {
+  try {
+    const response = await fetch("/api/skills");
+    const skills = await response.json();
+    const skill = skills.find((s) => s.id === id);
+
+    if (skill) {
+      document.getElementById("skill-name").value = skill.name;
+      document.getElementById("skill-percentage").value = skill.percentage;
+      document.getElementById("skill-submit-btn").textContent =
+        "Modifier Compétence";
+      editingSkill = id;
+
+      document
+        .getElementById("skill-form")
+        .scrollIntoView({ behavior: "smooth" });
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Supprimer une compétence
+async function deleteSkill(id) {
+  if (confirm("Êtes-vous sûr de vouloir supprimer cette compétence?")) {
+    try {
+      const response = await fetch(`/api/skills/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        loadSkills();
+        alert("Compétence supprimée avec succès!");
+      } else {
+        alert("Erreur lors de la suppression");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+    }
+  }
+}
+
+// Annuler la modification d'une compétence
+function cancelEditSkill() {
+  document.getElementById("skill-form").reset();
+  document.getElementById("skill-submit-btn").textContent =
+    "Ajouter Compétence";
+  editingSkill = null;
+}
 
 // Mettre à jour la fonction de chargement initial
 if (token) {
@@ -1204,4 +1614,7 @@ if (token) {
   loadBlogs();
   loadPersonalInfo();
   loadSocialLinks();
+  loadEducation();
+  loadExperience();
+  loadSkills();
 }

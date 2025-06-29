@@ -100,6 +100,47 @@
       .danger-zone h2 {
         color: #dc3545 !important;
       }
+      .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+      }
+
+      .logout-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .logout-btn:hover {
+        background: #5a6268;
+      }
+
+      .skill-progress-preview {
+        background: #e9ecef;
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 5px 0;
+      }
+
+      .skill-progress-preview-fill {
+        background: #007bff;
+        height: 100%;
+        transition: width 0.3s ease;
+      }
     </style>
   </head>
   <body>
@@ -122,6 +163,27 @@
       </div>
 
       <div id="admin-panel" style="display: none">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+          "
+        >
+          <h1 style="margin: 0">Administration Portfolio</h1>
+          <button
+            onclick="logout()"
+            class="btn-delete"
+            style="background: #6c757d"
+          >
+            <ion-icon name="log-out-outline"></ion-icon>
+            Se déconnecter
+          </button>
+        </div>
         <div class="form-section danger-zone">
           <h2 style="color: #dc3545">Zone Dangereuse</h2>
           <p style="color: #666">
@@ -526,6 +588,142 @@
         </div>
 
         <div id="blogs-list"></div>
+
+        <!-- Section Gestion de l'Éducation -->
+        <div class="form-section">
+          <h2>Gestion de l'Éducation</h2>
+          <form id="education-form">
+            <div class="form-group">
+              <label>Institution/École:</label>
+              <input
+                type="text"
+                id="education-institution"
+                required
+                placeholder="University school of the arts"
+              />
+            </div>
+            <div class="form-group">
+              <label>Période:</label>
+              <input
+                type="text"
+                id="education-period"
+                required
+                placeholder="2007 — 2008"
+              />
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea
+                id="education-description"
+                required
+                placeholder="Description de la formation"
+              ></textarea>
+            </div>
+            <div class="button-group">
+              <button type="submit" id="education-submit-btn">
+                Ajouter Formation
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditEducation()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="education-list"></div>
+
+        <!-- Section Gestion de l'Expérience -->
+        <div class="form-section">
+          <h2>Gestion de l'Expérience</h2>
+          <form id="experience-form">
+            <div class="form-group">
+              <label>Poste/Position:</label>
+              <input
+                type="text"
+                id="experience-position"
+                required
+                placeholder="Creative director"
+              />
+            </div>
+            <div class="form-group">
+              <label>Période:</label>
+              <input
+                type="text"
+                id="experience-period"
+                required
+                placeholder="2015 — Present"
+              />
+            </div>
+            <div class="form-group">
+              <label>Description:</label>
+              <textarea
+                id="experience-description"
+                required
+                placeholder="Description du poste et responsabilités"
+              ></textarea>
+            </div>
+            <div class="button-group">
+              <button type="submit" id="experience-submit-btn">
+                Ajouter Expérience
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditExperience()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="experience-list"></div>
+
+        <!-- Section Gestion des Compétences -->
+        <div class="form-section">
+          <h2>Gestion des Compétences</h2>
+          <form id="skill-form">
+            <div class="form-group">
+              <label>Nom de la compétence:</label>
+              <input
+                type="text"
+                id="skill-name"
+                required
+                placeholder="Web design, JavaScript, etc."
+              />
+            </div>
+            <div class="form-group">
+              <label>Niveau (%):</label>
+              <input
+                type="number"
+                id="skill-percentage"
+                required
+                min="0"
+                max="100"
+                placeholder="80"
+              />
+              <small>Entrez un pourcentage entre 0 et 100</small>
+            </div>
+            <div class="button-group">
+              <button type="submit" id="skill-submit-btn">
+                Ajouter Compétence
+              </button>
+              <button
+                type="button"
+                class="btn-cancel"
+                onclick="cancelEditSkill()"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="skills-list"></div>
       </div>
     </div>
 

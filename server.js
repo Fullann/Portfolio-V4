@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const nodemailer = require("nodemailer");
 const multer = require("multer");
@@ -147,6 +147,62 @@ let socialLinks = [
     icon: "logo-linkedin",
     url: "https://linkedin.com/in/username",
   },
+];
+
+let educationData = [
+  {
+    id: 1,
+    institution: "University school of the arts",
+    period: "2007 — 2008",
+    description:
+      "Nemo enims ipsam voluptatem, blanditiis praesentium voluptum delenit atque corrupti, quos dolores et quas molestias exceptur.",
+  },
+  {
+    id: 2,
+    institution: "New york academy of art",
+    period: "2006 — 2007",
+    description:
+      "Ratione voluptatem sequi nesciunt, facere quisquams facere menda ossimus, omnis voluptas assumenda est omnis..",
+  },
+  {
+    id: 3,
+    institution: "High school of art and design",
+    period: "2002 — 2004",
+    description:
+      "Duis aute irure dolor in reprehenderit in voluptate, quila voluptas mag odit aut fugit, sed consequuntur magni dolores eos.",
+  },
+];
+
+let experienceData = [
+  {
+    id: 1,
+    position: "Creative director",
+    period: "2015 — Present",
+    description:
+      "Nemo enim ipsam voluptatem blanditiis praesentium voluptum delenit atque corrupti, quos dolores et qvuas molestias exceptur.",
+  },
+  {
+    id: 2,
+    position: "Art director",
+    period: "2013 — 2015",
+    description:
+      "Nemo enims ipsam voluptatem, blanditiis praesentium voluptum delenit atque corrupti, quos dolores et quas molestias exceptur.",
+  },
+  {
+    id: 3,
+    position: "Web designer",
+    period: "2010 — 2013",
+    description:
+      "Nemo enims ipsam voluptatem, blanditiis praesentium voluptum delenit atque corrupti, quos dolores et quas molestias exceptur.",
+  },
+];
+
+// Ajoutez après experienceData (vers ligne 250)
+let skillsData = [
+  { id: 1, name: "Web design", percentage: 80 },
+  { id: 2, name: "Graphic design", percentage: 70 },
+  { id: 3, name: "Branding", percentage: 90 },
+  { id: 4, name: "WordPress", percentage: 50 },
 ];
 
 // Utilisateur admin par défaut
@@ -745,6 +801,7 @@ app.get("/blog/:slug", async (req, res) => {
 });
 
 // Route pour supprimer TOUT
+// Route pour supprimer TOUT
 app.delete("/api/delete-all", authenticateToken, async (req, res) => {
   try {
     // Vider toutes les données
@@ -754,6 +811,9 @@ app.delete("/api/delete-all", authenticateToken, async (req, res) => {
     clientsData = [];
     blogsData = [];
     socialLinks = [];
+    educationData = [];
+    experienceData = [];
+    skillsData = []; // Ajoutez cette ligne
 
     // Réinitialiser les informations personnelles aux valeurs par défaut
     personalInfo = {
@@ -763,6 +823,7 @@ app.delete("/api/delete-all", authenticateToken, async (req, res) => {
       phone: "+33 1 23 45 67 89",
       birthday: "1990-01-01",
       location: "Votre Ville, Pays",
+      avatar: "./assets/images/my-avatar.png",
       aboutText: ["Votre présentation personnelle ici."],
     };
 
@@ -869,6 +930,171 @@ app.delete("/api/social-links/:id", authenticateToken, async (req, res) => {
   lastUpdate = Date.now();
 
   socialLinks = socialLinks.filter((s) => s.id != id);
+  await updateHtmlFile();
+  res.json({ success: true });
+});
+// Routes pour l'éducation
+app.get("/api/education", (req, res) => {
+  res.json(educationData);
+});
+
+app.post("/api/education", authenticateToken, async (req, res) => {
+  const { institution, period, description } = req.body;
+
+  lastUpdate = Date.now();
+
+  const newEducation = {
+    id: Date.now(),
+    institution,
+    period,
+    description,
+  };
+
+  educationData.push(newEducation);
+  await updateHtmlFile();
+  res.json(newEducation);
+});
+
+app.put("/api/education/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { institution, period, description } = req.body;
+
+  lastUpdate = Date.now();
+
+  const educationIndex = educationData.findIndex((e) => e.id == id);
+  if (educationIndex === -1) {
+    return res.status(404).json({ error: "Formation non trouvée" });
+  }
+
+  const education = educationData[educationIndex];
+  education.institution = institution || education.institution;
+  education.period = period || education.period;
+  education.description = description || education.description;
+
+  await updateHtmlFile();
+  res.json(education);
+});
+
+app.delete("/api/education/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  lastUpdate = Date.now();
+
+  educationData = educationData.filter((e) => e.id != id);
+  await updateHtmlFile();
+  res.json({ success: true });
+});
+
+// Routes pour l'expérience
+app.get("/api/experience", (req, res) => {
+  res.json(experienceData);
+});
+
+app.post("/api/experience", authenticateToken, async (req, res) => {
+  const { position, period, description } = req.body;
+
+  lastUpdate = Date.now();
+
+  const newExperience = {
+    id: Date.now(),
+    position,
+    period,
+    description,
+  };
+
+  experienceData.push(newExperience);
+  await updateHtmlFile();
+  res.json(newExperience);
+});
+
+app.put("/api/experience/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { position, period, description } = req.body;
+
+  lastUpdate = Date.now();
+
+  const experienceIndex = experienceData.findIndex((e) => e.id == id);
+  if (experienceIndex === -1) {
+    return res.status(404).json({ error: "Expérience non trouvée" });
+  }
+
+  const experience = experienceData[experienceIndex];
+  experience.position = position || experience.position;
+  experience.period = period || experience.period;
+  experience.description = description || experience.description;
+
+  await updateHtmlFile();
+  res.json(experience);
+});
+
+app.delete("/api/experience/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  lastUpdate = Date.now();
+
+  experienceData = experienceData.filter((e) => e.id != id);
+  await updateHtmlFile();
+  res.json({ success: true });
+});
+
+// Routes pour les compétences
+app.get("/api/skills", (req, res) => {
+  res.json(skillsData);
+});
+
+app.post("/api/skills", authenticateToken, async (req, res) => {
+  const { name, percentage } = req.body;
+
+  // Validation du pourcentage
+  if (percentage < 0 || percentage > 100) {
+    return res
+      .status(400)
+      .json({ error: "Le pourcentage doit être entre 0 et 100" });
+  }
+
+  lastUpdate = Date.now();
+
+  const newSkill = {
+    id: Date.now(),
+    name,
+    percentage: parseInt(percentage),
+  };
+
+  skillsData.push(newSkill);
+  await updateHtmlFile();
+  res.json(newSkill);
+});
+
+app.put("/api/skills/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { name, percentage } = req.body;
+
+  // Validation du pourcentage
+  if (percentage && (percentage < 0 || percentage > 100)) {
+    return res
+      .status(400)
+      .json({ error: "Le pourcentage doit être entre 0 et 100" });
+  }
+
+  lastUpdate = Date.now();
+
+  const skillIndex = skillsData.findIndex((s) => s.id == id);
+  if (skillIndex === -1) {
+    return res.status(404).json({ error: "Compétence non trouvée" });
+  }
+
+  const skill = skillsData[skillIndex];
+  skill.name = name || skill.name;
+  skill.percentage =
+    percentage !== undefined ? parseInt(percentage) : skill.percentage;
+
+  await updateHtmlFile();
+  res.json(skill);
+});
+
+app.delete("/api/skills/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  lastUpdate = Date.now();
+
+  skillsData = skillsData.filter((s) => s.id != id);
   await updateHtmlFile();
   res.json({ success: true });
 });
@@ -1101,7 +1327,6 @@ async function updateHtmlFile() {
       );
     }
 
-    // Dans la fonction updateHtmlFile(), remplacez la section contact par :
     const contactInfoRegex =
       /(<!-- CONTACT_INFO_START -->)([\s\S]*?)(<!-- CONTACT_INFO_END -->)/;
     if (contactInfoRegex.test(htmlContent)) {
@@ -1193,9 +1418,9 @@ async function updateHtmlFile() {
     }
 
     const mapRegex = /(<!-- MAP_START -->)([\s\S]*?)(<!-- MAP_END -->)/;
-        if (mapRegex.test(htmlContent)) {
-            const encodedLocation = encodeURIComponent(personalInfo.location);
-            const mapHtml = `
+    if (mapRegex.test(htmlContent)) {
+      const encodedLocation = encodeURIComponent(personalInfo.location);
+      const mapHtml = `
                 <iframe
                     src="https://maps.google.com/maps?q=${encodedLocation}&t=&z=13&ie=UTF8&iwloc=&output=embed"
                     width="400"
@@ -1205,9 +1430,72 @@ async function updateHtmlFile() {
                     allowfullscreen="">
                 </iframe>
             `;
-            htmlContent = htmlContent.replace(mapRegex, `$1\n${mapHtml}\n$3`);
-        }
+      htmlContent = htmlContent.replace(mapRegex, `$1\n${mapHtml}\n$3`);
+    }
+    // Générer le HTML pour l'éducation
+    const educationHtml = educationData
+      .map(
+        (education) => `
+                <li class="timeline-item">
+                    <h4 class="h4 timeline-item-title">${education.institution}</h4>
+                    <span>${education.period}</span>
+                    <p class="timeline-text">${education.description}</p>
+                </li>`
+      )
+      .join("\n");
 
+    // Générer le HTML pour l'expérience
+    const experienceHtml = experienceData
+      .map(
+        (experience) => `
+                <li class="timeline-item">
+                    <h4 class="h4 timeline-item-title">${experience.position}</h4>
+                    <span>${experience.period}</span>
+                    <p class="timeline-text">${experience.description}</p>
+                </li>`
+      )
+      .join("\n");
+
+    // Remplacer les sections éducation et expérience
+    const educationRegex =
+      /(<!-- EDUCATION_START -->)([\s\S]*?)(<!-- EDUCATION_END -->)/;
+    if (educationRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        educationRegex,
+        `$1\n${educationHtml}\n$3`
+      );
+    }
+
+    const experienceRegex =
+      /(<!-- EXPERIENCE_START -->)([\s\S]*?)(<!-- EXPERIENCE_END -->)/;
+    if (experienceRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(
+        experienceRegex,
+        `$1\n${experienceHtml}\n$3`
+      );
+    }
+
+    const skillsHtml = skillsData
+      .map(
+        (skill) => `
+                <li class="skills-item">
+                    <div class="title-wrapper">
+                        <h5 class="h5">${skill.name}</h5>
+                        <data value="${skill.percentage}">${skill.percentage}%</data>
+                    </div>
+                    <div class="skill-progress-bg">
+                        <div class="skill-progress-fill" style="width: ${skill.percentage}%"></div>
+                    </div>
+                </li>`
+      )
+      .join("\n");
+
+    // Remplacer la section des compétences
+    const skillsRegex =
+      /(<!-- SKILLS_START -->)([\s\S]*?)(<!-- SKILLS_END -->)/;
+    if (skillsRegex.test(htmlContent)) {
+      htmlContent = htmlContent.replace(skillsRegex, `$1\n${skillsHtml}\n$3`);
+    }
     await fs.writeFile("public/index.html", htmlContent, "utf8");
     console.log("Fichier HTML mis à jour avec succès");
   } catch (error) {
