@@ -84,7 +84,7 @@ document
             : "Projet ajouté avec succès!"
         );
       } else {
-        alert("Erreur lors de l'opération");
+        alert("Erreur lors de l'opération. Regarder la console pour plus d'informations.");
       }
     } catch (error) {
       console.error("Erreur:", error);
@@ -1071,7 +1071,7 @@ async function loadPersonalInfo() {
 
 // Fonction pour voir le CV actuel
 function viewCurrentCV() {
-    window.open('/download-cv', '_blank');
+    window.open('/documents', '_blank');
 }
 
 

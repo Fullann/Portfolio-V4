@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  mysql-test:
+    image: mysql:8.0
+    container_name: portfolio-mysql-test
+    environment:
+      MYSQL_ROOT_PASSWORD: testpassword123
+      MYSQL_DATABASE: portfolio
+      MYSQL_USER: testuser
+      MYSQL_PASSWORD: testuserpassword
+    ports:
+      - "3307:3306"  # Port différent pour éviter les conflits
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+      - ./init-test.sql:/docker-entrypoint-initdb.d/init-test.sql
+    restart: unless-stopped
+    cap_add:
+      - SYS_NICE  # Supprime les messages d'erreur non utiles
+
+volumes:
+  mysql_test_data:

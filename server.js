@@ -9,7 +9,7 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { marked } = require("marked");
-const { dbOperations } = require("./database");
+const { dbOperations, initializeDatabase } = require("./mysql-db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -82,14 +82,14 @@ async function createAdminUser() {
     const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
     // Vérifier si l'utilisateur admin existe déjà
-    const existingAdmin = dbOperations.admin.getByUsername(adminUsername);
+    const existingAdmin = await dbOperations.admin.getByUsername(adminUsername);
 
     if (!existingAdmin) {
       // Hasher le mot de passe
       const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
       // Créer l'utilisateur admin
-      dbOperations.admin.create({
+      await dbOperations.admin.create({
         username: adminUsername,
         password: hashedPassword,
       });
@@ -125,6 +125,21 @@ const authenticateToken = (req, res, next) => {
 // Fonctions utilitaires pour formater les données
 function formatPersonalInfo(dbData) {
   if (!dbData) return null;
+
+  let aboutText = [];
+  try {
+    // Essayer de parser le JSON
+    aboutText = JSON.parse(dbData.about_text || "[]");
+  } catch (error) {
+    // Si ce n'est pas du JSON valide, traiter comme du texte simple
+    if (dbData.about_text && typeof dbData.about_text === "string") {
+      // Diviser par paragraphes ou garder comme un seul élément
+      aboutText = [dbData.about_text];
+    } else {
+      aboutText = [];
+    }
+  }
+
   return {
     name: dbData.name,
     title: dbData.title,
@@ -134,31 +149,41 @@ function formatPersonalInfo(dbData) {
     location: dbData.location,
     avatar: dbData.avatar,
     cvFile: dbData.cv_file,
-    aboutText: JSON.parse(dbData.about_text || "[]"),
+    aboutText: aboutText,
   };
 }
 
-function formatPortfolioProject(dbData) {
-  const category = dbOperations.categories.getByName(dbData.filter_category);
-
+async function formatPortfolioProject(dbData) {
+  let category = null;
+  
+  // Vérifier que filter_category n'est pas undefined/null
+  if (dbData.filter_category && dbData.filter_category.trim()) {
+    try {
+      category = await dbOperations.categories.getByName(dbData.filter_category);
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la catégorie:', error);
+    }
+  }
+  
   return {
     id: dbData.id,
     title: dbData.title,
-    category: category ? category.display_name : dbData.category,
+    category: category ? category.display_name : (dbData.category || 'Non définie'),
     image: dbData.image,
     description: dbData.description,
     repoLink: dbData.repo_link,
     liveLink: dbData.live_link,
-    filterCategory: dbData.filter_category,
+    filterCategory: dbData.filter_category || null,
   };
 }
+
 
 // Routes d'authentification
 app.post("/api/login", async (req, res) => {
   try {
     const { username, password } = req.body;
 
-    const admin = dbOperations.admin.getByUsername(username);
+    const admin = await dbOperations.admin.getByUsername(username);
 
     if (admin && (await bcrypt.compare(password, admin.password))) {
       const token = jwt.sign(
@@ -203,9 +228,9 @@ app.post("/api/send-email", async (req, res) => {
 });
 
 // Routes pour les projets (services)
-app.get("/api/projects", (req, res) => {
+app.get("/api/projects", async (req, res) => {
   try {
-    const projects = dbOperations.projects.getAll();
+    const projects = await dbOperations.projects.getAll();
     res.json(projects);
   } catch (error) {
     console.error("Erreur:", error);
@@ -226,7 +251,7 @@ app.post(
 
       lastUpdate = Date.now();
 
-      const newProject = dbOperations.projects.create({
+      const newProject = await dbOperations.projects.create({
         title,
         category,
         image,
@@ -258,7 +283,7 @@ app.put(
         updateData.image = `/assets/images/${req.file.filename}`;
       }
 
-      const updatedProject = dbOperations.projects.update(id, updateData);
+      const updatedProject = await dbOperations.projects.update(id, updateData);
       if (!updatedProject) {
         return res.status(404).json({ error: "Projet non trouvé" });
       }
@@ -279,7 +304,7 @@ app.delete("/api/projects/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.projects.delete(id);
+    await dbOperations.projects.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -289,9 +314,9 @@ app.delete("/api/projects/:id", authenticateToken, async (req, res) => {
 });
 
 // Routes pour les témoignages
-app.get("/api/testimonials", (req, res) => {
+app.get("/api/testimonials", async (req, res) => {
   try {
-    const testimonials = dbOperations.testimonials.getAll();
+    const testimonials = await dbOperations.testimonials.getAll();
     res.json(testimonials);
   } catch (error) {
     console.error("Erreur:", error);
@@ -314,7 +339,7 @@ app.post(
 
       lastUpdate = Date.now();
 
-      const newTestimonial = dbOperations.testimonials.create({
+      const newTestimonial = await dbOperations.testimonials.create({
         name,
         text,
         avatar,
@@ -348,7 +373,7 @@ app.put(
         updateData.avatar = `/assets/images/${req.file.filename}`;
       }
 
-      const updatedTestimonial = dbOperations.testimonials.update(
+      const updatedTestimonial = await dbOperations.testimonials.update(
         id,
         updateData
       );
@@ -372,7 +397,7 @@ app.delete("/api/testimonials/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.testimonials.delete(id);
+    await dbOperations.testimonials.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -384,12 +409,13 @@ app.delete("/api/testimonials/:id", authenticateToken, async (req, res) => {
 });
 
 // Routes pour les projets portfolio
-app.get("/api/portfolio-projects", (req, res) => {
+app.get("/api/portfolio-projects", async (req, res) => {
   try {
-    const projects = dbOperations.portfolioProjects
-      .getAll()
-      .map(formatPortfolioProject);
-    res.json(projects);
+    const projects = await dbOperations.portfolioProjects.getAll();
+    const formattedProjects = await Promise.all(
+      projects.map(formatPortfolioProject)
+    );
+    res.json(formattedProjects);
   } catch (error) {
     console.error("Erreur:", error);
     res
@@ -416,7 +442,7 @@ app.post(
 
       lastUpdate = Date.now();
 
-      const newProject = dbOperations.portfolioProjects.create({
+      const newProject = await dbOperations.portfolioProjects.create({
         title,
         category,
         image,
@@ -427,7 +453,7 @@ app.post(
       });
 
       await updateHtmlFile();
-      res.json(formatPortfolioProject(newProject));
+      res.json(await formatPortfolioProject(newProject));
     } catch (error) {
       console.error("Erreur:", error);
       res
@@ -467,7 +493,7 @@ app.put(
         updateData.image = `/assets/images/${req.file.filename}`;
       }
 
-      const updatedProject = dbOperations.portfolioProjects.update(
+      const updatedProject = await dbOperations.portfolioProjects.update(
         id,
         updateData
       );
@@ -476,7 +502,7 @@ app.put(
       }
 
       await updateHtmlFile();
-      res.json(formatPortfolioProject(updatedProject));
+      res.json(await formatPortfolioProject(updatedProject));
     } catch (error) {
       console.error("Erreur:", error);
       res
@@ -494,7 +520,7 @@ app.delete(
       const { id } = req.params;
       lastUpdate = Date.now();
 
-      dbOperations.portfolioProjects.delete(id);
+      await dbOperations.portfolioProjects.delete(id);
       await updateHtmlFile();
       res.json({ success: true });
     } catch (error) {
@@ -507,9 +533,9 @@ app.delete(
 );
 
 // Routes pour les clients
-app.get("/api/clients", (req, res) => {
+app.get("/api/clients", async (req, res) => {
   try {
-    const clients = dbOperations.clients.getAll();
+    const clients = await dbOperations.clients.getAll();
     res.json(clients);
   } catch (error) {
     console.error("Erreur:", error);
@@ -530,7 +556,7 @@ app.post(
 
       lastUpdate = Date.now();
 
-      const newClient = dbOperations.clients.create({
+      const newClient = await dbOperations.clients.create({
         name,
         logo,
         website: website || "",
@@ -562,7 +588,7 @@ app.put(
         updateData.logo = `/assets/images/${req.file.filename}`;
       }
 
-      const updatedClient = dbOperations.clients.update(id, updateData);
+      const updatedClient = await dbOperations.clients.update(id, updateData);
       if (!updatedClient) {
         return res.status(404).json({ error: "Client non trouvé" });
       }
@@ -583,7 +609,7 @@ app.delete("/api/clients/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.clients.delete(id);
+    await dbOperations.clients.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -593,9 +619,9 @@ app.delete("/api/clients/:id", authenticateToken, async (req, res) => {
 });
 
 // Routes pour les catégories
-app.get("/api/categories", (req, res) => {
+app.get("/api/categories", async (req, res) => {
   try {
-    const categories = dbOperations.categories.getAll();
+    const categories = await dbOperations.categories.getAll();
     res.json(categories);
   } catch (error) {
     console.error("Erreur:", error);
@@ -609,7 +635,7 @@ app.post("/api/categories", authenticateToken, async (req, res) => {
   try {
     const { name, displayName } = req.body;
 
-    const existingCategory = dbOperations.categories.getByName(
+    const existingCategory = await dbOperations.categories.getByName(
       name.toLowerCase()
     );
     if (existingCategory) {
@@ -618,7 +644,7 @@ app.post("/api/categories", authenticateToken, async (req, res) => {
 
     lastUpdate = Date.now();
 
-    const newCategory = dbOperations.categories.create({
+    const newCategory = await dbOperations.categories.create({
       name: name.toLowerCase().replace(/\s+/g, " ").trim(),
       displayName: displayName || name,
     });
@@ -640,7 +666,7 @@ app.put("/api/categories/:id", authenticateToken, async (req, res) => {
 
     lastUpdate = Date.now();
 
-    const category = dbOperations.categories.getById(id);
+    const category = await dbOperations.categories.getById(id);
     if (!category) {
       return res.status(404).json({ error: "Catégorie non trouvée" });
     }
@@ -651,14 +677,14 @@ app.put("/api/categories/:id", authenticateToken, async (req, res) => {
       : category.name;
     const newDisplayName = displayName || category.display_name;
 
-    const updatedCategory = dbOperations.categories.update(id, {
+    const updatedCategory = await dbOperations.categories.update(id, {
       name: newName,
       displayName: newDisplayName,
     });
 
     // Mettre à jour les références dans les projets portfolio
     if (oldName !== newName) {
-      dbOperations.portfolioProjects.updateCategoryReferences(
+      await dbOperations.portfolioProjects.updateCategoryReferences(
         oldName,
         newName,
         newDisplayName
@@ -679,15 +705,15 @@ app.delete("/api/categories/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
-    const category = dbOperations.categories.getById(id);
+    const category = await dbOperations.categories.getById(id);
     if (!category) {
       return res.status(404).json({ error: "Catégorie non trouvée" });
     }
 
     // Vérifier si des projets utilisent cette catégorie
-    const projectsUsingCategory = dbOperations.portfolioProjects
-      .getAll()
-      .filter((p) => p.filter_category === category.name);
+    const projectsUsingCategory = (
+      await dbOperations.portfolioProjects.getAll()
+    ).filter((p) => p.filter_category === category.name);
 
     if (projectsUsingCategory.length > 0) {
       return res.status(400).json({
@@ -697,7 +723,7 @@ app.delete("/api/categories/:id", authenticateToken, async (req, res) => {
     }
 
     lastUpdate = Date.now();
-    dbOperations.categories.delete(id);
+    await dbOperations.categories.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -709,9 +735,9 @@ app.delete("/api/categories/:id", authenticateToken, async (req, res) => {
 });
 
 // Routes pour les blogs
-app.get("/api/blogs", (req, res) => {
+app.get("/api/blogs", async (req, res) => {
   try {
-    const blogs = dbOperations.blogs.getAll();
+    const blogs = await dbOperations.blogs.getAll();
     res.json(blogs);
   } catch (error) {
     console.error("Erreur:", error);
@@ -719,10 +745,10 @@ app.get("/api/blogs", (req, res) => {
   }
 });
 
-app.get("/api/blogs/:slug", (req, res) => {
+app.get("/api/blogs/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
-    const blog = dbOperations.blogs.getBySlug(slug);
+    const blog = await dbOperations.blogs.getBySlug(slug);
 
     if (!blog) {
       return res.status(404).json({ error: "Blog non trouvé" });
@@ -756,7 +782,7 @@ app.post(
 
       lastUpdate = Date.now();
 
-      const newBlog = dbOperations.blogs.create({
+      const newBlog = await dbOperations.blogs.create({
         title,
         category,
         excerpt,
@@ -800,7 +826,7 @@ app.put(
         updateData.image = `/assets/images/${req.file.filename}`;
       }
 
-      const updatedBlog = dbOperations.blogs.update(id, updateData);
+      const updatedBlog = await dbOperations.blogs.update(id, updateData);
       if (!updatedBlog) {
         return res.status(404).json({ error: "Blog non trouvé" });
       }
@@ -819,7 +845,7 @@ app.delete("/api/blogs/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.blogs.delete(id);
+    await dbOperations.blogs.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -832,7 +858,7 @@ app.delete("/api/blogs/:id", authenticateToken, async (req, res) => {
 app.get("/blog/:slug", async (req, res) => {
   try {
     const { slug } = req.params;
-    const blog = dbOperations.blogs.getBySlug(slug);
+    const blog = await dbOperations.blogs.getBySlug(slug);
 
     if (!blog) {
       return res.status(404).send("Blog non trouvé");
@@ -851,72 +877,90 @@ app.get("/blog/:slug", async (req, res) => {
     });
 
     const blogPageHtml = `
-        <!DOCTYPE html>
+               <!DOCTYPE html>
         <html lang="fr">
         <head>
-            <meta charset="UTF-8">
             ${metaTags}
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="/assets/css/style.css">
             <style>
-                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-                .blog-header { text-align: center; margin-bottom: 30px; }
-                .blog-image { width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; }
-                .blog-meta { color: #666; margin: 20px 0; text-align: center; }
-                .blog-content { margin-top: 30px; }
-                .blog-content h1, .blog-content h2, .blog-content h3 { color: #333; }
-                .blog-content p { margin-bottom: 15px; }
-                .blog-content ul, .blog-content ol { margin-bottom: 15px; padding-left: 30px; }
-                .back-button { display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 20px; }
-                .back-button:hover { background: #0056b3; }
+                .blog-container {
+                    max-width: 800px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }
+                .back-link {
+                    color: var(--orange-yellow-crayola);
+                    text-decoration: none;
+                    margin-bottom: 20px;
+                    display: inline-block;
+                }
+                .blog-header {
+                    margin-bottom: 30px;
+                }
+                .blog-title {
+                    font-size: 2.5rem;
+                    margin-bottom: 10px;
+                }
+                .blog-meta {
+                    color: var(--light-gray-70);
+                    margin-bottom: 20px;
+                }
+                .blog-image {
+                    width: 100%;
+                    height: 400px;
+                    object-fit: cover;
+                    border-radius: 15px;
+                    margin-bottom: 30px;
+                }
+                .blog-content {
+                    line-height: 1.8;
+                    font-size: 1.1rem;
+                }
             </style>
         </head>
         <body>
-            <a href="/" class="back-button">← Retour au portfolio</a>
-            
-            <article class="blog-article">
-                <header class="blog-header">
-                    <img src="${blog.image}" alt="${
-      blog.title
-    }" class="blog-image">
-                    <h1>${blog.title}</h1>
+            <div class="blog-container">
+                <a href="/" class="back-link">← Retour au portfolio</a>
+                <article class="blog-header">
+                    <h1 class="blog-title">${blog.title}</h1>
                     <div class="blog-meta">
-                        <span>Par ${blog.author}</span> • 
-                        <span>${blog.category}</span> • 
-                        <time>${new Date(blog.date).toLocaleDateString(
-                          "fr-FR",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}</time>
+                        Par ${blog.author} • ${blog.date} • ${blog.category}
                     </div>
-                </header>
-                
+                    ${
+                      blog.image
+                        ? `<img src="${blog.image}" alt="${blog.title}" class="blog-image">`
+                        : ""
+                    }
+                </article>
                 <div class="blog-content">
                     ${contentHtml}
                 </div>
-            </article>
+            </div>
         </body>
         </html>
-        `;
+    `;
 
     res.send(blogPageHtml);
   } catch (error) {
     console.error("Erreur:", error);
-    res.status(500).send("Erreur serveur");
+    res.status(500).send("Erreur lors de l'affichage du blog");
   }
 });
 
 // Routes pour les informations personnelles
-app.get("/api/personal-info", (req, res) => {
+app.get("/api/personal-info", async (req, res) => {
   try {
-    const personalInfo = dbOperations.personalInfo.get();
+    const personalInfo = await dbOperations.personalInfo.get();
     res.json(formatPersonalInfo(personalInfo));
   } catch (error) {
     console.error("Erreur:", error);
-    res.status(500).json({
-      error: "Erreur lors de la récupération des informations personnelles",
-    });
+    res
+      .status(500)
+      .json({
+        error: "Erreur lors de la récupération des informations personnelles",
+      });
   }
 });
 
@@ -936,38 +980,30 @@ app.put(
 
       const updateData = { name, title, email, phone, birthday, location };
 
-      // Gestion de l'avatar
-      if (req.files && req.files.avatar) {
-        updateData.avatar = `/assets/images/${req.files.avatar[0].filename}`;
+      if (aboutText) {
+        updateData.aboutText = aboutText;
       }
 
-      // Gestion du CV
-      if (req.files && req.files.cv) {
+      if (req.files?.avatar) {
+        updateData.avatar = `/assets/images/${req.files.avatar[0].filename}`;
+      }
+      if (req.files?.cv) {
         updateData.cvFile = `/assets/documents/${req.files.cv[0].filename}`;
       }
 
-      if (aboutText) {
-        if (Array.isArray(aboutText)) {
-          updateData.aboutText = JSON.stringify(aboutText);
-        } else {
-          updateData.aboutText = JSON.stringify(
-            aboutText.split("\n").filter((p) => p.trim() !== "")
-          );
-        }
-      }
-
-      const updatedInfo = dbOperations.personalInfo.update(updateData);
+      const updatedInfo = await dbOperations.personalInfo.update(updateData);
       await updateHtmlFile();
       res.json(formatPersonalInfo(updatedInfo));
     } catch (error) {
       console.error("Erreur:", error);
-      res.status(500).json({
-        error: "Erreur lors de la mise à jour des informations personnelles",
-      });
+      res
+        .status(500)
+        .json({
+          error: "Erreur lors de la mise à jour des informations personnelles",
+        });
     }
   }
 );
-// Route pour servir les documents (CV)
 app.use("/assets/documents", express.static("public/assets/documents"));
 
 // Route pour télécharger le CV
@@ -985,11 +1021,10 @@ app.get("/download-cv", (req, res) => {
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
-
 // Routes pour les liens sociaux
-app.get("/api/social-links", (req, res) => {
+app.get("/api/social-links", async (req, res) => {
   try {
-    const socialLinks = dbOperations.socialLinks.getAll();
+    const socialLinks = await dbOperations.socialLinks.getAll();
     res.json(socialLinks);
   } catch (error) {
     console.error("Erreur:", error);
@@ -1002,10 +1037,9 @@ app.get("/api/social-links", (req, res) => {
 app.post("/api/social-links", authenticateToken, async (req, res) => {
   try {
     const { name, icon, url } = req.body;
-
     lastUpdate = Date.now();
 
-    const newSocialLink = dbOperations.socialLinks.create({
+    const newSocialLink = await dbOperations.socialLinks.create({
       name,
       icon,
       url,
@@ -1025,14 +1059,14 @@ app.put("/api/social-links/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, icon, url } = req.body;
-
     lastUpdate = Date.now();
 
-    const updatedSocialLink = dbOperations.socialLinks.update(id, {
+    const updatedSocialLink = await dbOperations.socialLinks.update(id, {
       name,
       icon,
       url,
     });
+
     if (!updatedSocialLink) {
       return res.status(404).json({ error: "Lien social non trouvé" });
     }
@@ -1052,7 +1086,7 @@ app.delete("/api/social-links/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.socialLinks.delete(id);
+    await dbOperations.socialLinks.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -1064,9 +1098,9 @@ app.delete("/api/social-links/:id", authenticateToken, async (req, res) => {
 });
 
 // Routes pour l'éducation
-app.get("/api/education", (req, res) => {
+app.get("/api/education", async (req, res) => {
   try {
-    const education = dbOperations.education.getAll();
+    const education = await dbOperations.education.getAll();
     res.json(education);
   } catch (error) {
     console.error("Erreur:", error);
@@ -1079,10 +1113,9 @@ app.get("/api/education", (req, res) => {
 app.post("/api/education", authenticateToken, async (req, res) => {
   try {
     const { institution, period, description } = req.body;
-
     lastUpdate = Date.now();
 
-    const newEducation = dbOperations.education.create({
+    const newEducation = await dbOperations.education.create({
       institution,
       period,
       description,
@@ -1094,7 +1127,7 @@ app.post("/api/education", authenticateToken, async (req, res) => {
     console.error("Erreur:", error);
     res
       .status(500)
-      .json({ error: "Erreur lors de la création de la formation" });
+      .json({ error: "Erreur lors de la création de l'éducation" });
   }
 });
 
@@ -1102,16 +1135,16 @@ app.put("/api/education/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { institution, period, description } = req.body;
-
     lastUpdate = Date.now();
 
-    const updatedEducation = dbOperations.education.update(id, {
+    const updatedEducation = await dbOperations.education.update(id, {
       institution,
       period,
       description,
     });
+
     if (!updatedEducation) {
-      return res.status(404).json({ error: "Formation non trouvée" });
+      return res.status(404).json({ error: "Éducation non trouvée" });
     }
 
     await updateHtmlFile();
@@ -1120,7 +1153,7 @@ app.put("/api/education/:id", authenticateToken, async (req, res) => {
     console.error("Erreur:", error);
     res
       .status(500)
-      .json({ error: "Erreur lors de la mise à jour de la formation" });
+      .json({ error: "Erreur lors de la mise à jour de l'éducation" });
   }
 });
 
@@ -1129,21 +1162,21 @@ app.delete("/api/education/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.education.delete(id);
+    await dbOperations.education.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
     console.error("Erreur:", error);
     res
       .status(500)
-      .json({ error: "Erreur lors de la suppression de la formation" });
+      .json({ error: "Erreur lors de la suppression de l'éducation" });
   }
 });
 
 // Routes pour l'expérience
-app.get("/api/experience", (req, res) => {
+app.get("/api/experience", async (req, res) => {
   try {
-    const experience = dbOperations.experience.getAll();
+    const experience = await dbOperations.experience.getAll();
     res.json(experience);
   } catch (error) {
     console.error("Erreur:", error);
@@ -1156,10 +1189,9 @@ app.get("/api/experience", (req, res) => {
 app.post("/api/experience", authenticateToken, async (req, res) => {
   try {
     const { position, period, description } = req.body;
-
     lastUpdate = Date.now();
 
-    const newExperience = dbOperations.experience.create({
+    const newExperience = await dbOperations.experience.create({
       position,
       period,
       description,
@@ -1179,14 +1211,14 @@ app.put("/api/experience/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { position, period, description } = req.body;
-
     lastUpdate = Date.now();
 
-    const updatedExperience = dbOperations.experience.update(id, {
+    const updatedExperience = await dbOperations.experience.update(id, {
       position,
       period,
       description,
     });
+
     if (!updatedExperience) {
       return res.status(404).json({ error: "Expérience non trouvée" });
     }
@@ -1206,7 +1238,7 @@ app.delete("/api/experience/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.experience.delete(id);
+    await dbOperations.experience.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -1218,9 +1250,9 @@ app.delete("/api/experience/:id", authenticateToken, async (req, res) => {
 });
 
 // Routes pour les compétences
-app.get("/api/skills", (req, res) => {
+app.get("/api/skills", async (req, res) => {
   try {
-    const skills = dbOperations.skills.getAll();
+    const skills = await dbOperations.skills.getAll();
     res.json(skills);
   } catch (error) {
     console.error("Erreur:", error);
@@ -1233,16 +1265,14 @@ app.get("/api/skills", (req, res) => {
 app.post("/api/skills", authenticateToken, async (req, res) => {
   try {
     const { name, percentage } = req.body;
-
     if (percentage < 0 || percentage > 100) {
       return res
         .status(400)
         .json({ error: "Le pourcentage doit être entre 0 et 100" });
     }
-
     lastUpdate = Date.now();
 
-    const newSkill = dbOperations.skills.create({
+    const newSkill = await dbOperations.skills.create({
       name,
       percentage: parseInt(percentage),
     });
@@ -1261,18 +1291,11 @@ app.put("/api/skills/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, percentage } = req.body;
-
-    if (percentage && (percentage < 0 || percentage > 100)) {
-      return res
-        .status(400)
-        .json({ error: "Le pourcentage doit être entre 0 et 100" });
-    }
-
     lastUpdate = Date.now();
 
-    const updatedSkill = dbOperations.skills.update(id, {
+    const updatedSkill = await dbOperations.skills.update(id, {
       name,
-      percentage: percentage !== undefined ? parseInt(percentage) : undefined,
+      percentage: parseInt(percentage),
     });
 
     if (!updatedSkill) {
@@ -1294,7 +1317,7 @@ app.delete("/api/skills/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     lastUpdate = Date.now();
 
-    dbOperations.skills.delete(id);
+    await dbOperations.skills.delete(id);
     await updateHtmlFile();
     res.json({ success: true });
   } catch (error) {
@@ -1305,170 +1328,132 @@ app.delete("/api/skills/:id", authenticateToken, async (req, res) => {
   }
 });
 
-// Route pour supprimer TOUT
-app.delete("/api/delete-all", authenticateToken, async (req, res) => {
+// Route pour réinitialiser toutes les données
+app.post("/api/reset-all", authenticateToken, async (req, res) => {
   try {
-    dbOperations.deleteAll();
+    await dbOperations.deleteAll();
     lastUpdate = Date.now();
     await updateHtmlFile();
-
     res.json({
       success: true,
-      message: "Toutes les données ont été supprimées avec succès",
+      message: "Toutes les données ont été réinitialisées",
     });
   } catch (error) {
-    console.error("Erreur lors de la suppression:", error);
-    res.status(500).json({ error: "Erreur lors de la suppression" });
+    console.error("Erreur:", error);
+    res.status(500).json({ error: "Erreur lors de la réinitialisation" });
   }
 });
 
 // Route pour vérifier les mises à jour
 app.get("/api/last-update", (req, res) => {
-  res.json({
-    updated: false,
-    timestamp: lastUpdate,
-  });
+  res.json({ lastUpdate });
 });
 
-// Route pour générer le sitemap.xml
-app.get("/sitemap.xml", async (req, res) => {
-  try {
-    const baseUrl = process.env.BASE_URL || "http://localhost:3000";
-    const currentDate = new Date().toISOString();
+// Fonction pour générer les méta tags
+function generateMetaTags(options) {
+  const {
+    title = "Portfolio",
+    description = "Mon portfolio professionnel",
+    image = "/assets/images/my-avatar.png",
+    url = "",
+    type = "website",
+    author = "",
+  } = options;
 
-    // Récupérer toutes les données
-    const blogs = dbOperations.blogs.getAll();
-    const portfolioProjects = dbOperations.portfolioProjects.getAll();
+  return `
+    <title>${title}</title>
+    <meta name="description" content="${description}">
+    <meta property="og:title" content="${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:image" content="${image}">
+    <meta property="og:url" content="${url}">
+    <meta property="og:type" content="${type}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:image" content="${image}">
+    ${author ? `<meta name="author" content="${author}">` : ""}
+  `;
+}
 
-    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <!-- Page d'accueil -->
-    <url>
-        <loc>${baseUrl}/</loc>
-        <lastmod>${currentDate}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>1.0</priority>
-    </url>
-    
-    <!-- Pages statiques -->
-    <url>
-        <loc>${baseUrl}/#about</loc>
-        <lastmod>${currentDate}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    
-    <url>
-        <loc>${baseUrl}/#resume</loc>
-        <lastmod>${currentDate}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.8</priority>
-    </url>
-    
-    <url>
-        <loc>${baseUrl}/#portfolio</loc>
-        <lastmod>${currentDate}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-    </url>
-    
-    <url>
-        <loc>${baseUrl}/#contact</loc>
-        <lastmod>${currentDate}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.7</priority>
-    </url>`;
-
-    // Ajouter les blogs
-    blogs.forEach((blog) => {
-      sitemap += `
-    <url>
-        <loc>${baseUrl}/blog/${blog.slug}</loc>
-        <lastmod>${blog.created_at || currentDate}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
-    </url>`;
-    });
-
-    sitemap += `
-</urlset>`;
-
-    res.set("Content-Type", "application/xml");
-    res.send(sitemap);
-  } catch (error) {
-    console.error("Erreur génération sitemap:", error);
-    res.status(500).send("Erreur lors de la génération du sitemap");
-  }
-});
-
-// Route pour robots.txt
-app.get("/robots.txt", (req, res) => {
-  const baseUrl = process.env.BASE_URL || "http://localhost:3000";
-  const robots = `User-agent: *
-Allow: /
-
-Sitemap: ${baseUrl}/sitemap.xml`;
-
-  res.set("Content-Type", "text/plain");
-  res.send(robots);
-});
-
+// Fonction pour mettre à jour le fichier HTML
 async function updateHtmlFile() {
   try {
-    let htmlContent = await fs.readFile("public/index.html", "utf8");
+    const templatePath = path.join(__dirname, "public", "index-template.html");
+    const outputPath = path.join(__dirname, "public", "index.html");
 
-    // Récupérer les données depuis la base
-    const projects = dbOperations.projects.getAll();
-    const testimonials = dbOperations.testimonials.getAll();
-    const portfolioProjects = dbOperations.portfolioProjects
-      .getAll()
-      .map(formatPortfolioProject);
-    const clients = dbOperations.clients.getAll();
-    const blogs = dbOperations.blogs.getAll();
-    const categories = dbOperations.categories.getAll();
-    const socialLinks = dbOperations.socialLinks.getAll();
-    const education = dbOperations.education.getAll();
-    const experience = dbOperations.experience.getAll();
-    const skills = dbOperations.skills.getAll();
-    const personalInfo = formatPersonalInfo(dbOperations.personalInfo.get());
+    let htmlContent = await fs.readFile(templatePath, "utf-8");
 
-    // Générer le HTML pour les projets (section "What i'm doing")
+    // Récupérer toutes les données de la base de données
+    const [
+      projects,
+      testimonials,
+      portfolioProjects,
+      clients,
+      blogs,
+      categories,
+      personalInfo,
+      socialLinks,
+      education,
+      experience,
+      skills,
+    ] = await Promise.all([
+      dbOperations.projects.getAll(),
+      dbOperations.testimonials.getAll(),
+      dbOperations.portfolioProjects.getAll(),
+      dbOperations.clients.getAll(),
+      dbOperations.blogs.getAll(),
+      dbOperations.categories.getAll(),
+      dbOperations.personalInfo.get(),
+      dbOperations.socialLinks.getAll(),
+      dbOperations.education.getAll(),
+      dbOperations.experience.getAll(),
+      dbOperations.skills.getAll(),
+    ]);
+
+    // Formater les données
+    const formattedPersonalInfo = formatPersonalInfo(personalInfo);
+    const formattedPortfolioProjects = await Promise.all(
+      portfolioProjects.map(formatPortfolioProject)
+    );
+
+    // Générer le HTML pour chaque section
     const projectsHtml = projects
       .map(
         (project) => `
-                <li class="service-item">
-                    <div class="service-icon-box">
-                        <img src="${project.image}" alt="${project.title}" width="40">
-                    </div>
-                    <div class="service-content-box">
-                        <h4 class="h4 service-item-title">${project.title}</h4>
-                        <p class="service-item-text">${project.description}</p>
-                    </div>
-                </li>`
+        <li class="service-item">
+          <div class="service-icon-box">
+            <img src="${
+              project.image || "./assets/images/icon-dev.svg"
+            }" alt="${project.title}" width="40">
+          </div>
+          <div class="service-content-box">
+            <h4 class="h4 service-item-title">${project.title}</h4>
+            <p class="service-item-text">${project.description}</p>
+          </div>
+        </li>`
       )
       .join("\n");
 
-    // Générer le HTML pour les témoignages
     const testimonialsHtml = testimonials
       .map(
         (testimonial) => `
-                <li class="testimonials-item">
-                    <div class="content-card" data-testimonials-item>
-                        <figure class="testimonials-avatar-box">
-                            <img src="${testimonial.avatar}" alt="${testimonial.name}" width="60" data-testimonials-avatar>
-                        </figure>
-                        <h4 class="h4 testimonials-item-title" data-testimonials-title>${testimonial.name}</h4>
-                        <div class="testimonials-text" data-testimonials-text>
-                            <p>${testimonial.text}</p>
-                        </div>
-                    </div>
-                </li>`
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="${testimonial.avatar}" alt="${testimonial.name}" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>${testimonial.name}</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>${testimonial.text}</p>
+            </div>
+          </div>
+        </li>`
       )
       .join("\n");
 
-    // Générer le HTML pour les projets portfolio
-    const portfolioProjectsHtml = portfolioProjects
-      .map(
+    const portfolioProjectsHtml = formattedPortfolioProjects
+       .map(
         (project) => `
                 <li class="project-item active" data-filter-item data-category="${
                   project.filterCategory
@@ -1503,23 +1488,22 @@ async function updateHtmlFile() {
       )
       .join("\n");
 
-    // Générer le HTML pour les clients
     const clientsHtml = clients
       .map(
         (client) => `
-                <li class="clients-item">
-                    <a href="${client.website}" target="_blank" title="${client.name}">
-                        <img src="${client.logo}" alt="${client.name} logo" />
-                    </a>
-                </li>`
+        <li class="clients-item">
+          <a href="${client.website || "#"}">
+            <img src="${client.logo}" alt="${client.name}">
+          </a>
+        </li>`
       )
       .join("\n");
 
-    // Générer le HTML pour les blogs
     const blogsHtml = blogs
+      .slice(0, 6)
       .map(
         (blog) => `
-                <li class="blog-post-item">
+         <li class="blog-post-item">
                     <a href="/blog/${blog.slug}">
                         <figure class="blog-banner-box">
                             <img src="${blog.image}" alt="${
@@ -1546,136 +1530,136 @@ async function updateHtmlFile() {
       )
       .join("\n");
 
-    // Générer les filtres de catégories
     const categoryFiltersHtml = categories
       .map(
         (category) => `
-                <li class="filter-item">
-                    <button data-filter-btn>${category.display_name}</button>
-                </li>`
+        <li class="filter-item">
+          <button data-filter-btn>${category.display_name}</button>
+        </li>`
       )
       .join("\n");
 
     const categorySelectHtml = categories
       .map(
         (category) => `
-                <li class="select-item">
+        <li class="select-item">
                     <button data-select-item>${category.display_name}</button>
                 </li>`
       )
       .join("\n");
 
-    // Générer le HTML pour les liens sociaux
     const socialLinksHtml = socialLinks
       .map(
-        (social) => `
-                <li class="social-item">
-                    <a href="${social.url}" class="social-link" target="_blank" title="${social.name}">
-                        <ion-icon name="${social.icon}"></ion-icon>
-                    </a>
-                </li>`
+        (link) => `
+        <li class="social-item">
+          <a href="${link.url}" class="social-link">
+            <ion-icon name="${link.icon}"></ion-icon>
+          </a>
+        </li>`
       )
       .join("\n");
 
-    // Générer le HTML pour l'éducation
     const educationHtml = education
       .map(
         (edu) => `
-                <li class="timeline-item">
-                    <h4 class="h4 timeline-item-title">${edu.institution}</h4>
-                    <span>${edu.period}</span>
-                    <p class="timeline-text">${edu.description}</p>
-                </li>`
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">${edu.institution}</h4>
+          <span>${edu.period}</span>
+          <p class="timeline-text">${edu.description}</p>
+        </li>`
       )
       .join("\n");
 
-    // Générer le HTML pour l'expérience
     const experienceHtml = experience
       .map(
         (exp) => `
-                <li class="timeline-item">
-                    <h4 class="h4 timeline-item-title">${exp.position}</h4>
-                    <span>${exp.period}</span>
-                    <p class="timeline-text">${exp.description}</p>
-                </li>`
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">${exp.position}</h4>
+          <span>${exp.period}</span>
+          <p class="timeline-text">${exp.description}</p>
+        </li>`
       )
       .join("\n");
 
-    // Générer le HTML pour les compétences
     const skillsHtml = skills
       .map(
         (skill) => `
-                <li class="skills-item">
-                    <div class="title-wrapper">
-                        <h5 class="h5">${skill.name}</h5>
-                        <data value="${skill.percentage}">${skill.percentage}%</data>
-                    </div>
-                    <div class="skill-progress-bg">
-                        <div class="skill-progress-fill" style="width: ${skill.percentage}%"></div>
-                    </div>
-                </li>`
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">${skill.name}</h5>
+            <data value="${skill.percentage}">${skill.percentage}%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: ${skill.percentage}%"></div>
+          </div>
+        </li>`
       )
       .join("\n");
 
-    // Générer le texte de présentation
-    const aboutTextHtml = personalInfo
-      ? personalInfo.aboutText
+    const aboutTextHtml = formattedPersonalInfo?.aboutText
+      ? formattedPersonalInfo.aboutText
           .map((paragraph) => `<p>${paragraph}</p>`)
           .join("\n")
       : "";
 
-    // Remplacer les sections
+    // Remplacer les sections dans le HTML
     const replacements = [
       {
-        regex: /(<!-- PROJECTS_START -->)([\s\S]*?)(<!-- PROJECTS_END -->)/,
+        regex:
+          /(<!--\s*PROJECTS_START\s*-->)([\s\S]*?)(<!--\s*PROJECTS_END\s*-->)/,
         content: projectsHtml,
       },
       {
         regex:
-          /(<!-- TESTIMONIALS_START -->)([\s\S]*?)(<!-- TESTIMONIALS_END -->)/,
+          /(<!--\s*TESTIMONIALS_START\s*-->)([\s\S]*?)(<!--\s*TESTIMONIALS_END\s*-->)/,
         content: testimonialsHtml,
       },
       {
-        regex: /(<!-- PORTFOLIO_START -->)([\s\S]*?)(<!-- PORTFOLIO_END -->)/,
+        regex:
+          /(<!--\s*PORTFOLIO_PROJECTS_START\s*-->)([\s\S]*?)(<!--\s*PORTFOLIO_PROJECTS_END\s*-->)/,
         content: portfolioProjectsHtml,
       },
       {
-        regex: /(<!-- CLIENTS_START -->)([\s\S]*?)(<!-- CLIENTS_END -->)/,
+        regex:
+          /(<!--\s*CLIENTS_START\s*-->)([\s\S]*?)(<!--\s*CLIENTS_END\s*-->)/,
         content: clientsHtml,
       },
       {
-        regex: /(<!-- BLOGS_START -->)([\s\S]*?)(<!-- BLOGS_END -->)/,
+        regex: /(<!--\s*BLOGS_START\s*-->)([\s\S]*?)(<!--\s*BLOGS_END\s*-->)/,
         content: blogsHtml,
       },
       {
         regex:
-          /(<!-- CATEGORY_FILTERS_START -->)([\s\S]*?)(<!-- CATEGORY_FILTERS_END -->)/,
+          /(<!--\s*CATEGORY_FILTERS_START\s*-->)([\s\S]*?)(<!--\s*CATEGORY_FILTERS_END\s*-->)/,
         content: categoryFiltersHtml,
       },
       {
         regex:
-          /(<!-- CATEGORY_SELECT_START -->)([\s\S]*?)(<!-- CATEGORY_SELECT_END -->)/,
+          /(<!--\s*CATEGORY_SELECT_START\s*-->)([\s\S]*?)(<!--\s*CATEGORY_SELECT_END\s*-->)/,
         content: categorySelectHtml,
       },
       {
         regex:
-          /(<!-- SOCIAL_LINKS_START -->)([\s\S]*?)(<!-- SOCIAL_LINKS_END -->)/,
+          /(<!--\s*SOCIAL_LINKS_START\s*-->)([\s\S]*?)(<!--\s*SOCIAL_LINKS_END\s*-->)/,
         content: socialLinksHtml,
       },
       {
-        regex: /(<!-- EDUCATION_START -->)([\s\S]*?)(<!-- EDUCATION_END -->)/,
+        regex:
+          /(<!--\s*EDUCATION_START\s*-->)([\s\S]*?)(<!--\s*EDUCATION_END\s*-->)/,
         content: educationHtml,
       },
       {
-        regex: /(<!-- EXPERIENCE_START -->)([\s\S]*?)(<!-- EXPERIENCE_END -->)/,
+        regex:
+          /(<!--\s*EXPERIENCE_START\s*-->)([\s\S]*?)(<!--\s*EXPERIENCE_END\s*-->)/,
         content: experienceHtml,
       },
       {
-        regex: /(<!-- SKILLS_START -->)([\s\S]*?)(<!-- SKILLS_END -->)/,
+        regex: /(<!--\s*SKILLS_START\s*-->)([\s\S]*?)(<!--\s*SKILLS_END\s*-->)/,
         content: skillsHtml,
       },
       {
-        regex: /(<!-- ABOUT_TEXT_START -->)([\s\S]*?)(<!-- ABOUT_TEXT_END -->)/,
+        regex:
+          /(<!--\s*ABOUT_TEXT_START\s*-->)([\s\S]*?)(<!--\s*ABOUT_TEXT_END\s*-->)/,
         content: aboutTextHtml,
       },
     ];
@@ -1687,14 +1671,14 @@ async function updateHtmlFile() {
     });
 
     // Remplacer les informations personnelles si elles existent
-    if (personalInfo) {
+    if (formattedPersonalInfo) {
       const personalInfoRegex =
-        /(<!-- PERSONAL_INFO_START -->)([\s\S]*?)(<!-- PERSONAL_INFO_END -->)/;
+        /(<!--\s*PERSONAL_INFO_START\s*-->)([\s\S]*?)(<!--\s*PERSONAL_INFO_END\s*-->)/;
       if (personalInfoRegex.test(htmlContent)) {
         const personalInfoHtml = `
-                    <h1 class="name" title="${personalInfo.name}">${personalInfo.name}</h1>
-                    <p class="title">${personalInfo.title}</p>
-                `;
+          <h1 class="name" title="${formattedPersonalInfo.name}">${formattedPersonalInfo.name}</h1>
+          <p class="title">${formattedPersonalInfo.title}</p>`;
+
         htmlContent = htmlContent.replace(
           personalInfoRegex,
           `$1\n${personalInfoHtml}\n$3`
@@ -1702,80 +1686,61 @@ async function updateHtmlFile() {
       }
 
       const contactInfoRegex =
-        /(<!-- CONTACT_INFO_START -->)([\s\S]*?)(<!-- CONTACT_INFO_END -->)/;
+        /(<!--\s*CONTACT_INFO_START\s*-->)([\s\S]*?)(<!--\s*CONTACT_INFO_END\s*-->)/;
       if (contactInfoRegex.test(htmlContent)) {
         const contactInfoHtml = `
-                    <li class="contact-item">
-                        <div class="icon-box">
-                            <ion-icon name="mail-outline"></ion-icon>
-                        </div>
-                        <div class="contact-info">
-                            <p class="contact-title">Email</p>
-                            <a href="mailto:${
-                              personalInfo.email
-                            }" class="contact-link">${personalInfo.email}</a>
-                        </div>
-                    </li>
+          <li class="contact-item">
+            <div class="icon-box">
+              <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Email</p>
+              <a href="mailto:${formattedPersonalInfo.email}" class="contact-link">${formattedPersonalInfo.email}</a>
+            </div>
+          </li>
+          <li class="contact-item">
+            <div class="icon-box">
+              <ion-icon name="phone-portrait-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Phone</p>
+              <a href="tel:${formattedPersonalInfo.phone}" class="contact-link">${formattedPersonalInfo.phone}</a>
+            </div>
+          </li>
+          <li class="contact-item">
+            <div class="icon-box">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Birthday</p>
+              <time datetime="${formattedPersonalInfo.birthday}">${formattedPersonalInfo.birthday}</time>
+            </div>
+          </li>
+          <li class="contact-item">
+            <div class="icon-box">
+              <ion-icon name="location-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Location</p>
+              <address>${formattedPersonalInfo.location}</address>
+            </div>
+          </li>`;
 
-                    <li class="contact-item">
-                        <div class="icon-box">
-                            <ion-icon name="phone-portrait-outline"></ion-icon>
-                        </div>
-                        <div class="contact-info">
-                            <p class="contact-title">Phone</p>
-                            <a href="tel:${personalInfo.phone.replace(
-                              /\s/g,
-                              ""
-                            )}" class="contact-link">${personalInfo.phone}</a>
-                        </div>
-                    </li>
-
-                    <li class="contact-item">
-                        <div class="icon-box">
-                            <ion-icon name="calendar-outline"></ion-icon>
-                        </div>
-                        <div class="contact-info">
-                            <p class="contact-title">Birthday</p>
-                            <time datetime="${
-                              personalInfo.birthday
-                            }">${new Date(
-          personalInfo.birthday
-        ).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        })}</time>
-                        </div>
-                    </li>
-
-                    <li class="contact-item">
-                        <div class="icon-box">
-                            <ion-icon name="location-outline"></ion-icon>
-                        </div>
-                        <div class="contact-info">
-                            <p class="contact-title">Location</p>
-                            <address>${personalInfo.location}</address>
-                        </div>
-                    </li>
-                `;
         htmlContent = htmlContent.replace(
           contactInfoRegex,
           `$1\n${contactInfoHtml}\n$3`
         );
       }
 
+      // Remplacer l'avatar
       const avatarRegex =
-        /(<!-- AVATAR_START -->)([\s\S]*?)(<!-- AVATAR_END -->)/;
+        /(<!--\s*AVATAR_START\s*-->)([\s\S]*?)(<!--\s*AVATAR_END\s*-->)/;
       if (avatarRegex.test(htmlContent)) {
-        const avatarHtml = `
-                    <figure class="avatar-box">
-                        <img src="${personalInfo.avatar}" alt="${personalInfo.name}" width="80" />
-                    </figure>
-                `;
+        const avatarHtml = `<img src="${formattedPersonalInfo.avatar}" alt="${formattedPersonalInfo.name}" width="80">`;
         htmlContent = htmlContent.replace(avatarRegex, `$1\n${avatarHtml}\n$3`);
       }
 
-      const mapRegex = /(<!-- MAP_START -->)([\s\S]*?)(<!-- MAP_END -->)/;
+       const mapRegex = /(<!-- MAP_START -->)([\s\S]*?)(<!-- MAP_END -->)/;
       if (mapRegex.test(htmlContent)) {
         const encodedLocation = encodeURIComponent(personalInfo.location);
         const mapHtml = `
@@ -1791,7 +1756,7 @@ async function updateHtmlFile() {
         htmlContent = htmlContent.replace(mapRegex, `$1\n${mapHtml}\n$3`);
       }
     }
-    if (personalInfo && personalInfo.cvFile) {
+    if (personalInfo && personalInfo.cv_file) {
       const cvRegex =
         /(<!-- CV_SECTION_START -->)([\s\S]*?)(<!-- CV_SECTION_END -->)/;
       if (cvRegex.test(htmlContent)) {
@@ -1817,7 +1782,7 @@ async function updateHtmlFile() {
                     </div>
                 </div>
                 <div id="cv-viewer" class="cv-viewer" style="display: none;">
-                    <iframe src="${personalInfo.cvFile}" width="100%" height="600px"></iframe>
+                    <iframe src="${personalInfo.cv_file}" width="100%" height="600px"></iframe>
                 </div>
             </div>
         `;
@@ -1836,59 +1801,30 @@ async function updateHtmlFile() {
       }
     }
     await fs.writeFile("public/index.html", htmlContent, "utf8");
+
     console.log("✅ Fichier HTML mis à jour avec succès");
   } catch (error) {
     console.error("❌ Erreur lors de la mise à jour du fichier HTML:", error);
   }
 }
 
-function generateMetaTags(data) {
-  const {
-    title = process.env.NAME_SITE,
-    description = process.env.DESCRIPTION_SITE,
-    image = "/assets/images/og-image.jpg",
-    url = "/",
-    type = "website",
-    author = process.env.AUTHOR,
-  } = data;
+// Initialiser la base de données et démarrer le serveur
+async function startServer() {
+  try {
+    await initializeDatabase();
+    await createAdminUser();
+    await updateHtmlFile();
 
-  return `
-    <!-- Meta tags essentiels -->
-    <title>${title}</title>
-    <meta name="description" content="${description}">
-    <meta name="author" content="${author}">
-    <meta name="keywords" content="développeur web, portfolio, Node.js, React, JavaScript, développement">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="${type}">
-    <meta property="og:url" content="${url}">
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${image}">
-    <meta property="og:site_name" content="Portfolio - ${author}">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="${url}">
-    <meta property="twitter:title" content="${title}">
-    <meta property="twitter:description" content="${description}">
-    <meta property="twitter:image" content="${image}">
-    
-    <!-- Meta tags techniques -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="index, follow">
-    <meta name="googlebot" content="index, follow">
-    <link rel="canonical" href="${url}">`;
+    app.listen(PORT, () => {
+      console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
+      console.log(
+        `📊 Interface d'administration: http://localhost:${PORT}/admin`
+      );
+    });
+  } catch (error) {
+    console.error("❌ Erreur lors du démarrage du serveur:", error);
+    process.exit(1);
+  }
 }
-// Démarrer le serveur
-app.listen(PORT, async () => {
-  console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-  console.log(`📊 Interface d'administration: http://localhost:${PORT}/admin`);
-  console.log(`🌐 Portfolio: http://localhost:${PORT}`);
 
-  // Créer l'utilisateur admin au démarrage
-  await createAdminUser();
-
-  // Mettre à jour le HTML au démarrage
-  await updateHtmlFile();
-});
+startServer();

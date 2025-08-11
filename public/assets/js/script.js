@@ -75,16 +75,29 @@ for (let i = 0; i < selectItems.length; i++) {
 const filterItems = document.querySelectorAll("[data-filter-item]");
 
 const filterFunc = function (selectedValue) {
-  for (let i = 0; i < filterItems.length; i++) {
-    if (selectedValue === "all") {
-      filterItems[i].classList.add("active");
-    } else if (selectedValue === filterItems[i].dataset.category) {
-      filterItems[i].classList.add("active");
+  filterItems.forEach((item) => {
+    // Nettoyer la valeur sélectionnée
+    const cleanSelectedValue = selectedValue.toLowerCase().trim();
+    
+    if (cleanSelectedValue === "all" || cleanSelectedValue === "tout" || cleanSelectedValue === "tous") {
+      // Afficher tous les éléments
+      item.classList.add("active");
+      item.style.display = "block";
+    } else if (item.dataset.category && item.dataset.category.toLowerCase() === cleanSelectedValue) {
+      // Afficher les éléments de la catégorie sélectionnée
+      item.classList.add("active");
+      item.style.display = "block";
     } else {
-      filterItems[i].classList.remove("active");
+      // Masquer les autres éléments
+      item.classList.remove("active");
+      item.style.display = "none";
     }
-  }
+  });
+  
+  // Debug : compter les éléments visibles
+  const visibleItems = document.querySelectorAll('[data-filter-item].active');
 };
+
 
 // add event in all filter button items for large screen
 let lastClickedBtn = filterBtn[0];
