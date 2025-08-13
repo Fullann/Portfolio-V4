@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { marked } = require("marked");
 const { dbOperations, initializeDatabase } = require("./mysql-db");
+const compression = require("compression");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -65,7 +66,27 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 app.use("/admin", express.static("admin"));
-
+app.use(compression());
+// Headers de cache pour les ressources statiques
+app.use(
+  "/assets",
+  express.static(path.join(__dirname, "public/assets"), {
+    maxAge: "30d", // 30 jours de cache
+    etag: true,
+    setHeaders: (res, path) => {
+      if (path.endsWith(".css") || path.endsWith(".js")) {
+        res.setHeader("Cache-Control", "public, max-age=2592000"); // 30 jours
+      }
+      if (
+        path.endsWith(".jpg") ||
+        path.endsWith(".png") ||
+        path.endsWith(".webp")
+      ) {
+        res.setHeader("Cache-Control", "public, max-age=7776000"); // 90 jours
+      }
+    },
+  })
+);
 // Configuration de Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -78,8 +99,8 @@ const transporter = nodemailer.createTransport({
 // Créer l'utilisateur admin au démarrage
 async function createAdminUser() {
   try {
-    const adminUsername = process.env.ADMIN_USERNAME || "admin";
-    const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+    const adminUsername = process.env.ADMIN_USERNAME;
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
     // Vérifier si l'utilisateur admin existe déjà
     const existingAdmin = await dbOperations.admin.getByUsername(adminUsername);
