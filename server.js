@@ -155,20 +155,24 @@ function formatPersonalInfo(dbData) {
 
 async function formatPortfolioProject(dbData) {
   let category = null;
-  
+
   // Vérifier que filter_category n'est pas undefined/null
   if (dbData.filter_category && dbData.filter_category.trim()) {
     try {
-      category = await dbOperations.categories.getByName(dbData.filter_category);
+      category = await dbOperations.categories.getByName(
+        dbData.filter_category
+      );
     } catch (error) {
-      console.error('Erreur lors de la récupération de la catégorie:', error);
+      console.error("Erreur lors de la récupération de la catégorie:", error);
     }
   }
-  
+
   return {
     id: dbData.id,
     title: dbData.title,
-    category: category ? category.display_name : (dbData.category || 'Non définie'),
+    category: category
+      ? category.display_name
+      : dbData.category || "Non définie",
     image: dbData.image,
     description: dbData.description,
     repoLink: dbData.repo_link,
@@ -176,7 +180,6 @@ async function formatPortfolioProject(dbData) {
     filterCategory: dbData.filter_category || null,
   };
 }
-
 
 // Routes d'authentification
 app.post("/api/login", async (req, res) => {
@@ -956,11 +959,9 @@ app.get("/api/personal-info", async (req, res) => {
     res.json(formatPersonalInfo(personalInfo));
   } catch (error) {
     console.error("Erreur:", error);
-    res
-      .status(500)
-      .json({
-        error: "Erreur lors de la récupération des informations personnelles",
-      });
+    res.status(500).json({
+      error: "Erreur lors de la récupération des informations personnelles",
+    });
   }
 });
 
@@ -996,11 +997,9 @@ app.put(
       res.json(formatPersonalInfo(updatedInfo));
     } catch (error) {
       console.error("Erreur:", error);
-      res
-        .status(500)
-        .json({
-          error: "Erreur lors de la mise à jour des informations personnelles",
-        });
+      res.status(500).json({
+        error: "Erreur lors de la mise à jour des informations personnelles",
+      });
     }
   }
 );
@@ -1380,7 +1379,6 @@ function generateMetaTags(options) {
 async function updateHtmlFile() {
   try {
     const templatePath = path.join(__dirname, "public", "index-template.html");
-    const outputPath = path.join(__dirname, "public", "index.html");
 
     let htmlContent = await fs.readFile(templatePath, "utf-8");
 
@@ -1452,52 +1450,88 @@ async function updateHtmlFile() {
       )
       .join("\n");
 
-    const portfolioProjectsHtml = formattedPortfolioProjects
-       .map(
-        (project) => `
-                <li class="project-item active" data-filter-item data-category="${
-                  project.filterCategory
-                }">
-                    <div class="project-links">
-                        ${
-                          project.repoLink
-                            ? `<a href="${project.repoLink}" target="_blank" class="project-link repo-link" title="Voir le code">
-                            <ion-icon name="logo-github"></ion-icon>
-                        </a>`
-                            : ""
-                        }
-                        ${
-                          project.liveLink
-                            ? `<a href="${project.liveLink}" target="_blank" class="project-link live-link" title="Voir le site">
-                            <ion-icon name="eye-outline"></ion-icon>
-                        </a>`
-                            : ""
-                        }
-                    </div>
-                    <figure class="project-img">
-                        <div class="project-item-icon-box">
-                            <ion-icon name="eye-outline"></ion-icon>
-                        </div>
-                        <img src="${project.image}" alt="${
-          project.title
-        }" loading="lazy" />
-                    </figure>
-                    <h3 class="project-title">${project.title}</h3>
-                    <p class="project-category">${project.category}</p>
-                </li>`
-      )
-      .join("\n");
+    const portfolioProjectsHtml = portfolioProjects
+      .map((project) => {
+        // Générer les boutons conditionnellement
+        let actionButtons = "";
 
-    const clientsHtml = clients
-      .map(
-        (client) => `
-        <li class="clients-item">
-          <a href="${client.website || "#"}">
-            <img src="${client.logo}" alt="${client.name}">
-          </a>
-        </li>`
-      )
-      .join("\n");
+        if (project.repoLink && project.repoLink.trim()) {
+          actionButtons += `
+        <a href="${project.repoLink}" target="_blank" class="project-link">
+          <ion-icon name="logo-github"></ion-icon>
+          <span>Code</span>
+        </a>`;
+        }
+
+        if (project.liveLink && project.liveLink.trim()) {
+          actionButtons += `
+        <a href="${project.liveLink}" target="_blank" class="project-link">
+          <ion-icon name="eye-outline"></ion-icon>
+          <span>Live Site</span>
+        </a>`;
+        }
+
+        // Si aucun lien n'est disponible, ne pas afficher de section action
+        const actionSection = actionButtons
+          ? `
+      <div class="project-actions">
+        ${actionButtons}
+      </div>`
+          : "";
+
+        return `
+      <li class="project-item active" data-filter-item data-category="${
+        project.filterCategory
+      }">
+        <a href="#">
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="${
+              project.image || "./assets/images/project-default.jpg"
+            }" alt="${project.title}" loading="lazy">
+          </figure>
+        </a>
+        <div class="project-content">
+          <h3 class="project-title">${project.title}</h3>
+          <p class="project-category">${project.category}</p>
+          <div class="project-description">
+            <p>${project.description}</p>
+          </div>
+          ${actionSection}
+        </div>
+      </li>`;
+      })
+      .join("");
+
+
+const clientsHtml = clients
+  .map((client) => `
+    <li class="clients-item">
+      <div class="client-card">
+        <div class="client-image-container">
+          <img 
+            src="${client.logo || './assets/images/client-default.png'}" 
+            alt="${client.name}" 
+            class="client-logo"
+            loading="lazy">
+          <div class="client-overlay">
+            <div class="client-description">
+              <h4>${client.name}</h4>
+              <p>${client.description || 'Client important'}</p>
+              ${client.website ? `
+                <a href="${client.website}" target="_blank">
+                  <ion-icon name="link-outline"></ion-icon>
+                  <span>Site</span>
+                </a>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>`)
+  .join("");
+
 
     const blogsHtml = blogs
       .slice(0, 6)
@@ -1694,7 +1728,7 @@ async function updateHtmlFile() {
               <ion-icon name="mail-outline"></ion-icon>
             </div>
             <div class="contact-info">
-              <p class="contact-title">Email</p>
+              <p class="contact-title">Adresse Email</p>
               <a href="mailto:${formattedPersonalInfo.email}" class="contact-link">${formattedPersonalInfo.email}</a>
             </div>
           </li>
@@ -1703,7 +1737,7 @@ async function updateHtmlFile() {
               <ion-icon name="phone-portrait-outline"></ion-icon>
             </div>
             <div class="contact-info">
-              <p class="contact-title">Phone</p>
+              <p class="contact-title">Numéro de téléphone</p>
               <a href="tel:${formattedPersonalInfo.phone}" class="contact-link">${formattedPersonalInfo.phone}</a>
             </div>
           </li>
@@ -1712,7 +1746,7 @@ async function updateHtmlFile() {
               <ion-icon name="calendar-outline"></ion-icon>
             </div>
             <div class="contact-info">
-              <p class="contact-title">Birthday</p>
+              <p class="contact-title">Date d'anniversaire</p>
               <time datetime="${formattedPersonalInfo.birthday}">${formattedPersonalInfo.birthday}</time>
             </div>
           </li>
@@ -1740,7 +1774,7 @@ async function updateHtmlFile() {
         htmlContent = htmlContent.replace(avatarRegex, `$1\n${avatarHtml}\n$3`);
       }
 
-       const mapRegex = /(<!-- MAP_START -->)([\s\S]*?)(<!-- MAP_END -->)/;
+      const mapRegex = /(<!-- MAP_START -->)([\s\S]*?)(<!-- MAP_END -->)/;
       if (mapRegex.test(htmlContent)) {
         const encodedLocation = encodeURIComponent(personalInfo.location);
         const mapHtml = `

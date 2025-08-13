@@ -131,25 +131,41 @@ for (let i = 0; i < formInputs.length; i++) {
   });
 }
 
-// page navigation variables
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
-// add event to all nav link
-for (let i = 0; i < navigationLinks.length; i++) {
-  navigationLinks[i].addEventListener("click", function () {
-    for (let i = 0; i < pages.length; i++) {
-      if (this.innerHTML.toLowerCase() === pages[i].dataset.page) {
-        pages[i].classList.add("active");
-        navigationLinks[i].classList.add("active");
+// Add event to all nav links
+navigationLinks.forEach((link) => {
+  link.addEventListener("click", function () {
+    const linkText = this.innerHTML.toLowerCase().trim();
+    
+    pages.forEach((page) => {
+      const pageData = page.dataset.page.toLowerCase();
+      
+      // Correspondance des noms français
+      const matches = {
+        'à propos': 'à propos',
+        'parcours': 'parcours', 
+        'portfolio': 'portfolio',
+        'blog': 'blog',
+        'contact': 'contact'
+      };
+      
+      if (matches[linkText] === pageData) {
+        page.classList.add("active");
+        link.classList.add("active");
         window.scrollTo(0, 0);
       } else {
-        pages[i].classList.remove("active");
-        navigationLinks[i].classList.remove("active");
+        page.classList.remove("active");
+        navigationLinks.forEach((navLink) => {
+          if (navLink !== link) {
+            navLink.classList.remove("active");
+          }
+        });
       }
-    }
+    });
   });
-}
+});
 class ThemeManager {
   constructor() {
     this.themeToggleBtn = document.getElementById("theme-toggle-btn");
