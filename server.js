@@ -870,15 +870,6 @@ app.get("/blog/:slug", async (req, res) => {
     const contentHtml = marked(blog.content);
     const baseUrl = process.env.BASE_URL || "http://localhost:3000";
 
-    const metaTags = generateMetaTags({
-      title: `${blog.title} - Portfolio Blog`,
-      description: blog.excerpt,
-      image: `${baseUrl}${blog.image}`,
-      url: `${baseUrl}/blog/${blog.slug}`,
-      type: "article",
-      author: blog.author,
-    });
-
     const blogPageHtml = `
                <!DOCTYPE html>
         <html lang="fr">
@@ -1347,32 +1338,109 @@ app.post("/api/reset-all", authenticateToken, async (req, res) => {
 app.get("/api/last-update", (req, res) => {
   res.json({ lastUpdate });
 });
+// Route pour générer le sitemap.xml
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const baseUrl = process.env.BASE_URL;
+    const today = new Date().toISOString().split("T")[0];
+
+    const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>${baseUrl}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}#about</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}#parcours</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}#portfolio</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}#contact</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>`;
+
+    res.set("Content-Type", "application/xml");
+    res.send(sitemap);
+  } catch (error) {
+    console.error("Erreur génération sitemap:", error);
+    res.status(500).send("Erreur génération sitemap");
+  }
+});
+// Route pour robots.txt
+app.get("/robots.txt", (req, res) => {
+  const baseUrl = process.env.BASE_URL;
+  const robotsTxt = `User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: ${baseUrl}/sitemap.xml
+
+# Désindexer les fichiers admin
+Disallow: /admin
+Disallow: /api
+Disallow: /assets/documents/
+
+# Permettre l'indexation des images
+Allow: /assets/images/`;
+
+  res.type("text/plain");
+  res.send(robotsTxt);
+});
 
 // Fonction pour générer les méta tags
-function generateMetaTags(options) {
-  const {
-    title = "Portfolio",
-    description = "Mon portfolio professionnel",
-    image = "/assets/images/my-avatar.png",
-    url = "",
-    type = "website",
-    author = "",
-  } = options;
+function generateMetaTags(page = "home", data = {}) {
+  const baseUrl = process.env.BASE_URL;
 
-  return `
-    <title>${title}</title>
-    <meta name="description" content="${description}">
-    <meta property="og:title" content="${title}">
-    <meta property="og:description" content="${description}">
-    <meta property="og:image" content="${image}">
-    <meta property="og:url" content="${url}">
-    <meta property="og:type" content="${type}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${title}">
-    <meta name="twitter:description" content="${description}">
-    <meta name="twitter:image" content="${image}">
-    ${author ? `<meta name="author" content="${author}">` : ""}
-  `;
+  const metaTags = {
+    home: {
+      title: "Nathan - Développeur Full Stack | Vufflens-la-Ville, VD",
+      description:
+        "Portfolio de Nathan, développeur Full Stack spécialisé en JavaScript, Node.js et React. Basé à Vufflens-la-Ville, Canton de Vaud, Suisse.",
+      keywords:
+        "développeur full stack, JavaScript, Node.js, React, Vufflens-la-Ville, Canton de Vaud, Suisse, freelance, développement web",
+      image: `${baseUrl}/assets/images/nathan-avatar.jpg`,
+      url: baseUrl,
+    },
+    portfolio: {
+      title: "Portfolio - Mes Projets Web | Nathan Développeur",
+      description:
+        "Découvrez mes projets de développement web, applications JavaScript, sites vitrine et solutions e-commerce réalisés en Suisse.",
+      keywords:
+        "portfolio développeur, projets web, JavaScript, applications, sites web, e-commerce",
+      image: `${baseUrl}/assets/images/portfolio-preview.jpg`,
+      url: `${baseUrl}#portfolio`,
+    },
+    contact: {
+      title: "Contact - Nathan Développeur Full Stack | Vufflens-la-Ville",
+      description:
+        "Contactez Nathan, développeur Full Stack à Vufflens-la-Ville. Disponible pour vos projets web en Suisse romande.",
+      keywords:
+        "contact développeur, Vufflens-la-Ville, développement web Suisse, freelance Canton de Vaud",
+      image: `${baseUrl}/assets/images/contact-preview.jpg`,
+      url: `${baseUrl}#contact`,
+    },
+  };
+
+  return metaTags[page] || metaTags.home;
 }
 
 // Fonction pour mettre à jour le fichier HTML
@@ -1411,9 +1479,6 @@ async function updateHtmlFile() {
 
     // Formater les données
     const formattedPersonalInfo = formatPersonalInfo(personalInfo);
-    const formattedPortfolioProjects = await Promise.all(
-      portfolioProjects.map(formatPortfolioProject)
-    );
 
     // Générer le HTML pour chaque section
     const projectsHtml = projects
@@ -1505,33 +1570,37 @@ async function updateHtmlFile() {
       })
       .join("");
 
-
-const clientsHtml = clients
-  .map((client) => `
+    const clientsHtml = clients
+      .map(
+        (client) => `
     <li class="clients-item">
       <div class="client-card">
         <div class="client-image-container">
           <img 
-            src="${client.logo || './assets/images/client-default.png'}" 
+            src="${client.logo || "./assets/images/client-default.png"}" 
             alt="${client.name}" 
             class="client-logo"
             loading="lazy">
           <div class="client-overlay">
             <div class="client-description">
               <h4>${client.name}</h4>
-              <p>${client.description || 'Client important'}</p>
-              ${client.website ? `
+              <p>${client.description || "Client important"}</p>
+              ${
+                client.website
+                  ? `
                 <a href="${client.website}" target="_blank">
                   <ion-icon name="link-outline"></ion-icon>
                   <span>Site</span>
-                </a>` : ''}
+                </a>`
+                  : ""
+              }
             </div>
           </div>
         </div>
       </div>
-    </li>`)
-  .join("");
-
+    </li>`
+      )
+      .join("");
 
     const blogsHtml = blogs
       .slice(0, 6)
@@ -1834,6 +1903,76 @@ const clientsHtml = clients
         htmlContent = htmlContent.replace(cvRegex, `$1\n${cvHtml}\n$3`);
       }
     }
+
+    // Générer les méta-tags dynamiques
+    const metaTags = generateMetaTags("home", personalInfo);
+
+    // Remplacer les méta-tags dans le HTML
+    htmlContent = htmlContent.replace(
+      /<title>.*?<\/title>/i,
+      `<title>${metaTags.title}</title>`
+    );
+
+    htmlContent = htmlContent.replace(
+      /<meta name="description".*?>/i,
+      `<meta name="description" content="${metaTags.description}">`
+    );
+
+    // Ajouter/remplacer les méta-tags SEO complets
+    const seoMetaTags = `
+    <meta name="description" content="${metaTags.description}">
+    <meta name="keywords" content="${metaTags.keywords}">
+    <meta name="author" content="Nathan">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="${metaTags.url}">
+    <meta property="og:title" content="${metaTags.title}">
+    <meta property="og:description" content="${metaTags.description}">
+    <meta property="og:image" content="${metaTags.image}">
+    <meta property="og:locale" content="fr_CH">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="${metaTags.url}">
+    <meta property="twitter:title" content="${metaTags.title}">
+    <meta property="twitter:description" content="${metaTags.description}">
+    <meta property="twitter:image" content="${metaTags.image}">
+    
+    <!-- LinkedIn -->
+    <meta property="linkedin:owner" content="Nathan">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="${metaTags.url}">
+    
+    <!-- Structured Data JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "${personalInfo?.name || "Nathan"}",
+      "jobTitle": "${personalInfo?.title || "Développeur Full Stack"}",
+      "url": "${metaTags.url}",
+      "image": "${metaTags.image}",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Vufflens-la-Ville",
+        "addressRegion": "Canton de Vaud",
+        "addressCountry": "CH"
+      },
+      "email": "${personalInfo?.email || ""}",
+      "telephone": "${personalInfo?.phone || ""}",
+      "sameAs": [
+        "https://github.com/votre-github",
+        "https://linkedin.com/in/votre-profil"
+      ]
+    }
+    </script>`;
+
+    // Insérer les méta-tags dans le <head>
+    htmlContent = htmlContent.replace("</head>", `${seoMetaTags}\n</head>`);
     await fs.writeFile("public/index.html", htmlContent, "utf8");
 
     console.log("✅ Fichier HTML mis à jour avec succès");
