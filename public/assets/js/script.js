@@ -14,36 +14,47 @@ sidebarBtn.addEventListener("click", function () {
   elementToggleFunc(sidebar);
 });
 
-// testimonials variables
+// Testimonials variables
 const testimonialsItem = document.querySelectorAll("[data-testimonials-item]");
 const modalContainer = document.querySelector("[data-modal-container]");
 const modalCloseBtn = document.querySelector("[data-modal-close-btn]");
 const overlay = document.querySelector("[data-overlay]");
 
-// modal variable
+// Modal variables
 const modalImg = document.querySelector("[data-modal-img]");
 const modalTitle = document.querySelector("[data-modal-title]");
 const modalText = document.querySelector("[data-modal-text]");
 
-// modal toggle function
+// Modal toggle function
 const testimonialsModalFunc = function () {
-  modalContainer.classList.toggle("active");
-  overlay.classList.toggle("active");
+  if (modalContainer && overlay) {
+    modalContainer.classList.toggle("active");
+    overlay.classList.toggle("active");
+  }
 };
 
-// add click event to all modal items
+// Add click event to all modal items (témoignages ET projets)
 for (let i = 0; i < testimonialsItem.length; i++) {
   testimonialsItem[i].addEventListener("click", function () {
-    modalImg.src = this.querySelector("[data-testimonials-avatar]").src;
-    modalImg.alt = this.querySelector("[data-testimonials-avatar]").alt;
-    modalTitle.innerHTML = this.querySelector(
-      "[data-testimonials-title]"
-    ).innerHTML;
-    modalText.innerHTML = this.querySelector(
-      "[data-testimonials-text]"
-    ).innerHTML;
-
-    testimonialsModalFunc();
+    console.log('Clic détecté sur élément:', i); // Debug
+    
+    const avatar = this.querySelector("[data-testimonials-avatar]");
+    const title = this.querySelector("[data-testimonials-title]");
+    const text = this.querySelector("[data-testimonials-text]");
+    
+    console.log('Éléments trouvés:', { avatar, title, text }); // Debug
+    
+    if (avatar && title && text && modalImg && modalTitle && modalText) {
+      modalImg.src = avatar.src;
+      modalImg.alt = avatar.alt;
+      modalTitle.innerHTML = title.innerHTML;
+      modalText.innerHTML = text.innerHTML;
+      testimonialsModalFunc();
+      
+      console.log('Modal ouverte'); // Debug
+    } else {
+      console.log('Éléments manquants pour la modal'); // Debug
+    }
   });
 }
 
@@ -309,6 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
 function viewCVInline() {
   const viewer = document.getElementById("cv-viewer");
   if (viewer.style.display === "none") {
@@ -319,3 +331,123 @@ function viewCVInline() {
     document.querySelector(".cv-view-btn span").textContent = "Aperçu";
   }
 }
+
+// ========================================
+// MODAL PROJETS PORTFOLIO
+// ========================================
+
+// Variables de la modal projets
+const projectItems = document.querySelectorAll("[data-project-item]");
+const projectModalContainer = document.querySelector("[data-project-modal-container]");
+const projectModalCloseBtn = document.querySelector("[data-project-modal-close-btn]");
+const projectOverlay = document.querySelector("[data-project-overlay]");
+
+// Éléments de contenu de la modal
+const projectModalImg = document.querySelector("[data-project-modal-img]");
+const projectModalTitle = document.querySelector("[data-project-modal-title]");
+const projectModalCategory = document.querySelector("[data-project-modal-category]");
+const projectModalDescription = document.querySelector("[data-project-modal-description]");
+const projectModalActions = document.querySelector("[data-project-modal-actions]");
+
+// Fonction pour ouvrir/fermer la modal projets
+const projectModalFunc = function () {
+  if (projectModalContainer && projectOverlay) {
+    projectModalContainer.classList.toggle("active");
+    projectOverlay.classList.toggle("active");
+  }
+};
+
+// Événements de clic sur les projets
+if (projectItems) {
+  projectItems.forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault();
+      
+      // Empêcher l'ouverture si on clique sur les boutons d'action
+      if (e.target.closest('.project-action-btn')) {
+        return;
+      }
+      
+      // Récupérer les données du projet
+      const image = this.querySelector("[data-project-image]");
+      const title = this.querySelector("[data-project-title]");
+      const category = this.querySelector("[data-project-category]");
+      const description = this.querySelector("[data-project-description]");
+      const repoLink = this.querySelector("[data-project-repo-link]");
+      const liveLink = this.querySelector("[data-project-live-link]");
+      
+      if (image && title && category && description) {
+        // Mettre à jour l'image
+        if (projectModalImg) {
+          projectModalImg.src = image.src;
+          projectModalImg.alt = image.alt;
+        }
+        
+        // Mettre à jour le titre
+        if (projectModalTitle) {
+          projectModalTitle.textContent = title.textContent;
+        }
+        
+        // Mettre à jour la catégorie
+        if (projectModalCategory) {
+          projectModalCategory.textContent = category.textContent;
+        }
+        
+        // Mettre à jour la description
+        if (projectModalDescription) {
+          projectModalDescription.innerHTML = `<p>${description.textContent}</p>`;
+        }
+        
+        // Générer les boutons d'action
+        if (projectModalActions) {
+          let actionsHTML = '';
+          
+          if (repoLink && repoLink.textContent.trim()) {
+            actionsHTML += `
+              <a href="${repoLink.textContent}" target="_blank" class="project-modal-btn">
+                <ion-icon name="logo-github"></ion-icon>
+                <span>Voir le code</span>
+              </a>`;
+          }
+          
+          if (liveLink && liveLink.textContent.trim()) {
+            actionsHTML += `
+              <a href="${liveLink.textContent}" target="_blank" class="project-modal-btn secondary">
+                <ion-icon name="eye-outline"></ion-icon>
+                <span>Voir le site</span>
+              </a>`;
+          }
+          
+          projectModalActions.innerHTML = actionsHTML;
+        }
+        
+        // Ouvrir la modal
+        projectModalFunc();
+      }
+    });
+  });
+}
+
+// Fermer la modal avec le bouton X
+if (projectModalCloseBtn) {
+  projectModalCloseBtn.addEventListener("click", projectModalFunc);
+}
+
+// Fermer la modal en cliquant sur l'overlay
+if (projectOverlay) {
+  projectOverlay.addEventListener("click", projectModalFunc);
+}
+
+// Fermer la modal avec la touche Escape
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && projectModalContainer && projectModalContainer.classList.contains("active")) {
+    projectModalFunc();
+  }
+});
+
+console.log('Modal projets initialisée:', {
+  projectItems: projectItems.length,
+  modalContainer: !!projectModalContainer,
+  modalImg: !!projectModalImg,
+  modalTitle: !!projectModalTitle
+});

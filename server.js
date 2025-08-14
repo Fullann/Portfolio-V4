@@ -1839,41 +1839,49 @@ async function updateHtmlFile() {
       )
       .join("\n");
 
- const portfolioProjectsHtml = portfolioProjects
-      .map(
-        (project) =>`
-                <li class="project-item active" data-filter-item data-category="${
-                  project.filter_category
-                }">
-                    <div class="project-links">
-                        ${
-                          project.repo_link
-                            ? `<a href="${project.repo_link}" target="_blank" class="project-link repo-link" title="Voir le code">
-                            <ion-icon name="logo-github"></ion-icon>
-                        </a>`
-                            : ""
-                        }
-                        ${
-                          project.live_link
-                            ? `<a href="${project.live_link}" target="_blank" class="project-link live-link" title="Voir le site">
-                            <ion-icon name="eye-outline"></ion-icon>
-                        </a>`
-                            : ""
-                        }
-                    </div>
-                    <figure class="project-img">
-                        <div class="project-item-icon-box">
-                            <ion-icon name="eye-outline"></ion-icon>
-                        </div>
-                        <img src="${project.image}" alt="${
-          project.title
-        }" loading="lazy" />
-                    </figure>
-                    <h3 class="project-title">${project.title}</h3>
-                    <p class="project-category">${project.category}</p>
-                </li>`
-      )
-      .join("\n");
+const portfolioProjectsHtml = portfolioProjects
+  .map((project, index) => {
+    // Générer les boutons conditionnellement
+    let actionButtons = '';
+    
+    if (project.repo_link && project.repo_link.trim()) {
+      actionButtons += `
+        <a href="${project.repo_link}" target="_blank" class="project-action-btn" onclick="event.stopPropagation();">
+          <ion-icon name="logo-github"></ion-icon>
+        </a>`;
+    }
+    
+    if (project.live_link && project.live_link.trim()) {
+      actionButtons += `
+        <a href="${project.live_link}" target="_blank" class="project-action-btn" onclick="event.stopPropagation();">
+          <ion-icon name="link-outline"></ion-icon>
+        </a>`;
+    }
+
+    return `
+      <li class="project-item active" data-filter-item data-category="${project.filter_category}" data-project-item>
+        <figure class="project-img">
+          <div class="project-item-icon-box">
+            <ion-icon name="eye-outline"></ion-icon>
+          </div>
+          <img src="${project.image}" alt="${project.title}" loading="lazy" data-project-image>
+        </figure>
+        
+        <h3 class="project-title" data-project-title>${project.title}</h3>
+        <p class="project-category" data-project-category>${project.category}</p>
+        
+        ${actionButtons ? `<div class="project-actions">${actionButtons}</div>` : ''}
+        
+        <!-- Données cachées pour la nouvelle modal -->
+        <div class="project-data" style="display: none;">
+          <span data-project-description>${project.description}</span>
+          <span data-project-repo-link>${project.repo_link || ''}</span>
+          <span data-project-live-link>${project.live_link || ''}</span>
+        </div>
+      </li>`;
+  })
+  .join("");
+
 
     const clientsHtml = clients
       .map(
