@@ -1839,60 +1839,41 @@ async function updateHtmlFile() {
       )
       .join("\n");
 
-    const portfolioProjectsHtml = portfolioProjects
-      .map((project) => {
-        // Générer les boutons conditionnellement
-        let actionButtons = "";
-
-        if (project.repoLink && project.repoLink.trim()) {
-          actionButtons += `
-        <a href="${project.repoLink}" target="_blank" class="project-link">
-          <ion-icon name="logo-github"></ion-icon>
-          <span>Code</span>
-        </a>`;
-        }
-
-        if (project.liveLink && project.liveLink.trim()) {
-          actionButtons += `
-        <a href="${project.liveLink}" target="_blank" class="project-link">
-          <ion-icon name="eye-outline"></ion-icon>
-          <span>Live Site</span>
-        </a>`;
-        }
-
-        // Si aucun lien n'est disponible, ne pas afficher de section action
-        const actionSection = actionButtons
-          ? `
-      <div class="project-actions">
-        ${actionButtons}
-      </div>`
-          : "";
-
-        return `
-      <li class="project-item active" data-filter-item data-category="${
-        project.filterCategory
-      }">
-        <a href="#">
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="${
-              project.image || "./assets/images/project-default.jpg"
-            }" alt="${project.title}" loading="lazy">
-          </figure>
-        </a>
-        <div class="project-content">
-          <h3 class="project-title">${project.title}</h3>
-          <p class="project-category">${project.category}</p>
-          <div class="project-description">
-            <p>${project.description}</p>
-          </div>
-          ${actionSection}
-        </div>
-      </li>`;
-      })
-      .join("");
+ const portfolioProjectsHtml = portfolioProjects
+      .map(
+        (project) =>`
+                <li class="project-item active" data-filter-item data-category="${
+                  project.filter_category
+                }">
+                    <div class="project-links">
+                        ${
+                          project.repo_link
+                            ? `<a href="${project.repo_link}" target="_blank" class="project-link repo-link" title="Voir le code">
+                            <ion-icon name="logo-github"></ion-icon>
+                        </a>`
+                            : ""
+                        }
+                        ${
+                          project.live_link
+                            ? `<a href="${project.live_link}" target="_blank" class="project-link live-link" title="Voir le site">
+                            <ion-icon name="eye-outline"></ion-icon>
+                        </a>`
+                            : ""
+                        }
+                    </div>
+                    <figure class="project-img">
+                        <div class="project-item-icon-box">
+                            <ion-icon name="eye-outline"></ion-icon>
+                        </div>
+                        <img src="${project.image}" alt="${
+          project.title
+        }" loading="lazy" />
+                    </figure>
+                    <h3 class="project-title">${project.title}</h3>
+                    <p class="project-category">${project.category}</p>
+                </li>`
+      )
+      .join("\n");
 
     const clientsHtml = clients
       .map(

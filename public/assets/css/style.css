@@ -1433,43 +1433,7 @@ main {
   flex-wrap: wrap;
 }
 
-.project-link {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 16px;
-  background: var(--orange-yellow-crayola);
-  color: var(--white);
-  text-decoration: none;
-  border-radius: 6px;
-  font-size: var(--fs-7);
-  font-weight: var(--fw-500);
-  transition: var(--transition-1);
-}
 
-.project-link:hover {
-  background: var(--vegas-gold);
-  transform: translateY(-2px);
-}
-
-.project-link ion-icon {
-  font-size: 16px;
-}
-
-/* Responsive pour les projets */
-@media (max-width: 768px) {
-  .project-content {
-    padding: 15px;
-  }
-  
-  .project-actions {
-    flex-direction: column;
-  }
-  
-  .project-link {
-    justify-content: center;
-  }
-}
 
 
 
