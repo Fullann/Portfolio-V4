@@ -196,7 +196,6 @@
             border-radius: 8px;
           "
         >
-          <h1 style="margin: 0">Administration Portfolio</h1>
           <button
             onclick="logout()"
             class="btn-delete"
@@ -219,8 +218,141 @@
           >
             🗑️ Supprimer TOUTES les données
           </button>
-        </div>
+        </div>       
+ <!-- Gestion du Compte Admin -->
+        <div class="admin-section" id="account-section">
+          <h3>⚙️ Gestion du Compte Admin</h3>
 
+          <!-- Informations actuelles -->
+          <div
+            class="current-account-info"
+            style="
+              background: #f8f9fa;
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+              border: 1px solid #dee2e6;
+            "
+          >
+            <h4 style="color: #495057; margin-bottom: 10px">
+              Informations actuelles
+            </h4>
+            <p style="margin: 8px 0; color: #6c757d">
+              <strong>Nom d'utilisateur:</strong>
+              <span id="current-username">-</span>
+            </p>
+            <p style="margin: 8px 0; color: #6c757d">
+              <strong>Compte créé le:</strong>
+              <span id="account-created">-</span>
+            </p>
+          </div>
+
+          <!-- Formulaire de modification du nom d'utilisateur -->
+          <form id="account-update-form" style="margin-bottom: 30px">
+            <h4>Modifier le nom d'utilisateur</h4>
+            <div class="form-group">
+              <label for="new-username">Nouveau nom d'utilisateur:</label>
+              <input
+                type="text"
+                id="new-username"
+                required
+                minlength="3"
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  margin: 5px 0;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                "
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              style="
+                background: #007bff;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+              "
+            >
+              Mettre à jour le nom d'utilisateur
+            </button>
+          </form>
+
+          <!-- Formulaire de changement de mot de passe -->
+          <form
+            id="password-change-form"
+            style="border-top: 2px solid #ffc107; padding-top: 20px"
+          >
+            <h4>Changer le mot de passe</h4>
+            <div class="form-group">
+              <label for="current-password">Mot de passe actuel:</label>
+              <input
+                type="password"
+                id="current-password"
+                required
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  margin: 5px 0;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                "
+              />
+            </div>
+            <div class="form-group">
+              <label for="new-password">Nouveau mot de passe:</label>
+              <input
+                type="password"
+                id="new-password"
+                required
+                minlength="6"
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  margin: 5px 0;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                "
+              />
+            </div>
+            <div class="form-group">
+              <label for="confirm-password"
+                >Confirmer le nouveau mot de passe:</label
+              >
+              <input
+                type="password"
+                id="confirm-password"
+                required
+                minlength="6"
+                style="
+                  width: 100%;
+                  padding: 8px;
+                  margin: 5px 0;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                "
+              />
+            </div>
+            <button
+              type="submit"
+              class="btn-warning"
+              style="
+                background: #ffc107;
+                color: #212529;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+              "
+            >
+              Changer le mot de passe
+            </button>
+          </form>
+        </div>
         <!-- Section Informations Personnelles -->
         <div class="form-section">
           <h2>Informations Personnelles</h2>
@@ -298,7 +430,7 @@
             </div>
           </form>
         </div>
-
+        
         <!-- Section Liens Sociaux -->
         <div class="form-section">
           <h2>Gestion des Liens Sociaux</h2>

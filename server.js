@@ -1338,6 +1338,158 @@ app.delete("/api/skills/:id", authenticateToken, async (req, res) => {
       .json({ error: "Erreur lors de la suppression de la compétence" });
   }
 });
+// Route pour changer le mot de passe admin
+app.put("/api/admin/change-password", authenticateToken, async (req, res) => {
+  try {
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    // Validation
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ error: "Tous les champs sont requis" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ error: "Les nouveaux mots de passe ne correspondent pas" });
+    }
+
+    if (newPassword.length < 6) {
+      return res
+        .status(400)
+        .json({
+          error: "Le nouveau mot de passe doit contenir au moins 6 caractères",
+        });
+    }
+
+    // Récupérer le compte admin actuel
+    const currentAdmin = await dbOperations.admin.getByUsername(
+      req.user.username
+    );
+    if (!currentAdmin) {
+      return res.status(404).json({ error: "Compte admin non trouvé" });
+    }
+
+    // Vérifier le mot de passe actuel
+    const isValidPassword = await bcrypt.compare(
+      currentPassword,
+      currentAdmin.password
+    );
+    if (!isValidPassword) {
+      return res.status(401).json({ error: "Mot de passe actuel incorrect" });
+    }
+
+    // Hasher le nouveau mot de passe
+    const saltRounds = 12;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Mettre à jour le mot de passe (utilise votre table admin_users existante)
+    const updated = await dbOperations.admin.updatePassword(
+      req.user.username,
+      hashedNewPassword
+    );
+
+    if (updated) {
+      res.json({ message: "Mot de passe mis à jour avec succès" });
+    } else {
+      res
+        .status(500)
+        .json({ error: "Erreur lors de la mise à jour du mot de passe" });
+    }
+  } catch (error) {
+    console.error("Erreur lors du changement de mot de passe:", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// Route pour changer le nom d'utilisateur admin
+app.put("/api/admin/update-account", authenticateToken, async (req, res) => {
+  try {
+    const { newUsername } = req.body;
+
+    // Validation
+    if (!newUsername || newUsername.trim().length < 3) {
+      return res
+        .status(400)
+        .json({
+          error: "Le nom d'utilisateur doit contenir au moins 3 caractères",
+        });
+    }
+
+    const currentUsername = req.user.username;
+
+    // Vérifier si le nouveau nom d'utilisateur existe déjà (sauf si c'est le même)
+    if (newUsername !== currentUsername) {
+      const existingUser = await dbOperations.admin.getByUsername(newUsername);
+      if (existingUser) {
+        return res
+          .status(409)
+          .json({ error: "Ce nom d'utilisateur existe déjà" });
+      }
+    }
+
+    // Récupérer les infos actuelles
+    const currentAdmin = await dbOperations.admin.getByUsername(
+      currentUsername
+    );
+    if (!currentAdmin) {
+      return res.status(404).json({ error: "Compte admin non trouvé" });
+    }
+
+    // Mettre à jour le nom d'utilisateur (utilise votre table admin_users existante)
+    const updated = await dbOperations.admin.update(currentAdmin.id, {
+      username: newUsername.trim(),
+      password: currentAdmin.password, // Garder le même mot de passe
+    });
+
+    if (updated) {
+      // Générer un nouveau token avec le nouveau nom d'utilisateur
+      const newToken = jwt.sign(
+        { username: newUsername.trim(), id: currentAdmin.id },
+        JWT_SECRET,
+        { expiresIn: "24h" }
+      );
+
+      res.json({
+        message: "Nom d'utilisateur mis à jour avec succès",
+        newToken: newToken,
+        newUsername: newUsername.trim(),
+      });
+    } else {
+      res
+        .status(500)
+        .json({ error: "Erreur lors de la mise à jour du nom d'utilisateur" });
+    }
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du compte:", error);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// Route pour récupérer les informations du compte admin actuel
+app.get("/api/admin/account-info", authenticateToken, async (req, res) => {
+  try {
+    const admin = await dbOperations.admin.getByUsername(req.user.username);
+    if (!admin) {
+      return res.status(404).json({ error: "Compte admin non trouvé" });
+    }
+
+    // Ne pas renvoyer le mot de passe hashé
+    const { password, ...adminInfo } = admin;
+
+    res.json({
+      id: adminInfo.id,
+      username: adminInfo.username,
+      created_at: adminInfo.created_at,
+    });
+  } catch (error) {
+    console.error(
+      "Erreur lors de la récupération des informations admin:",
+      error
+    );
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
 
 // Route pour réinitialiser toutes les données
 app.post("/api/reset-all", authenticateToken, async (req, res) => {

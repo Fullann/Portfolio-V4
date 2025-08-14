@@ -84,7 +84,9 @@ document
             : "Projet ajouté avec succès!"
         );
       } else {
-        alert("Erreur lors de l'opération. Regarder la console pour plus d'informations.");
+        alert(
+          "Erreur lors de l'opération. Regarder la console pour plus d'informations."
+        );
       }
     } catch (error) {
       console.error("Erreur:", error);
@@ -991,89 +993,101 @@ let editingSocial = null;
 
 // Gestion des informations personnelles
 // Modifiez la gestion des informations personnelles
-document.getElementById('personal-info-form').addEventListener('submit', async (e) => {
+document
+  .getElementById("personal-info-form")
+  .addEventListener("submit", async (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData();
-    formData.append('name', document.getElementById('personal-name').value);
-    formData.append('title', document.getElementById('personal-title').value);
-    formData.append('email', document.getElementById('personal-email').value);
-    formData.append('phone', document.getElementById('personal-phone').value);
-    formData.append('birthday', document.getElementById('personal-birthday').value);
-    formData.append('location', document.getElementById('personal-location').value);
-    formData.append('aboutText', document.getElementById('personal-about').value);
-    
-    const avatarFile = document.getElementById('personal-avatar').files[0];
+    formData.append("name", document.getElementById("personal-name").value);
+    formData.append("title", document.getElementById("personal-title").value);
+    formData.append("email", document.getElementById("personal-email").value);
+    formData.append("phone", document.getElementById("personal-phone").value);
+    formData.append(
+      "birthday",
+      document.getElementById("personal-birthday").value
+    );
+    formData.append(
+      "location",
+      document.getElementById("personal-location").value
+    );
+    formData.append(
+      "aboutText",
+      document.getElementById("personal-about").value
+    );
+
+    const avatarFile = document.getElementById("personal-avatar").files[0];
     if (avatarFile) {
-        formData.append('avatar', avatarFile);
+      formData.append("avatar", avatarFile);
     }
-    
-    const cvFile = document.getElementById('personal-cv').files[0];
+
+    const cvFile = document.getElementById("personal-cv").files[0];
     if (cvFile) {
-        formData.append('cv', cvFile);
+      formData.append("cv", cvFile);
     }
-    
+
     try {
-        const response = await fetch('/api/personal-info', {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        if (response.ok) {
-            alert('Informations personnelles mises à jour avec succès!');
-            loadPersonalInfo();
-        } else {
-            const errorData = await response.json();
-            alert('Erreur: ' + errorData.error);
-        }
+      const response = await fetch("/api/personal-info", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert("Informations personnelles mises à jour avec succès!");
+        loadPersonalInfo();
+      } else {
+        const errorData = await response.json();
+        alert("Erreur: " + errorData.error);
+      }
     } catch (error) {
-        console.error('Erreur:', error);
-        alert('Erreur lors de la mise à jour');
+      console.error("Erreur:", error);
+      alert("Erreur lors de la mise à jour");
     }
-});
+  });
 
 // Modifiez loadPersonalInfo pour inclure le CV
 async function loadPersonalInfo() {
-    try {
-        const response = await fetch('/api/personal-info');
-        const info = await response.json();
-        
-        document.getElementById('personal-name').value = info.name;
-        document.getElementById('personal-title').value = info.title;
-        document.getElementById('personal-email').value = info.email;
-        document.getElementById('personal-phone').value = info.phone;
-        document.getElementById('personal-birthday').value = info.birthday;
-        document.getElementById('personal-location').value = info.location;
-        document.getElementById('personal-about').value = info.aboutText.join('\n');
-        
-        // Afficher l'avatar actuel
-        if (info.avatar) {
-            const avatarInput = document.getElementById('personal-avatar');
-            avatarInput.parentNode.querySelector('small').textContent = 
-                `Avatar actuel : ${info.avatar.split('/').pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
-        }
-        
-        // Afficher le CV actuel
-        const cvInfo = document.getElementById('current-cv-info');
-        if (info.cvFile) {
-            cvInfo.style.display = 'block';
-        } else {
-            cvInfo.style.display = 'none';
-        }
-        
-    } catch (error) {
-        console.error('Erreur:', error);
+  try {
+    const response = await fetch("/api/personal-info");
+    const info = await response.json();
+
+    document.getElementById("personal-name").value = info.name;
+    document.getElementById("personal-title").value = info.title;
+    document.getElementById("personal-email").value = info.email;
+    document.getElementById("personal-phone").value = info.phone;
+    document.getElementById("personal-birthday").value = info.birthday;
+    document.getElementById("personal-location").value = info.location;
+    document.getElementById("personal-about").value = info.aboutText.join("\n");
+
+    // Afficher l'avatar actuel
+    if (info.avatar) {
+      const avatarInput = document.getElementById("personal-avatar");
+      avatarInput.parentNode.querySelector(
+        "small"
+      ).textContent = `Avatar actuel : ${info.avatar
+        .split("/")
+        .pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
     }
+
+    // Afficher le CV actuel
+    const cvInfo = document.getElementById("current-cv-info");
+    if (info.cvFile) {
+      cvInfo.style.display = "block";
+    } else {
+      cvInfo.style.display = "none";
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
 // Fonction pour voir le CV actuel
 function viewCurrentCV() {
-    window.open('/documents', '_blank');
+  window.open("/documents", "_blank");
 }
-
 
 // Gestion des liens sociaux
 document.getElementById("social-form").addEventListener("submit", async (e) => {
@@ -1609,6 +1623,135 @@ function cancelEditSkill() {
   editingSkill = null;
 }
 
+// Charger les informations du compte admin
+async function loadAccountInfo() {
+  try {
+    const response = await fetch("/api/admin/account-info", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      const accountInfo = await response.json();
+      document.getElementById("current-username").textContent =
+        accountInfo.username;
+
+      if (accountInfo.created_at) {
+        const created = new Date(accountInfo.created_at).toLocaleDateString(
+          "fr-FR"
+        );
+        document.getElementById("account-created").textContent = created;
+      } else {
+        document.getElementById("account-created").textContent = "Inconnue";
+      }
+
+      // Pré-remplir le formulaire
+      document.getElementById("new-username").value = accountInfo.username;
+    }
+  } catch (error) {
+    console.error(
+      "Erreur lors du chargement des informations du compte:",
+      error
+    );
+  }
+}
+
+// Gestion du formulaire de mise à jour du nom d'utilisateur
+document
+  .getElementById("account-update-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const newUsername = document.getElementById("new-username").value.trim();
+
+    if (!newUsername) {
+      alert("Le nom d'utilisateur ne peut pas être vide");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/update-account", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          newUsername,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Nom d'utilisateur mis à jour avec succès !");
+
+        // Mettre à jour le token si fourni
+        if (data.newToken) {
+          token = data.newToken;
+          localStorage.setItem("adminToken", token);
+        }
+
+        // Recharger les informations
+        await loadAccountInfo();
+      } else {
+        alert("Erreur: " + data.error);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur lors de la mise à jour");
+    }
+  });
+
+// Gestion du formulaire de changement de mot de passe
+document
+  .getElementById("password-change-form")
+  .addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const currentPassword = document.getElementById("current-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    const confirmPassword = document.getElementById("confirm-password").value;
+
+    if (newPassword !== confirmPassword) {
+      alert("Les nouveaux mots de passe ne correspondent pas");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      alert("Le nouveau mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/admin/change-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+          confirmPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Mot de passe changé avec succès !");
+        document.getElementById("password-change-form").reset();
+      } else {
+        alert("Erreur: " + data.error);
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      alert("Erreur lors du changement de mot de passe");
+    }
+  });
+
 // Mettre à jour la fonction de chargement initial
 if (token) {
   document.getElementById("login-section").style.display = "none";
@@ -1625,4 +1768,5 @@ if (token) {
   loadEducation();
   loadExperience();
   loadSkills();
+  loadAccountInfo();
 }
