@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const { marked } = require("marked");
 const { dbOperations, initializeDatabase } = require("./mysql-db");
 const compression = require("compression");
+const sharp = require('sharp');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -32,10 +33,8 @@ const storage = multer.diskStorage({
     if (file.fieldname === "cv") {
       cb(null, "cv-" + uniqueSuffix + ".pdf");
     } else {
-      cb(
-        null,
-        file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
-      );
+      // Ne pas ajouter l'extension ici, elle sera ajoutée après optimisation
+      cb(null, file.fieldname + "-" + uniqueSuffix);
     }
   },
 });
@@ -44,14 +43,12 @@ const upload = multer({
   storage: storage,
   fileFilter: (req, file, cb) => {
     if (file.fieldname === "cv") {
-      // Accepter seulement les PDFs pour le CV
       if (file.mimetype === "application/pdf") {
         cb(null, true);
       } else {
         cb(new Error("Seuls les fichiers PDF sont acceptés pour le CV"));
       }
     } else {
-      // Accepter les images pour les autres champs
       if (file.mimetype.startsWith("image/")) {
         cb(null, true);
       } else {
@@ -60,6 +57,7 @@ const upload = multer({
     }
   },
 });
+
 
 // Middleware
 app.use(cors());
@@ -174,6 +172,111 @@ function formatPersonalInfo(dbData) {
   };
 }
 
+// Fonction d'optimisation automatique des images
+async function optimizeImage(inputPath, outputPath, options = {}) {
+  try {
+    const {
+      width = 1920,
+      height = 1080,
+      quality = 80,
+      format = 'webp'
+    } = options;
+
+    let sharpInstance = sharp(inputPath);
+    
+    // Redimensionner si nécessaire (en gardant les proportions)
+    sharpInstance = sharpInstance.resize(width, height, { 
+      fit: 'inside', 
+      withoutEnlargement: true 
+    });
+    
+    // Optimiser selon le format
+    if (format === 'webp') {
+      sharpInstance = sharpInstance.webp({ quality });
+    } else if (format === 'jpeg' || format === 'jpg') {
+      sharpInstance = sharpInstance.jpeg({ quality });
+    } else if (format === 'png') {
+      sharpInstance = sharpInstance.png({ quality: Math.round(quality / 10) });
+    }
+    
+    await sharpInstance.toFile(outputPath);
+    
+    // Obtenir les statistiques
+    const originalStats = require('fs').statSync(inputPath);
+    const optimizedStats = require('fs').statSync(outputPath);
+    
+    const originalSize = (originalStats.size / 1024).toFixed(2);
+    const optimizedSize = (optimizedStats.size / 1024).toFixed(2);
+    const savings = ((originalSize - optimizedSize) / originalSize * 100).toFixed(1);
+    
+    console.log(`✅ Image optimisée: ${path.basename(inputPath)} -> ${path.basename(outputPath)} (${originalSize}KB -> ${optimizedSize}KB, -${savings}%)`);
+    
+    return {
+      success: true,
+      originalSize,
+      optimizedSize,
+      savings,
+      outputPath
+    };
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'optimisation:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Middleware d'optimisation pour multer
+const optimizeUploadedImage = async (req, res, next) => {
+  if (!req.file || req.file.fieldname === 'cv') {
+    return next(); // Passer si pas d'image ou si c'est un CV
+  }
+  
+  try {
+    const originalPath = req.file.path;
+    const fileName = path.parse(req.file.filename).name;
+    const outputPath = path.join(req.file.destination, `${fileName}.webp`);
+    
+    // Déterminer les dimensions selon le type de contenu
+    let optimizationOptions = { format: 'webp', quality: 85 };
+    
+    if (req.file.fieldname === 'image' || req.file.fieldname === 'logo') {
+      // Images de projet/logo : dimensions moyennes
+      optimizationOptions = { 
+        ...optimizationOptions, 
+        width: 800, 
+        height: 600 
+      };
+    } else if (req.file.fieldname === 'avatar') {
+      // Avatars : petites dimensions
+      optimizationOptions = { 
+        ...optimizationOptions, 
+        width: 200, 
+        height: 200 
+      };
+    }
+    
+    const result = await optimizeImage(originalPath, outputPath, optimizationOptions);
+    
+    if (result.success) {
+      // Supprimer l'original et mettre à jour les informations du fichier
+      require('fs').unlinkSync(originalPath);
+      
+      req.file.path = outputPath;
+      req.file.filename = `${fileName}.webp`;
+      req.file.optimized = true;
+      req.file.optimizationStats = {
+        originalSize: result.originalSize,
+        optimizedSize: result.optimizedSize,
+        savings: result.savings
+      };
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Erreur lors de l\'optimisation de l\'upload:', error);
+    next(); // Continuer même en cas d'erreur d'optimisation
+  }
+};
+
 async function formatPortfolioProject(dbData) {
   let category = null;
 
@@ -268,20 +371,26 @@ app.post(
   "/api/projects",
   authenticateToken,
   upload.single("image"),
+  optimizeUploadedImage, 
   async (req, res) => {
     try {
       const { title, category, description } = req.body;
       const image = req.file ? `/assets/images/${req.file.filename}` : null;
-
+      
+      // Log des statistiques d'optimisation
+      if (req.file && req.file.optimized) {
+        console.log(`📊 Optimisation: ${req.file.optimizationStats.savings}% d'économie`);
+      }
+      
       lastUpdate = Date.now();
-
+      
       const newProject = await dbOperations.projects.create({
         title,
         category,
         image,
         description,
       });
-
+      
       await updateHtmlFile();
       res.json(newProject);
     } catch (error) {
@@ -354,6 +463,7 @@ app.post(
   "/api/testimonials",
   authenticateToken,
   upload.single("avatar"),
+  optimizeUploadedImage,
   async (req, res) => {
     try {
       const { name, text, date } = req.body;
@@ -452,6 +562,7 @@ app.post(
   "/api/portfolio-projects",
   authenticateToken,
   upload.single("image"),
+  optimizeUploadedImage,
   async (req, res) => {
     try {
       const {
@@ -573,6 +684,7 @@ app.post(
   "/api/clients",
   authenticateToken,
   upload.single("logo"),
+  optimizeUploadedImage,
   async (req, res) => {
     try {
       const { name, website, description } = req.body;
@@ -794,6 +906,7 @@ app.post(
   "/api/blogs",
   authenticateToken,
   upload.single("image"),
+  optimizeUploadedImage,
   async (req, res) => {
     try {
       const { title, category, excerpt, content, author } = req.body;
@@ -1504,6 +1617,44 @@ app.post("/api/reset-all", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Erreur:", error);
     res.status(500).json({ error: "Erreur lors de la réinitialisation" });
+  }
+});
+// Route pour les statistiques d'optimisation
+app.get('/api/optimization-stats', authenticateToken, async (req, res) => {
+  try {
+    const imageDir = path.join(__dirname, 'public/assets/images');
+    const files = await fs.readdir(imageDir);
+    
+    let totalFiles = 0;
+    let webpFiles = 0;
+    let totalSize = 0;
+    
+    for (const file of files) {
+      if (file.match(/\.(jpg|jpeg|png|webp)$/i)) {
+        totalFiles++;
+        if (file.endsWith('.webp')) {
+          webpFiles++;
+        }
+        
+        const filePath = path.join(imageDir, file);
+        const stats = await fs.stat(filePath);
+        totalSize += stats.size;
+      }
+    }
+    
+    const optimizationRate = totalFiles > 0 ? (webpFiles / totalFiles * 100).toFixed(1) : 0;
+    const averageSize = totalFiles > 0 ? (totalSize / totalFiles / 1024).toFixed(2) : 0;
+    
+    res.json({
+      totalImages: totalFiles,
+      optimizedImages: webpFiles,
+      optimizationRate: `${optimizationRate}%`,
+      averageImageSize: `${averageSize} KB`,
+      totalDiskUsage: `${(totalSize / 1024 / 1024).toFixed(2)} MB`
+    });
+  } catch (error) {
+    console.error('Erreur stats optimisation:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des statistiques' });
   }
 });
 

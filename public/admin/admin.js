@@ -1751,8 +1751,28 @@ document
       alert("Erreur lors du changement de mot de passe");
     }
   });
+// Charger les statistiques d'optimisation
+async function loadOptimizationStats() {
+  try {
+    const response = await fetch('/api/optimization-stats', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (response.ok) {
+      const stats = await response.json();
+      
+      document.getElementById('total-images').textContent = stats.totalImages;
+      document.getElementById('optimized-images').textContent = stats.optimizedImages;
+      document.getElementById('optimization-rate').textContent = stats.optimizationRate;
+      document.getElementById('disk-usage').textContent = stats.totalDiskUsage;
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des statistiques:', error);
+  }
+}
 
-// Mettre à jour la fonction de chargement initial
 if (token) {
   document.getElementById("login-section").style.display = "none";
   document.getElementById("admin-panel").style.display = "block";
@@ -1769,4 +1789,5 @@ if (token) {
   loadExperience();
   loadSkills();
   loadAccountInfo();
+  loadOptimizationStats();
 }
