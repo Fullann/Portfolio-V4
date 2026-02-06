@@ -36,24 +36,24 @@ const testimonialsModalFunc = function () {
 // Add click event to all modal items (témoignages ET projets)
 for (let i = 0; i < testimonialsItem.length; i++) {
   testimonialsItem[i].addEventListener("click", function () {
-    console.log('Clic détecté sur élément:', i); // Debug
-    
+    console.log("Clic détecté sur élément:", i); // Debug
+
     const avatar = this.querySelector("[data-testimonials-avatar]");
     const title = this.querySelector("[data-testimonials-title]");
     const text = this.querySelector("[data-testimonials-text]");
-    
-    console.log('Éléments trouvés:', { avatar, title, text }); // Debug
-    
+
+    console.log("Éléments trouvés:", { avatar, title, text }); // Debug
+
     if (avatar && title && text && modalImg && modalTitle && modalText) {
       modalImg.src = avatar.src;
       modalImg.alt = avatar.alt;
       modalTitle.innerHTML = title.innerHTML;
       modalText.innerHTML = text.innerHTML;
       testimonialsModalFunc();
-      
-      console.log('Modal ouverte'); // Debug
+
+      console.log("Modal ouverte"); // Debug
     } else {
-      console.log('Éléments manquants pour la modal'); // Debug
+      console.log("Éléments manquants pour la modal"); // Debug
     }
   });
 }
@@ -89,12 +89,19 @@ const filterFunc = function (selectedValue) {
   filterItems.forEach((item) => {
     // Nettoyer la valeur sélectionnée
     const cleanSelectedValue = selectedValue.toLowerCase().trim();
-    
-    if (cleanSelectedValue === "all" || cleanSelectedValue === "tout" || cleanSelectedValue === "tous") {
+
+    if (
+      cleanSelectedValue === "all" ||
+      cleanSelectedValue === "tout" ||
+      cleanSelectedValue === "tous"
+    ) {
       // Afficher tous les éléments
       item.classList.add("active");
       item.style.display = "block";
-    } else if (item.dataset.category && item.dataset.category.toLowerCase() === cleanSelectedValue) {
+    } else if (
+      item.dataset.category &&
+      item.dataset.category.toLowerCase() === cleanSelectedValue
+    ) {
       // Afficher les éléments de la catégorie sélectionnée
       item.classList.add("active");
       item.style.display = "block";
@@ -104,11 +111,10 @@ const filterFunc = function (selectedValue) {
       item.style.display = "none";
     }
   });
-  
-  // Debug : compter les éléments visibles
-  const visibleItems = document.querySelectorAll('[data-filter-item].active');
-};
 
+  // Debug : compter les éléments visibles
+  const visibleItems = document.querySelectorAll("[data-filter-item].active");
+};
 
 // add event in all filter button items for large screen
 let lastClickedBtn = filterBtn[0];
@@ -149,19 +155,19 @@ const pages = document.querySelectorAll("[data-page]");
 navigationLinks.forEach((link) => {
   link.addEventListener("click", function () {
     const linkText = this.innerHTML.toLowerCase().trim();
-    
+
     pages.forEach((page) => {
       const pageData = page.dataset.page.toLowerCase();
-      
+
       // Correspondance des noms français
       const matches = {
-        'à propos': 'à propos',
-        'parcours': 'parcours', 
-        'portfolio': 'portfolio',
-        'blog': 'blog',
-        'contact': 'contact'
+        "à propos": "à propos",
+        parcours: "parcours",
+        portfolio: "portfolio",
+        blog: "blog",
+        contact: "contact",
       };
-      
+
       if (matches[linkText] === pageData) {
         page.classList.add("active");
         link.classList.add("active");
@@ -219,7 +225,7 @@ class ThemeManager {
       html.removeAttribute("data-theme");
     } else if (theme === "auto") {
       const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        "(prefers-color-scheme: dark)",
       ).matches;
       if (prefersDark) {
         html.removeAttribute("data-theme");
@@ -252,10 +258,17 @@ setInterval(() => {
     .catch((error) => console.log("Pas de mise à jour"));
 }, 30000);
 // Gestion du formulaire de contact
+// Gestion du formulaire de contact
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("[data-form]");
   const formBtn = document.querySelector("[data-form-btn]");
   const formInputs = document.querySelectorAll("[data-form-input]");
+
+  // Vérifier que le formulaire existe
+  if (!form || !formBtn || formInputs.length === 0) {
+    console.warn("⚠️ Formulaire de contact non trouvé");
+    return;
+  }
 
   new ThemeManager();
   const themeBtn = document.getElementById("theme-toggle-btn");
@@ -267,6 +280,7 @@ document.addEventListener("DOMContentLoaded", function () {
   themeBtn.addEventListener("mouseleave", () => {
     themeBtn.style.transform = "scale(1) rotate(0deg)";
   });
+
   // Activer/désactiver le bouton selon la validation
   formInputs.forEach((input) => {
     input.addEventListener("input", function () {
@@ -278,22 +292,52 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // Vérifier que reCAPTCHA est chargé
+  console.log("🔍 Vérification reCAPTCHA...");
+  
+  if (typeof grecaptcha === 'undefined') {
+    console.error("❌ grecaptcha n'est pas défini. Vérifiez que le script est chargé.");
+  } else {
+    console.log("✅ grecaptcha disponible");
+    
+    grecaptcha.ready(function() {
+      console.log("✅ reCAPTCHA prêt!");
+    });
+  }
+
   // Gestion de l'envoi du formulaire
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    const formData = new FormData(form);
-    const data = {
-      fullname: formData.get("fullname"),
-      email: formData.get("email"),
-      message: formData.get("message"),
-    };
-
+    const originalButtonHTML = formBtn.innerHTML;
     formBtn.disabled = true;
-    formBtn.innerHTML =
-      '<ion-icon name="hourglass-outline"></ion-icon><span>Envoi...</span>';
+    formBtn.innerHTML = '<ion-icon name="hourglass-outline"></ion-icon> <span>Envoi en cours...</span>';
 
     try {
+      // Vérifier que grecaptcha est disponible
+      if (typeof grecaptcha === 'undefined') {
+        throw new Error('reCAPTCHA non chargé. Veuillez recharger la page.');
+      }
+
+      console.log("🔐 Obtention du token reCAPTCHA...");
+
+      // Obtenir le token reCAPTCHA v3
+      const recaptchaToken = await grecaptcha.execute("6LcQAmMsAAAAAEoyH4PTxuPChxiAaaAzDBuNByyE", {
+        action: "contact",
+      });
+
+      console.log("✅ Token reCAPTCHA obtenu:", recaptchaToken.substring(0, 20) + "...");
+
+      // Préparer les données
+      const formData = new FormData(form);
+      const data = {
+        fullname: formData.get("fullname"),
+        email: formData.get("email"),
+        message: formData.get("message"),
+        "g-recaptcha-response": recaptchaToken,
+      };
+
+      // Envoyer la requête
       const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
@@ -305,18 +349,38 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
 
       if (response.ok) {
-        alert("Message envoyé avec succès !");
+        alert("✅ Message envoyé avec succès ! Je vous répondrai dans les plus brefs délais.");
         form.reset();
-        formBtn.disabled = true;
+        formBtn.disabled = true; // Rester désactivé jusqu'à ce que le formulaire soit rempli
       } else {
-        alert("Erreur : " + result.error);
+        console.error("❌ Erreur serveur:", result);
+        
+        if (response.status === 429) {
+          alert(`⏳ Trop de tentatives d'envoi.\n\n${result.error}\n\nVeuillez réessayer dans quelques minutes.`);
+        } else if (response.status === 403) {
+          alert("🤖 Activité suspecte détectée. Veuillez réessayer.");
+        } else {
+          alert(`❌ Erreur : ${result.error || 'Erreur lors de l\'envoi du message'}`);
+        }
       }
     } catch (error) {
-      console.error("Erreur:", error);
-      alert("Erreur lors de l'envoi du message");
+      console.error("❌ Erreur complète:", error);
+      
+      if (error.message && error.message.includes('reCAPTCHA')) {
+        alert("❌ Erreur de sécurité.\n\nVeuillez recharger la page et réessayer.");
+      } else {
+        alert("❌ Erreur lors de l'envoi du message.\n\nVeuillez vérifier votre connexion et réessayer.");
+      }
     } finally {
-      formBtn.innerHTML =
-        '<ion-icon name="paper-plane"></ion-icon><span>Send Message</span>';
+      // Restaurer le bouton
+      formBtn.innerHTML = originalButtonHTML;
+      
+      // Réactiver seulement si le formulaire est valide
+      let allValid = true;
+      formInputs.forEach((inp) => {
+        if (!inp.value.trim()) allValid = false;
+      });
+      formBtn.disabled = !allValid;
     }
   });
 });
@@ -338,16 +402,26 @@ function viewCVInline() {
 
 // Variables de la modal projets
 const projectItems = document.querySelectorAll("[data-project-item]");
-const projectModalContainer = document.querySelector("[data-project-modal-container]");
-const projectModalCloseBtn = document.querySelector("[data-project-modal-close-btn]");
+const projectModalContainer = document.querySelector(
+  "[data-project-modal-container]",
+);
+const projectModalCloseBtn = document.querySelector(
+  "[data-project-modal-close-btn]",
+);
 const projectOverlay = document.querySelector("[data-project-overlay]");
 
 // Éléments de contenu de la modal
 const projectModalImg = document.querySelector("[data-project-modal-img]");
 const projectModalTitle = document.querySelector("[data-project-modal-title]");
-const projectModalCategory = document.querySelector("[data-project-modal-category]");
-const projectModalDescription = document.querySelector("[data-project-modal-description]");
-const projectModalActions = document.querySelector("[data-project-modal-actions]");
+const projectModalCategory = document.querySelector(
+  "[data-project-modal-category]",
+);
+const projectModalDescription = document.querySelector(
+  "[data-project-modal-description]",
+);
+const projectModalActions = document.querySelector(
+  "[data-project-modal-actions]",
+);
 
 // Fonction pour ouvrir/fermer la modal projets
 const projectModalFunc = function () {
@@ -362,12 +436,12 @@ if (projectItems) {
   projectItems.forEach((item) => {
     item.addEventListener("click", function (e) {
       e.preventDefault();
-      
+
       // Empêcher l'ouverture si on clique sur les boutons d'action
-      if (e.target.closest('.project-action-btn')) {
+      if (e.target.closest(".project-action-btn")) {
         return;
       }
-      
+
       // Récupérer les données du projet
       const image = this.querySelector("[data-project-image]");
       const title = this.querySelector("[data-project-title]");
@@ -375,33 +449,33 @@ if (projectItems) {
       const description = this.querySelector("[data-project-description]");
       const repoLink = this.querySelector("[data-project-repo-link]");
       const liveLink = this.querySelector("[data-project-live-link]");
-      
+
       if (image && title && category && description) {
         // Mettre à jour l'image
         if (projectModalImg) {
           projectModalImg.src = image.src;
           projectModalImg.alt = image.alt;
         }
-        
+
         // Mettre à jour le titre
         if (projectModalTitle) {
           projectModalTitle.textContent = title.textContent;
         }
-        
+
         // Mettre à jour la catégorie
         if (projectModalCategory) {
           projectModalCategory.textContent = category.textContent;
         }
-        
+
         // Mettre à jour la description
         if (projectModalDescription) {
           projectModalDescription.innerHTML = `<p>${description.textContent}</p>`;
         }
-        
+
         // Générer les boutons d'action
         if (projectModalActions) {
-          let actionsHTML = '';
-          
+          let actionsHTML = "";
+
           if (repoLink && repoLink.textContent.trim()) {
             actionsHTML += `
               <a href="${repoLink.textContent}" target="_blank" class="project-modal-btn">
@@ -409,7 +483,7 @@ if (projectItems) {
                 <span>Voir le code</span>
               </a>`;
           }
-          
+
           if (liveLink && liveLink.textContent.trim()) {
             actionsHTML += `
               <a href="${liveLink.textContent}" target="_blank" class="project-modal-btn secondary">
@@ -417,10 +491,10 @@ if (projectItems) {
                 <span>Voir le site</span>
               </a>`;
           }
-          
+
           projectModalActions.innerHTML = actionsHTML;
         }
-        
+
         // Ouvrir la modal
         projectModalFunc();
       }
@@ -440,14 +514,18 @@ if (projectOverlay) {
 
 // Fermer la modal avec la touche Escape
 document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape" && projectModalContainer && projectModalContainer.classList.contains("active")) {
+  if (
+    e.key === "Escape" &&
+    projectModalContainer &&
+    projectModalContainer.classList.contains("active")
+  ) {
     projectModalFunc();
   }
 });
 
-console.log('Modal projets initialisée:', {
+console.log("Modal projets initialisée:", {
   projectItems: projectItems.length,
   modalContainer: !!projectModalContainer,
   modalImg: !!projectModalImg,
-  modalTitle: !!projectModalTitle
+  modalTitle: !!projectModalTitle,
 });

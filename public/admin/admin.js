@@ -959,7 +959,7 @@ async function deleteAllData() {
 
   if (confirmation === "SUPPRIMER TOUT") {
     try {
-      const response = await fetch("/api/delete-all", {
+      const response = await fetch("/api/delete/all", {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,

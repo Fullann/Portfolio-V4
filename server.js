@@ -11,12 +11,26 @@ const jwt = require("jsonwebtoken");
 const { marked } = require("marked");
 const { dbOperations, initializeDatabase } = require("./mysql-db");
 const compression = require("compression");
-const sharp = require('sharp');
+const sharp = require("sharp");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "votre-secret-jwt-tres-securise";
 
+const {
+  loginLimiter,
+  emailLimiter,
+  generalLimiter,
+} = require("./middleware/rateLimiter");
+const {
+  validate,
+  loginSchema,
+  emailSchema,
+  projectSchema,
+  testimonialSchema,
+  blogSchema,
+} = require("./validation/schemas");
+const { verifyRecaptcha } = require("./middleware/recaptcha");
 let lastUpdate = Date.now();
 
 // Configuration du stockage pour les images
@@ -58,13 +72,14 @@ const upload = multer({
   },
 });
 
-
 // Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 app.use("/admin", express.static("admin"));
 app.use(compression());
+app.use("/api", generalLimiter);
+
 // Headers de cache pour les ressources statiques
 app.use(
   "/assets",
@@ -83,7 +98,7 @@ app.use(
         res.setHeader("Cache-Control", "public, max-age=7776000"); // 90 jours
       }
     },
-  })
+  }),
 );
 // Configuration de Nodemailer
 const transporter = nodemailer.createTransport({
@@ -120,7 +135,7 @@ async function createAdminUser() {
   } catch (error) {
     console.error(
       "❌ Erreur lors de la création de l'utilisateur admin:",
-      error
+      error,
     );
   }
 }
@@ -179,100 +194,109 @@ async function optimizeImage(inputPath, outputPath, options = {}) {
       width = 1920,
       height = 1080,
       quality = 80,
-      format = 'webp'
+      format = "webp",
     } = options;
 
     let sharpInstance = sharp(inputPath);
-    
+
     // Redimensionner si nécessaire (en gardant les proportions)
-    sharpInstance = sharpInstance.resize(width, height, { 
-      fit: 'inside', 
-      withoutEnlargement: true 
+    sharpInstance = sharpInstance.resize(width, height, {
+      fit: "inside",
+      withoutEnlargement: true,
     });
-    
+
     // Optimiser selon le format
-    if (format === 'webp') {
+    if (format === "webp") {
       sharpInstance = sharpInstance.webp({ quality });
-    } else if (format === 'jpeg' || format === 'jpg') {
+    } else if (format === "jpeg" || format === "jpg") {
       sharpInstance = sharpInstance.jpeg({ quality });
-    } else if (format === 'png') {
+    } else if (format === "png") {
       sharpInstance = sharpInstance.png({ quality: Math.round(quality / 10) });
     }
-    
+
     await sharpInstance.toFile(outputPath);
-    
+
     // Obtenir les statistiques
-    const originalStats = require('fs').statSync(inputPath);
-    const optimizedStats = require('fs').statSync(outputPath);
-    
+    const originalStats = require("fs").statSync(inputPath);
+    const optimizedStats = require("fs").statSync(outputPath);
+
     const originalSize = (originalStats.size / 1024).toFixed(2);
     const optimizedSize = (optimizedStats.size / 1024).toFixed(2);
-    const savings = ((originalSize - optimizedSize) / originalSize * 100).toFixed(1);
-    
-    console.log(`✅ Image optimisée: ${path.basename(inputPath)} -> ${path.basename(outputPath)} (${originalSize}KB -> ${optimizedSize}KB, -${savings}%)`);
-    
+    const savings = (
+      ((originalSize - optimizedSize) / originalSize) *
+      100
+    ).toFixed(1);
+
+    console.log(
+      `✅ Image optimisée: ${path.basename(inputPath)} -> ${path.basename(outputPath)} (${originalSize}KB -> ${optimizedSize}KB, -${savings}%)`,
+    );
+
     return {
       success: true,
       originalSize,
       optimizedSize,
       savings,
-      outputPath
+      outputPath,
     };
   } catch (error) {
-    console.error('❌ Erreur lors de l\'optimisation:', error);
+    console.error("❌ Erreur lors de l'optimisation:", error);
     return { success: false, error: error.message };
   }
 }
 
 // Middleware d'optimisation pour multer
 const optimizeUploadedImage = async (req, res, next) => {
-  if (!req.file || req.file.fieldname === 'cv') {
+  if (!req.file || req.file.fieldname === "cv") {
     return next(); // Passer si pas d'image ou si c'est un CV
   }
-  
+
   try {
     const originalPath = req.file.path;
     const fileName = path.parse(req.file.filename).name;
     const outputPath = path.join(req.file.destination, `${fileName}.webp`);
-    
+
     // Déterminer les dimensions selon le type de contenu
-    let optimizationOptions = { format: 'webp', quality: 85 };
-    
-    if (req.file.fieldname === 'image' || req.file.fieldname === 'logo') {
+    let optimizationOptions = { format: "webp", quality: 85 };
+
+    if (req.file.fieldname === "image" || req.file.fieldname === "logo") {
       // Images de projet/logo : dimensions moyennes
-      optimizationOptions = { 
-        ...optimizationOptions, 
-        width: 800, 
-        height: 600 
+      optimizationOptions = {
+        ...optimizationOptions,
+        width: 800,
+        height: 600,
       };
-    } else if (req.file.fieldname === 'avatar') {
+    } else if (req.file.fieldname === "avatar") {
       // Avatars : petites dimensions
-      optimizationOptions = { 
-        ...optimizationOptions, 
-        width: 200, 
-        height: 200 
+      optimizationOptions = {
+        ...optimizationOptions,
+        width: 200,
+        height: 200,
       };
     }
-    
-    const result = await optimizeImage(originalPath, outputPath, optimizationOptions);
-    
+
+    const result = await optimizeImage(
+      originalPath,
+      outputPath,
+      optimizationOptions,
+    );
+
     if (result.success) {
       // Supprimer l'original et mettre à jour les informations du fichier
-      require('fs').unlinkSync(originalPath);
-      
+      require("fs").unlinkSync(originalPath);
+
       req.file.path = outputPath;
       req.file.filename = `${fileName}.webp`;
       req.file.optimized = true;
       req.file.optimizationStats = {
         originalSize: result.originalSize,
         optimizedSize: result.optimizedSize,
-        savings: result.savings
+        savings: result.savings,
       };
     }
-    
+
     next();
   } catch (error) {
-    console.error('Erreur lors de l\'optimisation de l\'upload:', error);
+    console.error("Erreur lors de l'optimisation de l'upload:", error);
     next(); // Continuer même en cas d'erreur d'optimisation
   }
 };
@@ -284,7 +308,7 @@ async function formatPortfolioProject(dbData) {
   if (dbData.filter_category && dbData.filter_category.trim()) {
     try {
       category = await dbOperations.categories.getByName(
-        dbData.filter_category
+        dbData.filter_category,
       );
     } catch (error) {
       console.error("Erreur lors de la récupération de la catégorie:", error);
@@ -306,52 +330,66 @@ async function formatPortfolioProject(dbData) {
 }
 
 // Routes d'authentification
-app.post("/api/login", async (req, res) => {
-  try {
-    const { username, password } = req.body;
+app.post(
+  "/api/login",
+  loginLimiter,
+  validate(loginSchema),
+  async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      const admin = await dbOperations.admin.getByUsername(username);
 
-    const admin = await dbOperations.admin.getByUsername(username);
-
-    if (admin && (await bcrypt.compare(password, admin.password))) {
-      const token = jwt.sign(
-        { username: admin.username, id: admin.id },
-        JWT_SECRET,
-        { expiresIn: "24h" }
-      );
-      res.json({ token, message: "Connexion réussie" });
-    } else {
-      res.status(401).json({ error: "Identifiants invalides" });
+      if (admin && (await bcrypt.compare(password, admin.password))) {
+        const token = jwt.sign(
+          { username: admin.username, id: admin.id },
+          JWT_SECRET,
+          { expiresIn: "24h" },
+        );
+        res.json({ token, message: "Connexion réussie" });
+      } else {
+        // Attendre un peu pour ralentir les attaques par force brute
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        res.status(401).json({ error: "Identifiants invalides" });
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'authentification:", error);
+      res.status(500).json({ error: "Erreur serveur" });
     }
-  } catch (error) {
-    console.error("Erreur lors de l'authentification:", error);
-    res.status(500).json({ error: "Erreur serveur" });
-  }
-});
+  },
+);
 
 // Route pour envoyer un email
-app.post("/api/send-email", async (req, res) => {
-  try {
-    const { fullname, email, message } = req.body;
+app.post('/api/send-email', 
+  emailLimiter,
+  validate(emailSchema),
+  verifyRecaptcha,
+  async (req, res) => {
+    try {
+      const { fullname, email, message } = req.body;
 
-    const mailOptions = {
-      from: email,
-      to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
-      subject: `Nouveau message de ${fullname}`,
-      html: `
-                <h3>Nouveau message de contact</h3>
-                <p><strong>Nom:</strong> ${fullname}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Message:</strong></p>
-                <p>${message}</p>
-            `,
-    };
+      const mailOptions = {
+        from: email,
+        to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+        subject: `Nouveau message de ${fullname}`,
+        html: `
+          <h2>Nouveau message depuis le portfolio</h2>
+          <p><strong>Nom:</strong> ${fullname}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message}</p>
+          <hr>
+          <p><small>Score reCAPTCHA: ${req.recaptchaScore}</small></p>
+        `,
+      };
 
-    await transporter.sendMail(mailOptions);
-    res.json({ success: true, message: "Email envoyé avec succès!" });
-  } catch (error) {
-    console.error("Erreur lors de l'envoi de l'email:", error);
-    res.status(500).json({ error: "Erreur lors de l'envoi de l'email" });
-  }
+      await transporter.sendMail(mailOptions);
+      
+      console.log(`Email envoyé par ${email} (score: ${req.recaptchaScore})`);
+      res.json({ success: true, message: 'Email envoyé avec succès' });
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email:', error);
+      res.status(500).json({ error: 'Erreur lors de l\'envoi de l\'email' });
+    }
 });
 
 // Routes pour les projets (services)
@@ -370,34 +408,37 @@ app.get("/api/projects", async (req, res) => {
 app.post(
   "/api/projects",
   authenticateToken,
-  upload.single("image"),
-  optimizeUploadedImage, 
+  validate(projectSchema),
+  upload.single('image'),
+  optimizeUploadedImage,
   async (req, res) => {
     try {
       const { title, category, description } = req.body;
       const image = req.file ? `/assets/images/${req.file.filename}` : null;
-      
+
       // Log des statistiques d'optimisation
       if (req.file && req.file.optimized) {
-        console.log(`📊 Optimisation: ${req.file.optimizationStats.savings}% d'économie`);
+        console.log(
+          `📊 Optimisation: ${req.file.optimizationStats.savings}% d'économie`,
+        );
       }
-      
+
       lastUpdate = Date.now();
-      
+
       const newProject = await dbOperations.projects.create({
         title,
         category,
         image,
         description,
       });
-      
+
       await updateHtmlFile();
       res.json(newProject);
     } catch (error) {
       console.error("Erreur:", error);
       res.status(500).json({ error: "Erreur lors de la création du projet" });
     }
-  }
+  },
 );
 
 app.put(
@@ -429,7 +470,7 @@ app.put(
         .status(500)
         .json({ error: "Erreur lors de la mise à jour du projet" });
     }
-  }
+  },
 );
 
 app.delete("/api/projects/:id", authenticateToken, async (req, res) => {
@@ -488,7 +529,7 @@ app.post(
         .status(500)
         .json({ error: "Erreur lors de la création du témoignage" });
     }
-  }
+  },
 );
 
 app.put(
@@ -509,7 +550,7 @@ app.put(
 
       const updatedTestimonial = await dbOperations.testimonials.update(
         id,
-        updateData
+        updateData,
       );
       if (!updatedTestimonial) {
         return res.status(404).json({ error: "Témoignage non trouvé" });
@@ -523,7 +564,7 @@ app.put(
         .status(500)
         .json({ error: "Erreur lors de la mise à jour du témoignage" });
     }
-  }
+  },
 );
 
 app.delete("/api/testimonials/:id", authenticateToken, async (req, res) => {
@@ -547,7 +588,7 @@ app.get("/api/portfolio-projects", async (req, res) => {
   try {
     const projects = await dbOperations.portfolioProjects.getAll();
     const formattedProjects = await Promise.all(
-      projects.map(formatPortfolioProject)
+      projects.map(formatPortfolioProject),
     );
     res.json(formattedProjects);
   } catch (error) {
@@ -595,7 +636,7 @@ app.post(
         .status(500)
         .json({ error: "Erreur lors de la création du projet portfolio" });
     }
-  }
+  },
 );
 
 app.put(
@@ -630,7 +671,7 @@ app.put(
 
       const updatedProject = await dbOperations.portfolioProjects.update(
         id,
-        updateData
+        updateData,
       );
       if (!updatedProject) {
         return res.status(404).json({ error: "Projet portfolio non trouvé" });
@@ -644,7 +685,7 @@ app.put(
         .status(500)
         .json({ error: "Erreur lors de la mise à jour du projet portfolio" });
     }
-  }
+  },
 );
 
 app.delete(
@@ -664,7 +705,7 @@ app.delete(
         .status(500)
         .json({ error: "Erreur lors de la suppression du projet portfolio" });
     }
-  }
+  },
 );
 
 // Routes pour les clients
@@ -705,7 +746,7 @@ app.post(
       console.error("Erreur:", error);
       res.status(500).json({ error: "Erreur lors de la création du client" });
     }
-  }
+  },
 );
 
 app.put(
@@ -737,7 +778,7 @@ app.put(
         .status(500)
         .json({ error: "Erreur lors de la mise à jour du client" });
     }
-  }
+  },
 );
 
 app.delete("/api/clients/:id", authenticateToken, async (req, res) => {
@@ -772,7 +813,7 @@ app.post("/api/categories", authenticateToken, async (req, res) => {
     const { name, displayName } = req.body;
 
     const existingCategory = await dbOperations.categories.getByName(
-      name.toLowerCase()
+      name.toLowerCase(),
     );
     if (existingCategory) {
       return res.status(400).json({ error: "Cette catégorie existe déjà" });
@@ -823,7 +864,7 @@ app.put("/api/categories/:id", authenticateToken, async (req, res) => {
       await dbOperations.portfolioProjects.updateCategoryReferences(
         oldName,
         newName,
-        newDisplayName
+        newDisplayName,
       );
     }
 
@@ -936,7 +977,7 @@ app.post(
       console.error("Erreur:", error);
       res.status(500).json({ error: "Erreur lors de la création du blog" });
     }
-  }
+  },
 );
 
 app.put(
@@ -974,7 +1015,7 @@ app.put(
       console.error("Erreur:", error);
       res.status(500).json({ error: "Erreur lors de la mise à jour du blog" });
     }
-  }
+  },
 );
 
 app.delete("/api/blogs/:id", authenticateToken, async (req, res) => {
@@ -1126,7 +1167,7 @@ app.put(
         error: "Erreur lors de la mise à jour des informations personnelles",
       });
     }
-  }
+  },
 );
 app.use("/assets/documents", express.static("public/assets/documents"));
 
@@ -1468,16 +1509,14 @@ app.put("/api/admin/change-password", authenticateToken, async (req, res) => {
     }
 
     if (newPassword.length < 6) {
-      return res
-        .status(400)
-        .json({
-          error: "Le nouveau mot de passe doit contenir au moins 6 caractères",
-        });
+      return res.status(400).json({
+        error: "Le nouveau mot de passe doit contenir au moins 6 caractères",
+      });
     }
 
     // Récupérer le compte admin actuel
     const currentAdmin = await dbOperations.admin.getByUsername(
-      req.user.username
+      req.user.username,
     );
     if (!currentAdmin) {
       return res.status(404).json({ error: "Compte admin non trouvé" });
@@ -1486,7 +1525,7 @@ app.put("/api/admin/change-password", authenticateToken, async (req, res) => {
     // Vérifier le mot de passe actuel
     const isValidPassword = await bcrypt.compare(
       currentPassword,
-      currentAdmin.password
+      currentAdmin.password,
     );
     if (!isValidPassword) {
       return res.status(401).json({ error: "Mot de passe actuel incorrect" });
@@ -1499,7 +1538,7 @@ app.put("/api/admin/change-password", authenticateToken, async (req, res) => {
     // Mettre à jour le mot de passe (utilise votre table admin_users existante)
     const updated = await dbOperations.admin.updatePassword(
       req.user.username,
-      hashedNewPassword
+      hashedNewPassword,
     );
 
     if (updated) {
@@ -1522,11 +1561,9 @@ app.put("/api/admin/update-account", authenticateToken, async (req, res) => {
 
     // Validation
     if (!newUsername || newUsername.trim().length < 3) {
-      return res
-        .status(400)
-        .json({
-          error: "Le nom d'utilisateur doit contenir au moins 3 caractères",
-        });
+      return res.status(400).json({
+        error: "Le nom d'utilisateur doit contenir au moins 3 caractères",
+      });
     }
 
     const currentUsername = req.user.username;
@@ -1542,9 +1579,8 @@ app.put("/api/admin/update-account", authenticateToken, async (req, res) => {
     }
 
     // Récupérer les infos actuelles
-    const currentAdmin = await dbOperations.admin.getByUsername(
-      currentUsername
-    );
+    const currentAdmin =
+      await dbOperations.admin.getByUsername(currentUsername);
     if (!currentAdmin) {
       return res.status(404).json({ error: "Compte admin non trouvé" });
     }
@@ -1560,7 +1596,7 @@ app.put("/api/admin/update-account", authenticateToken, async (req, res) => {
       const newToken = jwt.sign(
         { username: newUsername.trim(), id: currentAdmin.id },
         JWT_SECRET,
-        { expiresIn: "24h" }
+        { expiresIn: "24h" },
       );
 
       res.json({
@@ -1598,14 +1634,14 @@ app.get("/api/admin/account-info", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error(
       "Erreur lors de la récupération des informations admin:",
-      error
+      error,
     );
     res.status(500).json({ error: "Erreur serveur" });
   }
 });
 
 // Route pour réinitialiser toutes les données
-app.post("/api/reset-all", authenticateToken, async (req, res) => {
+app.delete("/api/delete/all", authenticateToken, async (req, res) => {
   try {
     await dbOperations.deleteAll();
     lastUpdate = Date.now();
@@ -1620,41 +1656,45 @@ app.post("/api/reset-all", authenticateToken, async (req, res) => {
   }
 });
 // Route pour les statistiques d'optimisation
-app.get('/api/optimization-stats', authenticateToken, async (req, res) => {
+app.get("/api/optimization-stats", authenticateToken, async (req, res) => {
   try {
-    const imageDir = path.join(__dirname, 'public/assets/images');
+    const imageDir = path.join(__dirname, "public/assets/images");
     const files = await fs.readdir(imageDir);
-    
+
     let totalFiles = 0;
     let webpFiles = 0;
     let totalSize = 0;
-    
+
     for (const file of files) {
       if (file.match(/\.(jpg|jpeg|png|webp)$/i)) {
         totalFiles++;
-        if (file.endsWith('.webp')) {
+        if (file.endsWith(".webp")) {
           webpFiles++;
         }
-        
+
         const filePath = path.join(imageDir, file);
         const stats = await fs.stat(filePath);
         totalSize += stats.size;
       }
     }
-    
-    const optimizationRate = totalFiles > 0 ? (webpFiles / totalFiles * 100).toFixed(1) : 0;
-    const averageSize = totalFiles > 0 ? (totalSize / totalFiles / 1024).toFixed(2) : 0;
-    
+
+    const optimizationRate =
+      totalFiles > 0 ? ((webpFiles / totalFiles) * 100).toFixed(1) : 0;
+    const averageSize =
+      totalFiles > 0 ? (totalSize / totalFiles / 1024).toFixed(2) : 0;
+
     res.json({
       totalImages: totalFiles,
       optimizedImages: webpFiles,
       optimizationRate: `${optimizationRate}%`,
       averageImageSize: `${averageSize} KB`,
-      totalDiskUsage: `${(totalSize / 1024 / 1024).toFixed(2)} MB`
+      totalDiskUsage: `${(totalSize / 1024 / 1024).toFixed(2)} MB`,
     });
   } catch (error) {
-    console.error('Erreur stats optimisation:', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération des statistiques' });
+    console.error("Erreur stats optimisation:", error);
+    res
+      .status(500)
+      .json({ error: "Erreur lors de la récupération des statistiques" });
   }
 });
 
@@ -1806,21 +1846,42 @@ async function updateHtmlFile() {
 
     // Générer le HTML pour chaque section
     const projectsHtml = projects
-      .map(
-        (project) => `
-        <li class="service-item">
-          <div class="service-icon-box">
-            <img src="${
-              project.image || "./assets/images/icon-dev.svg"
-            }" alt="${project.title}" width="40">
+      .map((project) => {
+        // Générer les boutons d'action conditionnellement
+        let actionButtons = "";
+        if (project.repolink && project.repolink.trim()) {
+          actionButtons += `<a href="${project.repolink}" target="_blank" class="project-action-btn" onclick="event.stopPropagation()">
+        <ion-icon name="logo-github"></ion-icon>
+      </a>`;
+        }
+        if (project.livelink && project.livelink.trim()) {
+          actionButtons += `<a href="${project.livelink}" target="_blank" class="project-action-btn" onclick="event.stopPropagation()">
+        <ion-icon name="link-outline"></ion-icon>
+      </a>`;
+        }
+
+        return `
+      <li class="project-item active" data-filter-item data-category="${project.category}" data-project-item>
+        <figure class="project-img">
+          <div class="project-item-icon-box">
+            <ion-icon name="eye-outline"></ion-icon>
           </div>
-          <div class="service-content-box">
-            <h4 class="h4 service-item-title">${project.title}</h4>
-            <p class="service-item-text">${project.description}</p>
-          </div>
-        </li>`
-      )
-      .join("\n");
+          <img src="${project.image || "./assets/images/icon-dev.svg"}" alt="${project.title}" loading="lazy" data-project-image>
+        </figure>
+        <h3 class="project-title" data-project-title>${project.title}</h3>
+        <p class="project-category" data-project-category>${project.category}</p>
+        ${actionButtons ? `<div class="project-actions">${actionButtons}</div>` : ""}
+        
+        <!-- Données cachées pour la modal -->
+        <div class="project-data" style="display: none;">
+          <span data-project-description>${project.description}</span>
+          <span data-project-repo-link>${project.repolink || ""}</span>
+          <span data-project-live-link>${project.livelink || ""}</span>
+        </div>
+      </li>
+    `;
+      })
+      .join("");
 
     const testimonialsHtml = testimonials
       .map(
@@ -1835,30 +1896,30 @@ async function updateHtmlFile() {
               <p>${testimonial.text}</p>
             </div>
           </div>
-        </li>`
+        </li>`,
       )
       .join("\n");
 
-const portfolioProjectsHtml = portfolioProjects
-  .map((project, index) => {
-    // Générer les boutons conditionnellement
-    let actionButtons = '';
-    
-    if (project.repo_link && project.repo_link.trim()) {
-      actionButtons += `
+    const portfolioProjectsHtml = portfolioProjects
+      .map((project, index) => {
+        // Générer les boutons conditionnellement
+        let actionButtons = "";
+
+        if (project.repo_link && project.repo_link.trim()) {
+          actionButtons += `
         <a href="${project.repo_link}" target="_blank" class="project-action-btn" onclick="event.stopPropagation();">
           <ion-icon name="logo-github"></ion-icon>
         </a>`;
-    }
-    
-    if (project.live_link && project.live_link.trim()) {
-      actionButtons += `
+        }
+
+        if (project.live_link && project.live_link.trim()) {
+          actionButtons += `
         <a href="${project.live_link}" target="_blank" class="project-action-btn" onclick="event.stopPropagation();">
           <ion-icon name="link-outline"></ion-icon>
         </a>`;
-    }
+        }
 
-    return `
+        return `
       <li class="project-item active" data-filter-item data-category="${project.filter_category}" data-project-item>
         <figure class="project-img">
           <div class="project-item-icon-box">
@@ -1870,18 +1931,17 @@ const portfolioProjectsHtml = portfolioProjects
         <h3 class="project-title" data-project-title>${project.title}</h3>
         <p class="project-category" data-project-category>${project.category}</p>
         
-        ${actionButtons ? `<div class="project-actions">${actionButtons}</div>` : ''}
+        ${actionButtons ? `<div class="project-actions">${actionButtons}</div>` : ""}
         
         <!-- Données cachées pour la nouvelle modal -->
         <div class="project-data" style="display: none;">
           <span data-project-description>${project.description}</span>
-          <span data-project-repo-link>${project.repo_link || ''}</span>
-          <span data-project-live-link>${project.live_link || ''}</span>
+          <span data-project-repo-link>${project.repo_link || ""}</span>
+          <span data-project-live-link>${project.live_link || ""}</span>
         </div>
       </li>`;
-  })
-  .join("");
-
+      })
+      .join("");
 
     const clientsHtml = clients
       .map(
@@ -1911,7 +1971,7 @@ const portfolioProjectsHtml = portfolioProjects
           </div>
         </div>
       </div>
-    </li>`
+    </li>`,
       )
       .join("");
 
@@ -1923,26 +1983,26 @@ const portfolioProjectsHtml = portfolioProjects
                     <a href="/blog/${blog.slug}">
                         <figure class="blog-banner-box">
                             <img src="${blog.image}" alt="${
-          blog.title
-        }" loading="lazy" />
+                              blog.title
+                            }" loading="lazy" />
                         </figure>
                         <div class="blog-content">
                             <div class="blog-meta">
                                 <p class="blog-category">${blog.category}</p>
                                 <span class="dot"></span>
                                 <time datetime="${blog.date}">${new Date(
-          blog.date
-        ).toLocaleDateString("fr-FR", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })}</time>
+                                  blog.date,
+                                ).toLocaleDateString("fr-FR", {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                })}</time>
                             </div>
                             <h3 class="h3 blog-item-title">${blog.title}</h3>
                             <p class="blog-text">${blog.excerpt}</p>
                         </div>
                     </a>
-                </li>`
+                </li>`,
       )
       .join("\n");
 
@@ -1951,7 +2011,7 @@ const portfolioProjectsHtml = portfolioProjects
         (category) => `
         <li class="filter-item">
           <button data-filter-btn>${category.display_name}</button>
-        </li>`
+        </li>`,
       )
       .join("\n");
 
@@ -1960,7 +2020,7 @@ const portfolioProjectsHtml = portfolioProjects
         (category) => `
         <li class="select-item">
                     <button data-select-item>${category.display_name}</button>
-                </li>`
+                </li>`,
       )
       .join("\n");
 
@@ -1971,7 +2031,7 @@ const portfolioProjectsHtml = portfolioProjects
           <a href="${link.url}" class="social-link">
             <ion-icon name="${link.icon}"></ion-icon>
           </a>
-        </li>`
+        </li>`,
       )
       .join("\n");
 
@@ -1982,7 +2042,7 @@ const portfolioProjectsHtml = portfolioProjects
           <h4 class="h4 timeline-item-title">${edu.institution}</h4>
           <span>${edu.period}</span>
           <p class="timeline-text">${edu.description}</p>
-        </li>`
+        </li>`,
       )
       .join("\n");
 
@@ -1993,7 +2053,7 @@ const portfolioProjectsHtml = portfolioProjects
           <h4 class="h4 timeline-item-title">${exp.position}</h4>
           <span>${exp.period}</span>
           <p class="timeline-text">${exp.description}</p>
-        </li>`
+        </li>`,
       )
       .join("\n");
 
@@ -2008,7 +2068,7 @@ const portfolioProjectsHtml = portfolioProjects
           <div class="skill-progress-bg">
             <div class="skill-progress-fill" style="width: ${skill.percentage}%"></div>
           </div>
-        </li>`
+        </li>`,
       )
       .join("\n");
 
@@ -2097,7 +2157,7 @@ const portfolioProjectsHtml = portfolioProjects
 
         htmlContent = htmlContent.replace(
           personalInfoRegex,
-          `$1\n${personalInfoHtml}\n$3`
+          `$1\n${personalInfoHtml}\n$3`,
         );
       }
 
@@ -2144,7 +2204,7 @@ const portfolioProjectsHtml = portfolioProjects
 
         htmlContent = htmlContent.replace(
           contactInfoRegex,
-          `$1\n${contactInfoHtml}\n$3`
+          `$1\n${contactInfoHtml}\n$3`,
         );
       }
 
@@ -2223,12 +2283,12 @@ const portfolioProjectsHtml = portfolioProjects
     // Remplacer les méta-tags dans le HTML
     htmlContent = htmlContent.replace(
       /<title>.*?<\/title>/i,
-      `<title>${metaTags.title}</title>`
+      `<title>${metaTags.title}</title>`,
     );
 
     htmlContent = htmlContent.replace(
       /<meta name="description".*?>/i,
-      `<meta name="description" content="${metaTags.description}">`
+      `<meta name="description" content="${metaTags.description}">`,
     );
 
     // Ajouter/remplacer les méta-tags SEO complets
@@ -2304,7 +2364,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
       console.log(
-        `📊 Interface d'administration: http://localhost:${PORT}/admin`
+        `📊 Interface d'administration: http://localhost:${PORT}/admin`,
       );
     });
   } catch (error) {
