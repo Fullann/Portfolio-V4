@@ -1,1978 +1,1793 @@
-let token = localStorage.getItem("adminToken");
-let editingProject = null;
-let editingTestimonial = null;
+// ============================================
+// 🎯 PORTFOLIO ADMIN DASHBOARD - COMPLET
+// ============================================
 
-// Gestion de la connexion
-document.getElementById("login-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+// Variables globales
+let token = localStorage.getItem('adminToken');
+let currentEditingId = null;
 
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+// ============================================
+// 🚨 INTERCEPTEUR DE REQUÊTES
+// ============================================
 
-  try {
-    const response = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      token = data.token;
-      localStorage.setItem("adminToken", token);
-      document.getElementById("login-section").style.display = "none";
-      document.getElementById("admin-panel").style.display = "block";
-      loadProjects();
-      loadTestimonials();
-    } else {
-      alert("Erreur: " + data.error);
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-    alert("Erreur de connexion");
-  }
-});
-
-// Gestion des projets
-document
-  .getElementById("project-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("title", document.getElementById("project-title").value);
-    formData.append(
-      "category",
-      document.getElementById("project-category").value
-    );
-    formData.append(
-      "description",
-      document.getElementById("project-description").value
-    );
-
-    const imageFile = document.getElementById("project-image").files[0];
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
-
-    try {
-      const url = editingProject
-        ? `/api/projects/${editingProject}`
-        : "/api/projects";
-      const method = editingProject ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        document.getElementById("project-form").reset();
-        document.getElementById("project-submit-btn").textContent =
-          "Ajouter Projet";
-        editingProject = null;
-        loadProjects();
-        alert(
-          editingProject
-            ? "Projet modifié avec succès!"
-            : "Projet ajouté avec succès!"
-        );
-      } else {
-        alert(
-          "Erreur lors de l'opération. Regarder la console pour plus d'informations."
-        );
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  });
-
-// Gestion des témoignages
-document
-  .getElementById("testimonial-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("name", document.getElementById("testimonial-name").value);
-    formData.append("text", document.getElementById("testimonial-text").value);
-
-    const avatarFile = document.getElementById("testimonial-avatar").files[0];
-    if (avatarFile) {
-      formData.append("avatar", avatarFile);
-    }
-
-    try {
-      const url = editingTestimonial
-        ? `/api/testimonials/${editingTestimonial}`
-        : "/api/testimonials";
-      const method = editingTestimonial ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        document.getElementById("testimonial-form").reset();
-        document.getElementById("testimonial-submit-btn").textContent =
-          "Ajouter Témoignage";
-        editingTestimonial = null;
-        loadTestimonials();
-        alert(
-          editingTestimonial
-            ? "Témoignage modifié avec succès!"
-            : "Témoignage ajouté avec succès!"
-        );
-      } else {
-        alert("Erreur lors de l'opération");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  });
-
-// Charger les projets
-async function loadProjects() {
-  try {
-    const response = await fetch("/api/projects");
-    const projects = await response.json();
-
-    const projectsList = document.getElementById("projects-list");
-    projectsList.innerHTML = "<h3 class='text-xl font-bold text-gray-800 mb-4'>Projets existants</h3>";
-
-    projects.forEach((project) => {
-      const projectDiv = document.createElement("div");
-      projectDiv.className = "bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow";
-      projectDiv.innerHTML = `
-        <h4 class="text-lg font-bold text-gray-800 mb-2">${project.title}</h4>
-        <p class="text-gray-700 mb-1"><span class="font-semibold">Catégorie:</span> ${project.category}</p>
-        <p class="text-gray-700 mb-3"><span class="font-semibold">Description:</span> ${project.description}</p>
-        ${project.image ? `<img src="${project.image}" alt="${project.title}" class="max-w-[150px] rounded-lg shadow-sm mb-3">` : ""}
-        <div class="flex flex-wrap gap-2">
-          <button onclick="editProject(${project.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            ✏️ Modifier
-          </button>
-          <button onclick="deleteProject(${project.id})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            🗑️ Supprimer
-          </button>
-        </div>
-      `;
-      projectsList.appendChild(projectDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-
-// Charger les témoignages
-async function loadTestimonials() {
-  try {
-    const response = await fetch("/api/testimonials");
-    const testimonials = await response.json();
-
-    const testimonialsList = document.getElementById("testimonials-list");
-    testimonialsList.innerHTML = "<h3>Témoignages existants</h3>";
-
-    testimonials.forEach((testimonial) => {
-      const testimonialDiv = document.createElement("div");
-      testimonialDiv.className = "testimonial-item";
-      testimonialDiv.innerHTML = `
-                <h4>${testimonial.name}</h4>
-                <p>${testimonial.text}</p>
-                ${
-                  testimonial.avatar
-                    ? `<img src="${testimonial.avatar}" alt="${testimonial.name}" style="max-width: 50px; border-radius: 50%; margin: 10px 0;">`
-                    : ""
-                }
-                <div style="margin-top: 10px;">
-                    <button onclick="editTestimonial(${
-                      testimonial.id
-                    })" class="btn-edit">Modifier</button>
-                    <button onclick="deleteTestimonial(${
-                      testimonial.id
-                    })" class="btn-delete">Supprimer</button>
-                </div>
-            `;
-      testimonialsList.appendChild(testimonialDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier un projet
-// Modifier un projet
-async function editProject(id) {
-  try {
-    const response = await fetch("/api/projects");
-    const projects = await response.json();
-    const project = projects.find((p) => p.id === id);
-
-    if (project) {
-      document.getElementById("project-title").value = project.title;
-      document.getElementById("project-category").value = project.category;
-      document.getElementById("project-description").value = project.description;
-      document.getElementById("project-submit-btn").textContent = "Modifier Projet";
-      editingProject = id;
-
-      // ✨ Afficher l'image actuelle
-      const imageInput = document.getElementById("project-image");
-      let imagePreview = document.getElementById("project-image-preview");
-      
-      if (project.image) {
-        if (!imagePreview) {
-          imagePreview = document.createElement("div");
-          imagePreview.id = "project-image-preview";
-          imagePreview.className = "mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200";
-          imagePreview.innerHTML = `
-            <p class="text-sm font-semibold text-gray-700 mb-2">Image actuelle :</p>
-            <img src="${project.image}" alt="Aperçu" class="max-w-[150px] rounded-lg shadow-sm mb-2">
-            <p class="text-xs text-gray-600">💡 Laissez le champ vide pour conserver cette image</p>
-          `;
-          imageInput.parentNode.appendChild(imagePreview);
-        } else {
-          imagePreview.querySelector("img").src = project.image;
-          imagePreview.style.display = "block";
-        }
-      }
-
-      document.getElementById("project-form").scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-
-// Modifier un témoignage
-async function editTestimonial(id) {
-  try {
-    const response = await fetch("/api/testimonials");
-    const testimonials = await response.json();
-    const testimonial = testimonials.find((t) => t.id === id);
-
-    if (testimonial) {
-      document.getElementById("testimonial-name").value = testimonial.name;
-      document.getElementById("testimonial-text").value = testimonial.text;
-      document.getElementById("testimonial-submit-btn").textContent =
-        "Modifier Témoignage";
-      editingTestimonial = id;
-
-      // Scroll vers le formulaire
-      document
-        .getElementById("testimonial-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Annuler la modification d'un projet
-function cancelEditProject() {
-  document.getElementById("project-form").reset();
-  document.getElementById("project-submit-btn").textContent = "Ajouter Projet";
-  editingProject = null;
+async function fetchWithAuth(url, options = {}) {
+  const headers = { ...options.headers };
   
-  // ✨ Cacher l'aperçu d'image
-  const imagePreview = document.getElementById("project-image-preview");
-  if (imagePreview) {
-    imagePreview.style.display = "none";
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
-}
-
-
-// Annuler la modification d'un témoignage
-function cancelEditTestimonial() {
-  document.getElementById("testimonial-form").reset();
-  document.getElementById("testimonial-submit-btn").textContent =
-    "Ajouter Témoignage";
-  editingTestimonial = null;
-}
-
-// Supprimer un projet
-async function deleteProject(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer ce projet?")) {
-    try {
-      const response = await fetch(`/api/projects/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadProjects();
-        alert("Projet supprimé avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Supprimer un témoignage
-async function deleteTestimonial(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer ce témoignage?")) {
-    try {
-      const response = await fetch(`/api/testimonials/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadTestimonials();
-        alert("Témoignage supprimé avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-let editingPortfolioProject = null;
-
-// Gestion du portfolio
-document
-  .getElementById("portfolio-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("title", document.getElementById("portfolio-title").value);
-    formData.append(
-      "category",
-      document.getElementById("portfolio-category").value
-    );
-    formData.append(
-      "description",
-      document.getElementById("portfolio-description").value
-    );
-    formData.append(
-      "repoLink",
-      document.getElementById("portfolio-repo").value
-    );
-    formData.append(
-      "liveLink",
-      document.getElementById("portfolio-live").value
-    );
-    formData.append(
-      "filterCategory",
-      document.getElementById("portfolio-category").value
-    );
-
-    const imageFile = document.getElementById("portfolio-image").files[0];
-    if (imageFile) {
-      formData.append("image", imageFile);
-    }
-
-    try {
-      const url = editingPortfolioProject
-        ? `/api/portfolio-projects/${editingPortfolioProject}`
-        : "/api/portfolio-projects";
-      const method = editingPortfolioProject ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (response.ok) {
-        document.getElementById("portfolio-form").reset();
-        document.getElementById("portfolio-submit-btn").textContent =
-          "Ajouter au Portfolio";
-        editingPortfolioProject = null;
-        loadPortfolioProjects();
-        alert(
-          "Projet portfolio " +
-            (editingPortfolioProject ? "modifié" : "ajouté") +
-            " avec succès!"
-        );
-      } else {
-        alert("Erreur lors de l'opération");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  });
-
-// Charger les projets portfolio
-async function loadPortfolioProjects() {
-  try {
-    const response = await fetch("/api/portfolio-projects");
-    const projects = await response.json();
-
-    const portfolioList = document.getElementById("portfolio-list");
-    portfolioList.innerHTML = "<h3>Projets Portfolio</h3>";
-
-    projects.forEach((project) => {
-      const projectDiv = document.createElement("div");
-      projectDiv.className = "project-item";
-      projectDiv.innerHTML = `
-                <h4>${project.title}</h4>
-                <p><strong>Catégorie:</strong> ${project.category}</p>
-                <p><strong>Description:</strong> ${project.description}</p>
-                <p><strong>Repo:</strong> ${
-                  project.repoLink
-                    ? `<a href="${project.repoLink}" target="_blank">Voir le code</a>`
-                    : "Non défini"
-                }</p>
-                <p><strong>Site:</strong> ${
-                  project.liveLink
-                    ? `<a href="${project.liveLink}" target="_blank">Voir le site</a>`
-                    : "Non défini"
-                }</p>
-                ${
-                  project.image
-                    ? `<img src="${project.image}" alt="${project.title}" style="max-width: 100px; margin: 10px 0;">`
-                    : ""
-                }
-                <div style="margin-top: 10px;">
-                    <button onclick="editPortfolioProject(${
-                      project.id
-                    })" class="btn-edit">Modifier</button>
-                    <button onclick="deletePortfolioProject(${
-                      project.id
-                    })" class="btn-delete">Supprimer</button>
-                </div>
-            `;
-      portfolioList.appendChild(projectDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier un projet portfolio
-async function editPortfolioProject(id) {
-  try {
-    const response = await fetch("/api/portfolio-projects");
-    const projects = await response.json();
-    const project = projects.find((p) => p.id === id);
-
-    if (project) {
-      document.getElementById("portfolio-title").value = project.title;
-      document.getElementById("portfolio-category").value = project.category;
-      document.getElementById("portfolio-description").value = project.description;
-      document.getElementById("portfolio-repo").value = project.repoLink || "";
-      document.getElementById("portfolio-live").value = project.liveLink || "";
-      document.getElementById("portfolio-submit-btn").textContent = "Modifier Projet Portfolio";
-      editingPortfolioProject = id;
-
-      // ✨ Afficher l'image actuelle
-      const imageInput = document.getElementById("portfolio-image");
-      const imagePreview = document.getElementById("portfolio-image-preview");
-      
-      if (project.image) {
-        if (!imagePreview) {
-          // Créer l'aperçu s'il n'existe pas
-          const preview = document.createElement("div");
-          preview.id = "portfolio-image-preview";
-          preview.style.cssText = "margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 8px;";
-          preview.innerHTML = `
-            <p style="margin: 0 0 5px 0; font-weight: bold;">Image actuelle :</p>
-            <img src="${project.image}" alt="Aperçu" style="max-width: 150px; border-radius: 4px;">
-            <p style="margin: 5px 0 0 0; font-size: 12px; color: #6c757d;">
-              💡 Laissez le champ vide pour conserver cette image
-            </p>
-          `;
-          imageInput.parentNode.insertBefore(preview, imageInput);
-        } else {
-          // Mettre à jour l'aperçu existant
-          imagePreview.querySelector("img").src = project.image;
-          imagePreview.style.display = "block";
-        }
-      }
-
-      document.getElementById("portfolio-form").scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-
-// Supprimer un projet portfolio
-async function deletePortfolioProject(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer ce projet du portfolio?")) {
-    try {
-      const response = await fetch(`/api/portfolio-projects/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadPortfolioProjects();
-        alert("Projet portfolio supprimé avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Annuler la modification d'un projet portfolio
-function cancelEditPortfolio() {
-  document.getElementById("portfolio-form").reset();
-  document.getElementById("portfolio-submit-btn").textContent = "Ajouter au Portfolio";
-  editingPortfolioProject = null;
   
-  // ✨ Cacher l'aperçu d'image
-  const imagePreview = document.getElementById("portfolio-image-preview");
-  if (imagePreview) {
-    imagePreview.style.display = "none";
+  if (options.body && typeof options.body === 'string') {
+    headers['Content-Type'] = 'application/json';
   }
-}
-// Déplacer une formation vers le haut
-async function moveEducationUp(id) {
-  try {
-    const response = await fetch(`/api/education/${id}/move-up`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      loadEducation();
-    } else {
-      alert("Erreur lors du déplacement");
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Déplacer une formation vers le bas
-async function moveEducationDown(id) {
-  try {
-    const response = await fetch(`/api/education/${id}/move-down`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      loadEducation();
-    } else {
-      alert("Erreur lors du déplacement");
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Déplacer une expérience vers le haut
-async function moveExperienceUp(id) {
-  try {
-    const response = await fetch(`/api/experience/${id}/move-up`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      loadExperience();
-    } else {
-      alert("Erreur lors du déplacement");
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Déplacer une expérience vers le bas
-async function moveExperienceDown(id) {
-  try {
-    const response = await fetch(`/api/experience/${id}/move-down`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      loadExperience();
-    } else {
-      alert("Erreur lors du déplacement");
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-let editingClient = null;
-
-// Gestion des clients
-document.getElementById("client-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData();
-  formData.append("name", document.getElementById("client-name").value);
-  formData.append("website", document.getElementById("client-website").value);
-  formData.append(
-    "description",
-    document.getElementById("client-description").value
-  );
-
-  const logoFile = document.getElementById("client-logo").files[0];
-  if (logoFile) {
-    formData.append("logo", logoFile);
-  }
-
-  try {
-    const url = editingClient
-      ? `/api/clients/${editingClient}`
-      : "/api/clients";
-    const method = editingClient ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (response.ok) {
-      document.getElementById("client-form").reset();
-      document.getElementById("client-submit-btn").textContent =
-        "Ajouter Client";
-      editingClient = null;
-      loadClients();
-      alert(
-        "Client " + (editingClient ? "modifié" : "ajouté") + " avec succès!"
-      );
-    } else {
-      alert("Erreur lors de l'opération");
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-});
-
-// Charger les clients
-async function loadClients() {
-  try {
-    const response = await fetch("/api/clients");
-    const clients = await response.json();
-
-    const clientsList = document.getElementById("clients-list");
-    clientsList.innerHTML = "<h3>Clients existants</h3>";
-
-    clients.forEach((client) => {
-      const clientDiv = document.createElement("div");
-      clientDiv.className = "project-item";
-      clientDiv.innerHTML = `
-                <h4>${client.name}</h4>
-                <p><strong>Site web:</strong> ${
-                  client.website
-                    ? `<a href="${client.website}" target="_blank">Visiter</a>`
-                    : "Non défini"
-                }</p>
-                <p><strong>Description:</strong> ${
-                  client.description || "Non définie"
-                }</p>
-                ${
-                  client.logo
-                    ? `<img src="${client.logo}" alt="${client.name}" style="max-width: 100px; margin: 10px 0;">`
-                    : ""
-                }
-                <div style="margin-top: 10px;">
-                    <button onclick="editClient(${
-                      client.id
-                    })" class="btn-edit">Modifier</button>
-                    <button onclick="deleteClient(${
-                      client.id
-                    })" class="btn-delete">Supprimer</button>
-                </div>
-            `;
-      clientsList.appendChild(clientDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier un client
-async function editClient(id) {
-  try {
-    const response = await fetch("/api/clients");
-    const clients = await response.json();
-    const client = clients.find((c) => c.id === id);
-
-    if (client) {
-      document.getElementById("client-name").value = client.name;
-      document.getElementById("client-website").value = client.website || "";
-      document.getElementById("client-description").value =
-        client.description || "";
-      document.getElementById("client-submit-btn").textContent =
-        "Modifier Client";
-      editingClient = id;
-
-      // Afficher un message pour l'image
-      const logoInput = document.getElementById("client-logo");
-      logoInput.parentNode.querySelector("small").textContent =
-        "Logo actuel conservé. Sélectionnez un nouveau fichier pour le remplacer.";
-
-      document
-        .getElementById("client-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Supprimer un client
-async function deleteClient(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer ce client?")) {
-    try {
-      const response = await fetch(`/api/clients/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadClients();
-        alert("Client supprimé avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Annuler la modification d'un client
-function cancelEditClient() {
-  document.getElementById("client-form").reset();
-  document.getElementById("client-submit-btn").textContent = "Ajouter Client";
-  editingClient = null;
-
-  // Remettre le message par défaut
-  const logoInput = document.getElementById("client-logo");
-  logoInput.parentNode.querySelector("small").textContent =
-    "Laissez vide lors de la modification pour conserver le logo actuel";
-}
-
-let editingCategory = null;
-
-// Gestion des catégories
-document
-  .getElementById("category-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const name = document.getElementById("category-name").value;
-    const displayName = document.getElementById("category-display").value;
-
-    try {
-      const url = editingCategory
-        ? `/api/categories/${editingCategory}`
-        : "/api/categories";
-      const method = editingCategory ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, displayName }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        document.getElementById("category-form").reset();
-        document.getElementById("category-submit-btn").textContent =
-          "Ajouter Catégorie";
-        editingCategory = null;
-        loadCategories();
-        loadCategoryOptions();
-        alert(
-          "Catégorie " +
-            (editingCategory ? "modifiée" : "ajoutée") +
-            " avec succès!"
-        );
-      } else {
-        alert("Erreur: " + data.error);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-      alert("Erreur lors de l'opération");
-    }
-  });
-
-// Charger les catégories
-async function loadCategories() {
-  try {
-    const response = await fetch("/api/categories");
-    const categories = await response.json();
-
-    const categoriesList = document.getElementById("categories-list");
-    categoriesList.innerHTML = "<h3>Catégories existantes</h3>";
-    categories.forEach((category) => {
-      const categoryDiv = document.createElement("div");
-      categoryDiv.className = "project-item";
-      categoryDiv.innerHTML = `
-                <h4>${category.display_name}</h4>
-                <p><strong>Nom technique:</strong> ${category.name}</p>
-                <div style="margin-top: 10px;">
-                    <button onclick="editCategory(${category.id})" class="btn-edit">Modifier</button>
-                    <button onclick="deleteCategory(${category.id})" class="btn-delete">Supprimer</button>
-                </div>
-            `;
-      categoriesList.appendChild(categoryDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Charger les options de catégories dans le select
-async function loadCategoryOptions() {
-  try {
-    const response = await fetch("/api/categories");
-    const categories = await response.json();
-
-    const categorySelect = document.getElementById("portfolio-category");
-    categorySelect.innerHTML =
-      '<option value="">Sélectionner une catégorie</option>';
-
-    categories.forEach((category) => {
-      const option = document.createElement("option");
-      option.value = category.name;
-      option.textContent = category.display_name;
-      categorySelect.appendChild(option);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier une catégorie
-async function editCategory(id) {
-  try {
-    const response = await fetch("/api/categories");
-    const categories = await response.json();
-    const category = categories.find((c) => c.id === id);
-
-    if (category) {
-      document.getElementById("category-name").value = category.name;
-      document.getElementById("category-display").value = category.display_name;
-      document.getElementById("category-submit-btn").textContent =
-        "Modifier Catégorie";
-      editingCategory = id;
-
-      document
-        .getElementById("category-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Supprimer une catégorie
-async function deleteCategory(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer cette catégorie?")) {
-    try {
-      const response = await fetch(`/api/categories/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        loadCategories();
-        loadCategoryOptions();
-        alert("Catégorie supprimée avec succès!");
-      } else {
-        alert("Erreur: " + data.error);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Annuler la modification d'une catégorie
-function cancelEditCategory() {
-  document.getElementById("category-form").reset();
-  document.getElementById("category-submit-btn").textContent =
-    "Ajouter Catégorie";
-  editingCategory = null;
-}
-
-let editingBlog = null;
-
-// Gestion des blogs
-document.getElementById("blog-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const formData = new FormData();
-  formData.append("title", document.getElementById("blog-title").value);
-  formData.append("category", document.getElementById("blog-category").value);
-  formData.append("excerpt", document.getElementById("blog-excerpt").value);
-  formData.append("content", document.getElementById("blog-content").value);
-  formData.append("author", document.getElementById("blog-author").value);
-
-  const imageFile = document.getElementById("blog-image").files[0];
-  if (imageFile) {
-    formData.append("image", imageFile);
-  }
-
-  try {
-    const url = editingBlog ? `/api/blogs/${editingBlog}` : "/api/blogs";
-    const method = editingBlog ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (response.ok) {
-      document.getElementById("blog-form").reset();
-      document.getElementById("blog-submit-btn").textContent = "Ajouter Blog";
-      editingBlog = null;
-      loadBlogs();
-      alert("Blog " + (editingBlog ? "modifié" : "ajouté") + " avec succès!");
-    } else {
-      alert("Erreur lors de l'opération");
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-});
-
-// Charger les blogs
-async function loadBlogs() {
-  try {
-    const response = await fetch("/api/blogs");
-    const blogs = await response.json();
-
-    const blogsList = document.getElementById("blogs-list");
-    blogsList.innerHTML = "<h3>Blogs existants</h3>";
-
-    blogs.forEach((blog) => {
-      const blogDiv = document.createElement("div");
-      blogDiv.className = "project-item";
-      blogDiv.innerHTML = `
-                <h4>${blog.title}</h4>
-                <p><strong>Catégorie:</strong> ${blog.category}</p>
-                <p><strong>Auteur:</strong> ${blog.author}</p>
-                <p><strong>Date:</strong> ${blog.date}</p>
-                <p><strong>Extrait:</strong> ${blog.excerpt}</p>
-                <p><strong>Lien:</strong> <a href="/blog/${
-                  blog.slug
-                }" target="_blank">Voir le blog</a></p>
-                ${
-                  blog.image
-                    ? `<img src="${blog.image}" alt="${blog.title}" style="max-width: 100px; margin: 10px 0;">`
-                    : ""
-                }
-                <div style="margin-top: 10px;">
-                    <button onclick="editBlog(${
-                      blog.id
-                    })" class="btn-edit">Modifier</button>
-                    <button onclick="deleteBlog(${
-                      blog.id
-                    })" class="btn-delete">Supprimer</button>
-                </div>
-            `;
-      blogsList.appendChild(blogDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier un blog
-// Modifier un blog
-async function editBlog(id) {
-  try {
-    const response = await fetch("/api/blogs");
-    const blogs = await response.json();
-    const blog = blogs.find((b) => b.id === id);
-
-    if (blog) {
-      document.getElementById("blog-title").value = blog.title;
-      document.getElementById("blog-category").value = blog.category;
-      document.getElementById("blog-excerpt").value = blog.excerpt;
-      document.getElementById("blog-content").value = blog.content;
-      document.getElementById("blog-author").value = blog.author;
-      document.getElementById("blog-submit-btn").textContent = "Modifier Blog";
-      editingBlog = id;
-
-      // ✨ Afficher l'image actuelle
-      const imageInput = document.getElementById("blog-image");
-      let imagePreview = document.getElementById("blog-image-preview");
-      
-      if (blog.image) {
-        if (!imagePreview) {
-          imagePreview = document.createElement("div");
-          imagePreview.id = "blog-image-preview";
-          imagePreview.className = "mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200";
-          imagePreview.innerHTML = `
-            <p class="text-sm font-semibold text-gray-700 mb-2">Image actuelle :</p>
-            <img src="${blog.image}" alt="Aperçu" class="max-w-[150px] rounded-lg shadow-sm mb-2">
-            <p class="text-xs text-gray-600">💡 Laissez le champ vide pour conserver cette image</p>
-          `;
-          imageInput.parentNode.appendChild(imagePreview);
-        } else {
-          imagePreview.querySelector("img").src = blog.image;
-          imagePreview.style.display = "block";
-        }
-      }
-
-      document.getElementById("blog-form").scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Supprimer un blog
-async function deleteBlog(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer ce blog?")) {
-    try {
-      const response = await fetch(`/api/blogs/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadBlogs();
-        alert("Blog supprimé avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-function cancelEditBlog() {
-  document.getElementById("blog-form").reset();
-  document.getElementById("blog-submit-btn").textContent = "Ajouter Blog";
-  editingBlog = null;
   
-  const imagePreview = document.getElementById("blog-image-preview");
-  if (imagePreview) {
-    imagePreview.style.display = "none";
+  options.headers = headers;
+  
+  console.log(`🌐 ${options.method || 'GET'} ${url}`);
+  
+  try {
+    const response = await fetch(url, options);
+    console.log(`✅ Status: ${response.status}`);
+    
+    if (response.status === 401 || response.status === 403) {
+      console.error('🔴 Token invalide');
+      localStorage.removeItem('adminToken');
+      token = null;
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('admin-panel').classList.add('hidden');
+      showNotification('⚠️ Session expirée', 'error');
+      throw new Error('Unauthorized');
+    }
+    
+    return response;
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('❌ Erreur:', error);
+      showNotification('Erreur de connexion', 'error');
+    }
+    throw error;
   }
 }
 
+// ============================================
+// 🔐 AUTHENTIFICATION
+// ============================================
 
-// Supprimer toutes les données
-async function deleteAllData() {
-  const confirmation = prompt(
-    'ATTENTION! Cette action supprimera TOUTES vos données.\nTapez "SUPPRIMER TOUT" pour confirmer:'
-  );
-
-  if (confirmation === "SUPPRIMER TOUT") {
-    try {
-      const response = await fetch("/api/admin/delete/all", {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Toutes les données ont été supprimées avec succès!");
-        // Recharger toutes les listes
-        loadProjects();
-        loadTestimonials();
-        loadPortfolioProjects();
-        loadClients();
-        loadCategories();
-        loadBlogs();
-      } else {
-        alert("Erreur: " + data.error);
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('🚀 Initialisation du dashboard...');
+  
+  // Login form
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      console.log('📝 Tentative de connexion...');
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          token = data.token;
+          localStorage.setItem('adminToken', token);
+          document.getElementById('login-section').classList.add('hidden');
+          document.getElementById('admin-panel').classList.remove('hidden');
+          await initializeDashboard();
+          showNotification('✅ Connexion réussie !', 'success');
+        } else {
+          showNotification('❌ ' + data.error, 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showNotification('❌ Erreur de connexion', 'error');
       }
-    } catch (error) {
-      console.error("Erreur:", error);
-      alert("Erreur lors de la suppression");
-    }
-  } else {
-    alert("Suppression annulée");
+      
+      return false;
+    });
   }
-}
-
-let editingSocial = null;
-
-// Gestion des informations personnelles
-// Modifiez la gestion des informations personnelles
-document
-  .getElementById("personal-info-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    formData.append("name", document.getElementById("personal-name").value);
-    formData.append("title", document.getElementById("personal-title").value);
-    formData.append("email", document.getElementById("personal-email").value);
-    formData.append("phone", document.getElementById("personal-phone").value);
-    formData.append(
-      "birthday",
-      document.getElementById("personal-birthday").value
-    );
-    formData.append(
-      "location",
-      document.getElementById("personal-location").value
-    );
-    formData.append(
-      "aboutText",
-      document.getElementById("personal-about").value
-    );
-
-    const avatarFile = document.getElementById("personal-avatar").files[0];
-    if (avatarFile) {
-      formData.append("avatar", avatarFile);
-    }
-
-    const cvFile = document.getElementById("personal-cv").files[0];
-    if (cvFile) {
-      formData.append("cv", cvFile);
-    }
-
-    try {
-      const response = await fetch("/api/personal-info", {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
+  
+  // Vérifier token au chargement
+  if (token) {
+    console.log('🔑 Token trouvé, vérification...');
+    
+    fetch('/api/portfolio-projects', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+    .then(response => {
       if (response.ok) {
-        alert("Informations personnelles mises à jour avec succès!");
-        loadPersonalInfo();
+        console.log('✅ Token valide');
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('admin-panel').classList.remove('hidden');
+        initializeDashboard();
       } else {
-        const errorData = await response.json();
-        alert("Erreur: " + errorData.error);
+        console.log('❌ Token invalide');
+        localStorage.removeItem('adminToken');
+        token = null;
       }
-    } catch (error) {
-      console.error("Erreur:", error);
-      alert("Erreur lors de la mise à jour");
+    })
+    .catch(() => {
+      console.log('❌ Erreur réseau');
+      localStorage.removeItem('adminToken');
+      token = null;
+    });
+  }
+  
+  // Attacher tous les autres event listeners
+  attachAllEventListeners();
+  
+  // Fermer modales avec clic extérieur
+  document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal(modal.id);
+      }
+    });
+  });
+  
+  // Fermer modales avec Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('[id$="-modal"]').forEach(modal => {
+        if (!modal.classList.contains('hidden')) {
+          closeModal(modal.id);
+        }
+      });
     }
   });
-
-// Modifiez loadPersonalInfo pour inclure le CV
-async function loadPersonalInfo() {
-  try {
-    const response = await fetch("/api/personal-info");
-    const info = await response.json();
-
-    document.getElementById("personal-name").value = info.name;
-    document.getElementById("personal-title").value = info.title;
-    document.getElementById("personal-email").value = info.email;
-    document.getElementById("personal-phone").value = info.phone;
-    document.getElementById("personal-birthday").value = info.birthday;
-    document.getElementById("personal-location").value = info.location;
-    document.getElementById("personal-about").value = info.aboutText.join("\n");
-
-    // Afficher l'avatar actuel
-    if (info.avatar) {
-      const avatarInput = document.getElementById("personal-avatar");
-      avatarInput.parentNode.querySelector(
-        "small"
-      ).textContent = `Avatar actuel : ${info.avatar
-        .split("/")
-        .pop()}. Sélectionnez un nouveau fichier pour le remplacer.`;
-    }
-
-    // Afficher le CV actuel
-    const cvInfo = document.getElementById("current-cv-info");
-    if (info.cvFile) {
-      cvInfo.style.display = "block";
-    } else {
-      cvInfo.style.display = "none";
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Fonction pour voir le CV actuel
-function viewCurrentCV() {
-  window.open("/documents", "_blank");
-}
-
-// Gestion des liens sociaux
-document.getElementById("social-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const socialData = {
-    name: document.getElementById("social-name").value,
-    icon: document.getElementById("social-icon").value,
-    url: document.getElementById("social-url").value,
-  };
-
-  try {
-    const url = editingSocial
-      ? `/api/social-links/${editingSocial}`
-      : "/api/social-links";
-    const method = editingSocial ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(socialData),
-    });
-
-    if (response.ok) {
-      document.getElementById("social-form").reset();
-      document.getElementById("social-submit-btn").textContent =
-        "Ajouter Lien Social";
-      editingSocial = null;
-      loadSocialLinks();
-      alert(
-        "Lien social " +
-          (editingSocial ? "modifié" : "ajouté") +
-          " avec succès!"
-      );
-    } else {
-      alert("Erreur lors de l'opération");
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
 });
 
-// Charger les liens sociaux
-async function loadSocialLinks() {
-  try {
-    const response = await fetch("/api/social-links");
-    const socialLinks = await response.json();
-
-    const socialList = document.getElementById("social-links-list");
-    socialList.innerHTML = "<h3>Liens Sociaux existants</h3>";
-
-    socialLinks.forEach((social) => {
-      const socialDiv = document.createElement("div");
-      socialDiv.className = "project-item";
-      socialDiv.innerHTML = `
-                <h4>${social.name}</h4>
-                <p><strong>Icône:</strong> <ion-icon name="${social.icon}"></ion-icon> ${social.icon}</p>
-                <p><strong>URL:</strong> <a href="${social.url}" target="_blank">Visiter</a></p>
-                <div style="margin-top: 10px;">
-                    <button onclick="editSocial(${social.id})" class="btn-edit">Modifier</button>
-                    <button onclick="deleteSocial(${social.id})" class="btn-delete">Supprimer</button>
-                </div>
-            `;
-      socialList.appendChild(socialDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier un lien social
-async function editSocial(id) {
-  try {
-    const response = await fetch("/api/social-links");
-    const socialLinks = await response.json();
-    const social = socialLinks.find((s) => s.id === id);
-
-    if (social) {
-      document.getElementById("social-name").value = social.name;
-      document.getElementById("social-icon").value = social.icon;
-      document.getElementById("social-url").value = social.url;
-      document.getElementById("social-submit-btn").textContent =
-        "Modifier Lien Social";
-      editingSocial = id;
-
-      document
-        .getElementById("social-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Supprimer un lien social
-async function deleteSocial(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer ce lien social?")) {
-    try {
-      const response = await fetch(`/api/social-links/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadSocialLinks();
-        alert("Lien social supprimé avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Annuler la modification d'un lien social
-function cancelEditSocial() {
-  document.getElementById("social-form").reset();
-  document.getElementById("social-submit-btn").textContent =
-    "Ajouter Lien Social";
-  editingSocial = null;
-}
-let editingEducation = null;
-let editingExperience = null;
-
-// Gestion de l'éducation
-document
-  .getElementById("education-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const educationData = {
-      institution: document.getElementById("education-institution").value,
-      period: document.getElementById("education-period").value,
-      description: document.getElementById("education-description").value,
-    };
-
-    try {
-      const url = editingEducation
-        ? `/api/education/${editingEducation}`
-        : "/api/education";
-      const method = editingEducation ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(educationData),
-      });
-
-      if (response.ok) {
-        document.getElementById("education-form").reset();
-        document.getElementById("education-submit-btn").textContent =
-          "Ajouter Formation";
-        editingEducation = null;
-        loadEducation();
-        alert(
-          "Formation " +
-            (editingEducation ? "modifiée" : "ajoutée") +
-            " avec succès!"
-        );
-      } else {
-        alert("Erreur lors de l'opération");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  });
-
-// Gestion de l'expérience
-document
-  .getElementById("experience-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const experienceData = {
-      position: document.getElementById("experience-position").value,
-      period: document.getElementById("experience-period").value,
-      description: document.getElementById("experience-description").value,
-    };
-
-    try {
-      const url = editingExperience
-        ? `/api/experience/${editingExperience}`
-        : "/api/experience";
-      const method = editingExperience ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(experienceData),
-      });
-
-      if (response.ok) {
-        document.getElementById("experience-form").reset();
-        document.getElementById("experience-submit-btn").textContent =
-          "Ajouter Expérience";
-        editingExperience = null;
-        loadExperience();
-        alert(
-          "Expérience " +
-            (editingExperience ? "modifiée" : "ajoutée") +
-            " avec succès!"
-        );
-      } else {
-        alert("Erreur lors de l'opération");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  });
-
-// Charger l'éducation
-// Charger l'éducation
-async function loadEducation() {
-  try {
-    const response = await fetch("/api/education");
-    const education = await response.json();
-
-    const educationList = document.getElementById("education-list");
-    educationList.innerHTML = "<h3 class='text-xl font-bold text-gray-800 mb-4'>Formations existantes</h3>";
-
-    education.forEach((edu, index) => {
-      const eduDiv = document.createElement("div");
-      eduDiv.className = "bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow";
-      eduDiv.innerHTML = `
-        <h4 class="text-lg font-bold text-gray-800 mb-2">${edu.institution}</h4>
-        <p class="text-gray-700 mb-1"><span class="font-semibold">Période:</span> ${edu.period}</p>
-        <p class="text-gray-700 mb-3"><span class="font-semibold">Description:</span> ${edu.description}</p>
-        <div class="flex flex-wrap gap-2">
-          <button onclick="editEducation(${edu.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            ✏️ Modifier
-          </button>
-          <button onclick="deleteEducation(${edu.id})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            🗑️ Supprimer
-          </button>
-          ${index > 0 ? `
-            <button onclick="moveEducationUp(${edu.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-              ↑ Monter
-            </button>
-          ` : ''}
-          ${index < education.length - 1 ? `
-            <button onclick="moveEducationDown(${edu.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-              ↓ Descendre
-            </button>
-          ` : ''}
-        </div>
-      `;
-      educationList.appendChild(eduDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-
-// Charger l'expérience
-// Charger l'expérience
-async function loadExperience() {
-  try {
-    const response = await fetch("/api/experience");
-    const experience = await response.json();
-
-    const experienceList = document.getElementById("experience-list");
-    experienceList.innerHTML = "<h3 class='text-xl font-bold text-gray-800 mb-4'>Expériences existantes</h3>";
-
-    experience.forEach((exp, index) => {
-      const expDiv = document.createElement("div");
-      expDiv.className = "bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow";
-      expDiv.innerHTML = `
-        <h4 class="text-lg font-bold text-gray-800 mb-2">${exp.position}</h4>
-        <p class="text-gray-700 mb-1"><span class="font-semibold">Période:</span> ${exp.period}</p>
-        <p class="text-gray-700 mb-3"><span class="font-semibold">Description:</span> ${exp.description}</p>
-        <div class="flex flex-wrap gap-2">
-          <button onclick="editExperience(${exp.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            ✏️ Modifier
-          </button>
-          <button onclick="deleteExperience(${exp.id})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-            🗑️ Supprimer
-          </button>
-          ${index > 0 ? `
-            <button onclick="moveExperienceUp(${exp.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-              ↑ Monter
-            </button>
-          ` : ''}
-          ${index < experience.length - 1 ? `
-            <button onclick="moveExperienceDown(${exp.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-              ↓ Descendre
-            </button>
-          ` : ''}
-        </div>
-      `;
-      experienceList.appendChild(expDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-
-// Modifier une formation
-async function editEducation(id) {
-  try {
-    const response = await fetch("/api/education");
-    const education = await response.json();
-    const edu = education.find((e) => e.id === id);
-
-    if (edu) {
-      document.getElementById("education-institution").value = edu.institution;
-      document.getElementById("education-period").value = edu.period;
-      document.getElementById("education-description").value = edu.description;
-      document.getElementById("education-submit-btn").textContent =
-        "Modifier Formation";
-      editingEducation = id;
-
-      document
-        .getElementById("education-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier une expérience
-async function editExperience(id) {
-  try {
-    const response = await fetch("/api/experience");
-    const experience = await response.json();
-    const exp = experience.find((e) => e.id === id);
-
-    if (exp) {
-      document.getElementById("experience-position").value = exp.position;
-      document.getElementById("experience-period").value = exp.period;
-      document.getElementById("experience-description").value = exp.description;
-      document.getElementById("experience-submit-btn").textContent =
-        "Modifier Expérience";
-      editingExperience = id;
-
-      document
-        .getElementById("experience-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Supprimer une formation
-async function deleteEducation(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer cette formation?")) {
-    try {
-      const response = await fetch(`/api/education/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadEducation();
-        alert("Formation supprimée avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Supprimer une expérience
-async function deleteExperience(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer cette expérience?")) {
-    try {
-      const response = await fetch(`/api/experience/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadExperience();
-        alert("Expérience supprimée avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Annuler les modifications
-function cancelEditEducation() {
-  document.getElementById("education-form").reset();
-  document.getElementById("education-submit-btn").textContent =
-    "Ajouter Formation";
-  editingEducation = null;
-}
-
-function cancelEditExperience() {
-  document.getElementById("experience-form").reset();
-  document.getElementById("experience-submit-btn").textContent =
-    "Ajouter Expérience";
-  editingExperience = null;
-}
-
-let editingSkill = null;
-
-// Fonction de déconnexion
 function logout() {
-  if (confirm("Êtes-vous sûr de vouloir vous déconnecter?")) {
-    localStorage.removeItem("adminToken");
+  if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+    localStorage.removeItem('adminToken');
     token = null;
-    document.getElementById("login-section").style.display = "block";
-    document.getElementById("admin-panel").style.display = "none";
-
-    // Réinitialiser les formulaires
-    document.getElementById("login-form").reset();
-    alert("Déconnexion réussie!");
+    document.getElementById('login-section').classList.remove('hidden');
+    document.getElementById('admin-panel').classList.add('hidden');
+    showNotification('Déconnexion réussie', 'success');
   }
 }
 
-// Gestion des compétences
-document.getElementById("skill-form").addEventListener("submit", async (e) => {
-  e.preventDefault();
+// ============================================
+// 🎨 ATTACHER TOUS LES EVENT LISTENERS
+// ============================================
 
-  const skillData = {
-    name: document.getElementById("skill-name").value,
-    percentage: document.getElementById("skill-percentage").value,
+function attachAllEventListeners() {
+  console.log('📌 Attachement des event listeners...');
+  
+  const forms = {
+    'category-form': handleCategorySubmit,
+    'portfolio-form': handlePortfolioSubmit,
+    'project-form': handleProjectSubmit,
+    'blog-form': handleBlogSubmit,
+    'experience-form': handleExperienceSubmit,
+    'education-form': handleEducationSubmit,
+    'skill-form': handleSkillSubmit,
+    'client-form': handleClientSubmit,
+    'testimonial-form': handleTestimonialSubmit,
+    'social-form': handleSocialSubmit,
+    'personal-info-form': handlePersonalInfoSubmit,
+    'account-update-form': handleAccountUpdate,
+    'password-change-form': handlePasswordChange
   };
-
-  try {
-    const url = editingSkill ? `/api/skills/${editingSkill}` : "/api/skills";
-    const method = editingSkill ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method: method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(skillData),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      document.getElementById("skill-form").reset();
-      document.getElementById("skill-submit-btn").textContent =
-        "Ajouter Compétence";
-      editingSkill = null;
-      loadSkills();
-      alert(
-        "Compétence " +
-          (editingSkill ? "modifiée" : "ajoutée") +
-          " avec succès!"
-      );
-    } else {
-      alert("Erreur: " + data.error);
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-    alert("Erreur lors de l'opération");
-  }
-});
-
-// Charger les compétences
-async function loadSkills() {
-  try {
-    const response = await fetch("/api/skills");
-    const skills = await response.json();
-
-    const skillsList = document.getElementById("skills-list");
-    skillsList.innerHTML = "<h3>Compétences existantes</h3>";
-
-    skills.forEach((skill) => {
-      const skillDiv = document.createElement("div");
-      skillDiv.className = "project-item";
-      skillDiv.innerHTML = `
-                <h4>${skill.name}</h4>
-                <div style="margin: 10px 0;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                        <span><strong>Niveau:</strong> ${skill.percentage}%</span>
-                    </div>
-                    <div style="background: #e9ecef; height: 8px; border-radius: 4px; overflow: hidden;">
-                        <div style="background: #007bff; height: 100%; width: ${skill.percentage}%; transition: width 0.3s ease;"></div>
-                    </div>
-                </div>
-                <div style="margin-top: 10px;">
-                    <button onclick="editSkill(${skill.id})" class="btn-edit">Modifier</button>
-                    <button onclick="deleteSkill(${skill.id})" class="btn-delete">Supprimer</button>
-                </div>
-            `;
-      skillsList.appendChild(skillDiv);
-    });
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Modifier une compétence
-async function editSkill(id) {
-  try {
-    const response = await fetch("/api/skills");
-    const skills = await response.json();
-    const skill = skills.find((s) => s.id === id);
-
-    if (skill) {
-      document.getElementById("skill-name").value = skill.name;
-      document.getElementById("skill-percentage").value = skill.percentage;
-      document.getElementById("skill-submit-btn").textContent =
-        "Modifier Compétence";
-      editingSkill = id;
-
-      document
-        .getElementById("skill-form")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  } catch (error) {
-    console.error("Erreur:", error);
-  }
-}
-
-// Supprimer une compétence
-async function deleteSkill(id) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer cette compétence?")) {
-    try {
-      const response = await fetch(`/api/skills/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        loadSkills();
-        alert("Compétence supprimée avec succès!");
-      } else {
-        alert("Erreur lors de la suppression");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  }
-}
-
-// Annuler la modification d'une compétence
-function cancelEditSkill() {
-  document.getElementById("skill-form").reset();
-  document.getElementById("skill-submit-btn").textContent =
-    "Ajouter Compétence";
-  editingSkill = null;
-}
-
-// Charger les informations du compte admin
-async function loadAccountInfo() {
-  try {
-    const response = await fetch("/api/admin/account-info", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (response.ok) {
-      const accountInfo = await response.json();
-      document.getElementById("current-username").textContent =
-        accountInfo.username;
-
-      if (accountInfo.created_at) {
-        const created = new Date(accountInfo.created_at).toLocaleDateString(
-          "fr-FR"
-        );
-        document.getElementById("account-created").textContent = created;
-      } else {
-        document.getElementById("account-created").textContent = "Inconnue";
-      }
-
-      // Pré-remplir le formulaire
-      document.getElementById("new-username").value = accountInfo.username;
-    }
-  } catch (error) {
-    console.error(
-      "Erreur lors du chargement des informations du compte:",
-      error
-    );
-  }
-}
-
-// Gestion du formulaire de mise à jour du nom d'utilisateur
-document
-  .getElementById("account-update-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const newUsername = document.getElementById("new-username").value.trim();
-
-    if (!newUsername) {
-      alert("Le nom d'utilisateur ne peut pas être vide");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/admin/update-account", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          newUsername,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Nom d'utilisateur mis à jour avec succès !");
-
-        // Mettre à jour le token si fourni
-        if (data.newToken) {
-          token = data.newToken;
-          localStorage.setItem("adminToken", token);
-        }
-
-        // Recharger les informations
-        await loadAccountInfo();
-      } else {
-        alert("Erreur: " + data.error);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-      alert("Erreur lors de la mise à jour");
+  
+  Object.entries(forms).forEach(([formId, handler]) => {
+    const form = document.getElementById(formId);
+    if (form) {
+      form.addEventListener('submit', handler);
     }
   });
+  
+  // Synchroniser slider et input
+  const skillPercentage = document.getElementById('skill-percentage');
+  const skillSlider = document.getElementById('skill-slider');
+  
+  if (skillPercentage && skillSlider) {
+    skillPercentage.addEventListener('input', (e) => {
+      skillSlider.value = e.target.value;
+    });
+    
+    skillSlider.addEventListener('input', (e) => {
+      skillPercentage.value = e.target.value;
+    });
+  }
+  
+  console.log('✅ Event listeners attachés');
+}
 
-// Gestion du formulaire de changement de mot de passe
-document
-  .getElementById("password-change-form")
-  .addEventListener("submit", async (e) => {
-    e.preventDefault();
+// ============================================
+// 📝 HANDLERS DE FORMULAIRES
+// ============================================
 
-    const currentPassword = document.getElementById("current-password").value;
-    const newPassword = document.getElementById("new-password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
-
-    if (newPassword !== confirmPassword) {
-      alert("Les nouveaux mots de passe ne correspondent pas");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      alert("Le nouveau mot de passe doit contenir au moins 6 caractères");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/admin/change-password", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          currentPassword,
-          newPassword,
-          confirmPassword,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Mot de passe changé avec succès !");
-        document.getElementById("password-change-form").reset();
-      } else {
-        alert("Erreur: " + data.error);
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-      alert("Erreur lors du changement de mot de passe");
-    }
-  });
-// Charger les statistiques d'optimisation
-async function loadOptimizationStats() {
+async function handleCategorySubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  console.log('💾 Enregistrement catégorie...');
+  
+  const categoryData = {
+    name: document.getElementById('category-name').value,
+    displayName: document.getElementById('category-display').value
+  };
+  
   try {
-    const response = await fetch('/api/optimization-stats', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+    const url = currentEditingId 
+      ? `/api/categories/${currentEditingId}`
+      : '/api/categories';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, {
+      method,
+      body: JSON.stringify(categoryData)
     });
     
     if (response.ok) {
-      const stats = await response.json();
-      
-      document.getElementById('total-images').textContent = stats.totalImages;
-      document.getElementById('optimized-images').textContent = stats.optimizedImages;
-      document.getElementById('optimization-rate').textContent = stats.optimizationRate;
-      document.getElementById('disk-usage').textContent = stats.totalDiskUsage;
+      showNotification(`✅ Catégorie ${currentEditingId ? 'modifiée' : 'ajoutée'} !`, 'success');
+      closeModal('category-modal');
+      await loadCategories();
+      await loadCategoryOptions();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
     }
   } catch (error) {
-    console.error('Erreur lors du chargement des statistiques:', error);
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handlePortfolioSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  console.log('💾 Enregistrement projet portfolio...');
+  
+  const formData = new FormData();
+  formData.append('title', document.getElementById('portfolio-title').value);
+  formData.append('category', document.getElementById('portfolio-category').value);
+  formData.append('description', document.getElementById('portfolio-description').value);
+  formData.append('repoLink', document.getElementById('portfolio-repo').value);
+  formData.append('liveLink', document.getElementById('portfolio-live').value);
+  formData.append('filterCategory', document.getElementById('portfolio-category').value);
+  
+  const imageFile = document.getElementById('portfolio-image').files[0];
+  if (imageFile) formData.append('image', imageFile);
+  
+  try {
+    const url = currentEditingId 
+      ? `/api/portfolio-projects/${currentEditingId}`
+      : '/api/portfolio-projects';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, {
+      method,
+      body: formData
+    });
+    
+    if (response.ok) {
+      showNotification(`✅ Projet ${currentEditingId ? 'modifié' : 'ajouté'} !`, 'success');
+      closeModal('portfolio-modal');
+      await loadPortfolioProjects();
+      await loadDashboardStats();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleProjectSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const formData = new FormData();
+  formData.append('title', document.getElementById('project-title').value);
+  formData.append('category', document.getElementById('project-category').value);
+  formData.append('description', document.getElementById('project-description').value);
+  
+  const imageFile = document.getElementById('project-image').files[0];
+  if (imageFile) formData.append('image', imageFile);
+  
+  try {
+    const url = currentEditingId ? `/api/projects/${currentEditingId}` : '/api/projects';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, { method, body: formData });
+    
+    if (response.ok) {
+      showNotification(`✅ Projet ${currentEditingId ? 'modifié' : 'ajouté'} !`, 'success');
+      closeModal('project-modal');
+      await loadProjects();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleBlogSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const formData = new FormData();
+  formData.append('title', document.getElementById('blog-title').value);
+  formData.append('category', document.getElementById('blog-category').value);
+  formData.append('excerpt', document.getElementById('blog-excerpt').value);
+  formData.append('content', document.getElementById('blog-content').value);
+  formData.append('author', document.getElementById('blog-author').value);
+  
+  const imageFile = document.getElementById('blog-image').files[0];
+  if (imageFile) formData.append('image', imageFile);
+  
+  try {
+    const url = currentEditingId ? `/api/blogs/${currentEditingId}` : '/api/blogs';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, { method, body: formData });
+    
+    if (response.ok) {
+      showNotification(`✅ Article ${currentEditingId ? 'modifié' : 'publié'} !`, 'success');
+      closeModal('blog-modal');
+      await loadBlogs();
+      await loadDashboardStats();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleExperienceSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const experienceData = {
+    position: document.getElementById('experience-position').value,
+    period: document.getElementById('experience-period').value,
+    description: document.getElementById('experience-description').value
+  };
+  
+  try {
+    const url = currentEditingId ? `/api/experience/${currentEditingId}` : '/api/experience';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, {
+      method,
+      body: JSON.stringify(experienceData)
+    });
+    
+    if (response.ok) {
+      showNotification(`✅ Expérience ${currentEditingId ? 'modifiée' : 'ajoutée'} !`, 'success');
+      closeModal('experience-modal');
+      await loadExperience();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleEducationSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const educationData = {
+    institution: document.getElementById('education-institution').value,
+    period: document.getElementById('education-period').value,
+    description: document.getElementById('education-description').value
+  };
+  
+  try {
+    const url = currentEditingId ? `/api/education/${currentEditingId}` : '/api/education';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, {
+      method,
+      body: JSON.stringify(educationData)
+    });
+    
+    if (response.ok) {
+      showNotification(`✅ Formation ${currentEditingId ? 'modifiée' : 'ajoutée'} !`, 'success');
+      closeModal('education-modal');
+      await loadEducation();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleSkillSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const skillData = {
+    name: document.getElementById('skill-name').value,
+    percentage: document.getElementById('skill-percentage').value
+  };
+  
+  try {
+    const url = currentEditingId ? `/api/skills/${currentEditingId}` : '/api/skills';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, {
+      method,
+      body: JSON.stringify(skillData)
+    });
+    
+    if (response.ok) {
+      showNotification(`✅ Compétence ${currentEditingId ? 'modifiée' : 'ajoutée'} !`, 'success');
+      closeModal('skill-modal');
+      await loadSkills();
+      await loadDashboardStats();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleClientSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const formData = new FormData();
+  formData.append('name', document.getElementById('client-name').value);
+  formData.append('website', document.getElementById('client-website').value);
+  formData.append('description', document.getElementById('client-description').value);
+  
+  const logoFile = document.getElementById('client-logo').files[0];
+  if (logoFile) formData.append('logo', logoFile);
+  
+  try {
+    const url = currentEditingId ? `/api/clients/${currentEditingId}` : '/api/clients';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, { method, body: formData });
+    
+    if (response.ok) {
+      showNotification(`✅ Client ${currentEditingId ? 'modifié' : 'ajouté'} !`, 'success');
+      closeModal('client-modal');
+      await loadClients();
+      await loadDashboardStats();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleTestimonialSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const formData = new FormData();
+  formData.append('name', document.getElementById('testimonial-name').value);
+  formData.append('text', document.getElementById('testimonial-text').value);
+  
+  const avatarFile = document.getElementById('testimonial-avatar').files[0];
+  if (avatarFile) formData.append('avatar', avatarFile);
+  
+  try {
+    const url = currentEditingId ? `/api/testimonials/${currentEditingId}` : '/api/testimonials';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, { method, body: formData });
+    
+    if (response.ok) {
+      showNotification(`✅ Témoignage ${currentEditingId ? 'modifié' : 'ajouté'} !`, 'success');
+      closeModal('testimonial-modal');
+      await loadTestimonials();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleSocialSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const socialData = {
+    name: document.getElementById('social-name').value,
+    icon: document.getElementById('social-icon').value,
+    url: document.getElementById('social-url').value
+  };
+  
+  try {
+    const url = currentEditingId ? `/api/social-links/${currentEditingId}` : '/api/social-links';
+    const method = currentEditingId ? 'PUT' : 'POST';
+    
+    const response = await fetchWithAuth(url, {
+      method,
+      body: JSON.stringify(socialData)
+    });
+    
+    if (response.ok) {
+      showNotification(`✅ Lien social ${currentEditingId ? 'modifié' : 'ajouté'} !`, 'success');
+      closeModal('social-modal');
+      await loadSocialLinks();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handlePersonalInfoSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const formData = new FormData();
+  formData.append('name', document.getElementById('personal-name').value);
+  formData.append('title', document.getElementById('personal-title').value);
+  formData.append('email', document.getElementById('personal-email').value);
+  formData.append('phone', document.getElementById('personal-phone').value);
+  formData.append('birthday', document.getElementById('personal-birthday').value);
+  formData.append('location', document.getElementById('personal-location').value);
+  formData.append('aboutText', document.getElementById('personal-about').value);
+  
+  const avatarFile = document.getElementById('personal-avatar').files[0];
+  if (avatarFile) formData.append('avatar', avatarFile);
+  
+  const cvFile = document.getElementById('personal-cv').files[0];
+  if (cvFile) formData.append('cv', cvFile);
+  
+  try {
+    const response = await fetchWithAuth('/api/personal-info', {
+      method: 'PUT',
+      body: formData
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Profil mis à jour !', 'success');
+      await loadPersonalInfo();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handleAccountUpdate(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const newUsername = document.getElementById('new-username').value;
+  
+  try {
+    const response = await fetchWithAuth('/api/admin/update-account', {
+      method: 'PUT',
+      body: JSON.stringify({ username: newUsername })
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Nom d\'utilisateur modifié !', 'success');
+      await loadAccountInfo();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+async function handlePasswordChange(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const currentPassword = document.getElementById('current-password').value;
+  const newPassword = document.getElementById('new-password').value;
+  const confirmPassword = document.getElementById('confirm-password').value;
+  
+  if (newPassword !== confirmPassword) {
+    showNotification('❌ Les mots de passe ne correspondent pas !', 'error');
+    return false;
+  }
+  
+  try {
+    const response = await fetchWithAuth('/api/admin/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Mot de passe changé !', 'success');
+      document.getElementById('password-change-form').reset();
+    } else {
+      const error = await response.json();
+      showNotification('❌ ' + error.error, 'error');
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+  
+  return false;
+}
+
+// ============================================
+// 📊 CHARGEMENT DES DONNÉES
+// ============================================
+
+async function initializeDashboard() {
+  try {
+    await Promise.all([
+      loadDashboardStats(),
+      loadPersonalInfo(),
+      loadSocialLinks(),
+      loadPortfolioProjects(),
+      loadProjects(),
+      loadBlogs(),
+      loadExperience(),
+      loadEducation(),
+      loadSkills(),
+      loadClients(),
+      loadTestimonials(),
+      loadCategories(),
+      loadCategoryOptions(),
+      loadAccountInfo()
+    ]);
+    console.log('✅ Dashboard chargé');
+  } catch (error) {
+    console.error('❌ Erreur init:', error);
   }
 }
 
-if (token) {
-  document.getElementById("login-section").style.display = "none";
-  document.getElementById("admin-panel").style.display = "block";
-  loadProjects();
-  loadTestimonials();
-  loadPortfolioProjects();
-  loadClients();
-  loadCategories();
-  loadCategoryOptions();
-  loadBlogs();
-  loadPersonalInfo();
-  loadSocialLinks();
-  loadEducation();
-  loadExperience();
-  loadSkills();
-  loadAccountInfo();
-  loadOptimizationStats();
+async function loadDashboardStats() {
+  try {
+    const [portfolio, blogs, clients, skills] = await Promise.all([
+      fetch('/api/portfolio-projects').then(r => r.json()),
+      fetch('/api/blogs').then(r => r.json()),
+      fetch('/api/clients').then(r => r.json()),
+      fetch('/api/skills').then(r => r.json())
+    ]);
+    
+    document.getElementById('stat-portfolio').textContent = portfolio.length;
+    document.getElementById('stat-blogs').textContent = blogs.length;
+    document.getElementById('stat-clients').textContent = clients.length;
+    document.getElementById('stat-skills').textContent = skills.length;
+  } catch (error) {
+    console.error('Erreur stats:', error);
+  }
 }
+
+async function loadPersonalInfo() {
+  try {
+    const response = await fetch('/api/personal-info');
+    const info = await response.json();
+    
+    console.log('👤 Infos personnelles:', info);
+    
+    if (info) {
+      document.getElementById('personal-name').value = info.name || '';
+      document.getElementById('personal-title').value = info.title || '';
+      document.getElementById('personal-email').value = info.email || '';
+      document.getElementById('personal-phone').value = info.phone || '';
+      document.getElementById('personal-birthday').value = info.birthday || '';
+      document.getElementById('personal-location').value = info.location || '';
+      document.getElementById('personal-about').value = Array.isArray(info.aboutText) ? info.aboutText.join('\n') : (info.aboutText || '');
+      
+      if (info.name) {
+        document.getElementById('preview-name').textContent = info.name;
+        document.getElementById('preview-initial').textContent = info.name.charAt(0).toUpperCase();
+        document.getElementById('user-initial').textContent = info.name.charAt(0).toUpperCase();
+      }
+      if (info.title) document.getElementById('preview-title').textContent = info.title;
+      if (info.email) document.getElementById('preview-email').textContent = info.email;
+      if (info.phone) document.getElementById('preview-phone').textContent = info.phone;
+      if (info.location) document.getElementById('preview-location').textContent = info.location;
+      
+      if (info.avatar) {
+        const avatarImg = document.getElementById('preview-avatar');
+        avatarImg.src = info.avatar;
+        avatarImg.classList.remove('hidden');
+        document.getElementById('preview-initial').style.display = 'none';
+      }
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadSocialLinks() {
+  try {
+    const response = await fetch('/api/social-links');
+    const socialLinks = await response.json();
+    const list = document.getElementById('social-links-list');
+    
+    if (!list) return;
+    
+    console.log('🔗 Liens sociaux:', socialLinks);
+    
+    if (socialLinks.length === 0) {
+      list.innerHTML = '<p class="text-gray-500 text-center py-8 col-span-full">Aucun lien social</p>';
+      return;
+    }
+    
+    list.innerHTML = socialLinks.map(social => `
+      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-indigo-300 transition">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+            <ion-icon name="${social.icon}" class="text-2xl text-indigo-600"></ion-icon>
+          </div>
+          <div>
+            <p class="font-semibold text-gray-800">${social.name}</p>
+            <p class="text-xs text-gray-500 truncate max-w-[200px]">${social.url}</p>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="editSocial(${social.id})" type="button" class="p-2 hover:bg-white rounded-lg transition">✏️</button>
+          <button onclick="deleteSocial(${social.id})" type="button" class="p-2 hover:bg-red-50 rounded-lg transition">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadCategories() {
+  try {
+    const response = await fetch('/api/categories');
+    const categories = await response.json();
+    const list = document.getElementById('categories-list');
+    
+    console.log('📦 Catégories:', categories);
+    
+    if (!list) return;
+    
+    if (categories.length === 0) {
+      list.innerHTML = '<p class="text-gray-500 text-center py-4">Aucune catégorie</p>';
+      return;
+    }
+    
+    list.innerHTML = categories.map(category => `
+      <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-200">
+        <div>
+          <p class="font-semibold text-gray-800 text-sm">${category.display_name || 'Sans nom'}</p>
+          <p class="text-xs text-gray-500">${category.name || ''}</p>
+        </div>
+        <div class="flex gap-1">
+          <button onclick="editCategory(${category.id})" type="button" class="p-1 hover:bg-green-100 rounded transition text-xs">✏️</button>
+          <button onclick="deleteCategory(${category.id})" type="button" class="p-1 hover:bg-red-100 rounded transition text-xs">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadCategoryOptions() {
+  try {
+    const response = await fetch('/api/categories');
+    const categories = await response.json();
+    const select = document.getElementById('portfolio-category');
+    
+    if (!select) return;
+    
+    select.innerHTML = '<option value="">Sélectionner une catégorie</option>' +
+      categories.map(cat => 
+        `<option value="${cat.name}">${cat.display_name || cat.name}</option>`
+      ).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadPortfolioProjects() {
+  try {
+    const response = await fetch('/api/portfolio-projects');
+    const projects = await response.json();
+    const list = document.getElementById('portfolio-list');
+    
+    console.log('💼 Projets portfolio:', projects);
+    
+    if (!list) return;
+    
+    if (projects.length === 0) {
+      list.innerHTML = '<div class="col-span-full text-center py-16"><p class="text-gray-500">Aucun projet portfolio</p></div>';
+      return;
+    }
+    
+    list.innerHTML = projects.map(project => `
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition group">
+        ${project.image ? `
+          <div class="h-48 overflow-hidden bg-gray-100">
+            <img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"/>
+          </div>
+        ` : `
+          <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+        `}
+        <div class="p-4">
+          <h3 class="font-bold text-gray-800 mb-1">${project.title}</h3>
+          <p class="text-sm text-gray-600 mb-3 line-clamp-2">${project.description || 'Pas de description'}</p>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">${project.category || 'Non catégorisé'}</span>
+          </div>
+          <div class="flex gap-2">
+            ${project.repoLink ? `<a href="${project.repoLink}" target="_blank" class="flex-1 text-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition">Code</a>` : ''}
+            ${project.liveLink ? `<a href="${project.liveLink}" target="_blank" class="flex-1 text-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">Voir</a>` : ''}
+          </div>
+          <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+            <button onclick="editPortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">✏️ Modifier</button>
+            <button onclick="deletePortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-red-50 text-red-700 rounded-lg text-sm font-semibold transition">🗑️ Supprimer</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadProjects() {
+  try {
+    const response = await fetch('/api/projects');
+    const projects = await response.json();
+    const list = document.getElementById('projects-list');
+    
+    console.log('📁 Projets:', projects);
+    
+    if (!list) return;
+    
+    if (projects.length === 0) {
+      list.innerHTML = '<div class="col-span-full text-center py-16"><p class="text-gray-500">Aucun projet</p></div>';
+      return;
+    }
+    
+    list.innerHTML = projects.map(project => `
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition">
+        ${project.image ? `
+          <div class="h-48 overflow-hidden bg-gray-100">
+            <img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover"/>
+          </div>
+        ` : ''}
+        <div class="p-4">
+          <h3 class="font-bold text-gray-800 mb-1">${project.title}</h3>
+          <p class="text-sm text-indigo-600 mb-2">${project.category}</p>
+          <p class="text-sm text-gray-600 mb-3">${project.description}</p>
+          <div class="flex gap-2">
+            <button onclick="editProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">✏️ Modifier</button>
+            <button onclick="deleteProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-red-50 text-red-700 rounded-lg text-sm font-semibold transition">🗑️ Supprimer</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadBlogs() {
+  try {
+    const response = await fetch('/api/blogs');
+    const blogs = await response.json();
+    const list = document.getElementById('blogs-list');
+    
+    console.log('✍️ Blogs:', blogs);
+    
+    if (!list) return;
+    
+    if (blogs.length === 0) {
+      list.innerHTML = '<div class="text-center py-16"><p class="text-gray-500">Aucun article</p></div>';
+      return;
+    }
+    
+    list.innerHTML = blogs.map(blog => `
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition">
+        <div class="flex gap-4">
+          ${blog.image ? `
+            <div class="w-32 h-32 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              <img src="${blog.image}" alt="${blog.title}" class="w-full h-full object-cover"/>
+            </div>
+          ` : ''}
+          <div class="flex-1">
+            <h3 class="font-bold text-gray-800 text-lg mb-2">${blog.title}</h3>
+            <p class="text-sm text-indigo-600 mb-2">${blog.category} • ${blog.author || 'Admin'}</p>
+            <p class="text-sm text-gray-600 mb-3 line-clamp-2">${blog.excerpt}</p>
+            <div class="flex gap-2">
+              <a href="/blog/${blog.slug}" target="_blank" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition">👁️ Voir</a>
+              <button onclick="editBlog(${blog.id})" type="button" class="px-4 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">✏️ Modifier</button>
+              <button onclick="deleteBlog(${blog.id})" type="button" class="px-4 py-2 hover:bg-red-50 text-red-700 rounded-lg text-sm font-semibold transition">🗑️ Supprimer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadExperience() {
+  try {
+    const response = await fetch('/api/experience');
+    const experience = await response.json();
+    const list = document.getElementById('experience-list');
+    
+    console.log('💼 Expérience:', experience);
+    
+    if (!list) return;
+    
+    if (experience.length === 0) {
+      list.innerHTML = '<p class="text-gray-500 text-center py-8">Aucune expérience</p>';
+      return;
+    }
+    
+    list.innerHTML = experience.map((exp, index) => `
+      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex justify-between items-start mb-2">
+          <h4 class="font-bold text-gray-800">${exp.position}</h4>
+          <div class="flex gap-1">
+            ${index > 0 ? `<button onclick="moveExperienceUp(${exp.id})" type="button" class="p-1 hover:bg-blue-100 rounded transition">⬆️</button>` : ''}
+            ${index < experience.length - 1 ? `<button onclick="moveExperienceDown(${exp.id})" type="button" class="p-1 hover:bg-blue-100 rounded transition">⬇️</button>` : ''}
+          </div>
+        </div>
+        <p class="text-sm text-indigo-600 mb-2">${exp.period}</p>
+        <p class="text-sm text-gray-600">${exp.description}</p>
+        <div class="flex gap-2 mt-3">
+          <button onclick="editExperience(${exp.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
+          <button onclick="deleteExperience(${exp.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadEducation() {
+  try {
+    const response = await fetch('/api/education');
+    const education = await response.json();
+    const list = document.getElementById('education-list');
+    
+    console.log('🎓 Formation:', education);
+    
+    if (!list) return;
+    
+    if (education.length === 0) {
+      list.innerHTML = '<p class="text-gray-500 text-center py-8">Aucune formation</p>';
+      return;
+    }
+    
+    list.innerHTML = education.map((edu, index) => `
+      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex justify-between items-start mb-2">
+          <h4 class="font-bold text-gray-800">${edu.institution}</h4>
+          <div class="flex gap-1">
+            ${index > 0 ? `<button onclick="moveEducationUp(${edu.id})" type="button" class="p-1 hover:bg-purple-100 rounded transition">⬆️</button>` : ''}
+            ${index < education.length - 1 ? `<button onclick="moveEducationDown(${edu.id})" type="button" class="p-1 hover:bg-purple-100 rounded transition">⬇️</button>` : ''}
+          </div>
+        </div>
+        <p class="text-sm text-purple-600 mb-2">${edu.period}</p>
+        <p class="text-sm text-gray-600">${edu.description}</p>
+        <div class="flex gap-2 mt-3">
+          <button onclick="editEducation(${edu.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
+          <button onclick="deleteEducation(${edu.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadSkills() {
+  try {
+    const response = await fetch('/api/skills');
+    const skills = await response.json();
+    const list = document.getElementById('skills-list');
+    
+    console.log('⚡ Compétences:', skills);
+    
+    if (!list) return;
+    
+    if (skills.length === 0) {
+      list.innerHTML = '<p class="text-gray-500 text-center py-8 col-span-full">Aucune compétence</p>';
+      return;
+    }
+    
+    list.innerHTML = skills.map(skill => `
+      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-gray-800">${skill.name}</h4>
+          <span class="text-sm font-semibold text-amber-600">${skill.percentage}%</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+          <div class="bg-gradient-to-r from-amber-500 to-orange-600 h-2 rounded-full transition-all duration-500" style="width: ${skill.percentage}%"></div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="editSkill(${skill.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
+          <button onclick="deleteSkill(${skill.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadClients() {
+  try {
+    const response = await fetch('/api/clients');
+    const clients = await response.json();
+    const list = document.getElementById('clients-list');
+    
+    console.log('🤝 Clients:', clients);
+    
+    if (!list) return;
+    
+    if (clients.length === 0) {
+      list.innerHTML = '<p class="text-gray-500 text-center py-8">Aucun client</p>';
+      return;
+    }
+    
+    list.innerHTML = clients.map(client => `
+      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex items-center gap-3">
+          ${client.logo ? `
+            <div class="w-12 h-12 rounded-lg overflow-hidden bg-white">
+              <img src="${client.logo}" alt="${client.name}" class="w-full h-full object-contain"/>
+            </div>
+          ` : ''}
+          <div>
+            <p class="font-semibold text-gray-800">${client.name}</p>
+            ${client.website ? `<a href="${client.website}" target="_blank" class="text-xs text-indigo-600 hover:underline">${client.website}</a>` : ''}
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="editClient(${client.id})" type="button" class="p-2 hover:bg-green-100 rounded-lg transition">✏️</button>
+          <button onclick="deleteClient(${client.id})" type="button" class="p-2 hover:bg-red-100 rounded-lg transition">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadTestimonials() {
+  try {
+    const response = await fetch('/api/testimonials');
+    const testimonials = await response.json();
+    const list = document.getElementById('testimonials-list');
+    
+    console.log('💬 Témoignages:', testimonials);
+    
+    if (!list) return;
+    
+    if (testimonials.length === 0) {
+      list.innerHTML = '<p class="text-gray-500 text-center py-8">Aucun témoignage</p>';
+      return;
+    }
+    
+    list.innerHTML = testimonials.map(testimonial => `
+      <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex items-start gap-3 mb-2">
+          ${testimonial.avatar ? `
+            <div class="w-10 h-10 rounded-full overflow-hidden bg-white flex-shrink-0">
+              <img src="${testimonial.avatar}" alt="${testimonial.name}" class="w-full h-full object-cover"/>
+            </div>
+          ` : `
+            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+              <span class="text-orange-600 font-bold">${testimonial.name.charAt(0)}</span>
+            </div>
+          `}
+          <div class="flex-1">
+            <p class="font-semibold text-gray-800">${testimonial.name}</p>
+            <p class="text-sm text-gray-600 mt-1">${testimonial.text}</p>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-2">
+          <button onclick="editTestimonial(${testimonial.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
+          <button onclick="deleteTestimonial(${testimonial.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function loadAccountInfo() {
+  try {
+    const response = await fetchWithAuth('/api/admin/account-info');
+    
+    if (response.ok) {
+      const accountInfo = await response.json();
+      document.getElementById('current-username').textContent = accountInfo.username;
+      
+      if (accountInfo.createdat) {
+        const created = new Date(accountInfo.createdat).toLocaleDateString('fr-FR');
+        document.getElementById('account-created').textContent = created;
+      }
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+// ============================================
+// 🔧 FONCTIONS UTILITAIRES
+// ============================================
+
+function showSection(sectionName) {
+  document.querySelectorAll('.section-content').forEach(section => {
+    section.classList.add('hidden');
+  });
+  
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  const section = document.getElementById(`${sectionName}-section`);
+  if (section) {
+    section.classList.remove('hidden');
+    section.classList.add('animate-slide-in');
+  }
+  
+  const sidebarItem = document.querySelector(`[data-section="${sectionName}"]`);
+  if (sidebarItem) {
+    sidebarItem.classList.add('active');
+  }
+  
+  const titles = {
+    dashboard: { title: 'Dashboard', desc: 'Vue d\'ensemble' },
+    personal: { title: 'Profil', desc: 'Informations personnelles' },
+    portfolio: { title: 'Portfolio', desc: 'Projets en ligne' },
+    projects: { title: 'Projets', desc: 'Autres réalisations' },
+    blog: { title: 'Blog', desc: 'Articles' },
+    resume: { title: 'CV', desc: 'Parcours' },
+    clients: { title: 'Clients', desc: 'Témoignages' },
+    settings: { title: 'Paramètres', desc: 'Configuration' }
+  };
+  
+  if (titles[sectionName]) {
+    document.getElementById('section-title').textContent = titles[sectionName].title;
+    document.getElementById('section-description').textContent = titles[sectionName].desc;
+  }
+}
+
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    
+    const form = modal.querySelector('form');
+    if (form) form.reset();
+    
+    currentEditingId = null;
+  }
+}
+
+function toggleModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) {
+    if (modal.classList.contains('hidden')) {
+      openModal(modalId);
+    } else {
+      closeModal(modalId);
+    }
+  }
+}
+
+function showNotification(message, type = 'success') {
+  document.querySelectorAll('.notification-toast').forEach(n => n.remove());
+  
+  const notification = document.createElement('div');
+  notification.className = `notification-toast fixed top-4 right-4 px-6 py-4 rounded-lg shadow-2xl z-50 ${
+    type === 'success' ? 'bg-green-500' : 
+    type === 'error' ? 'bg-red-500' : 
+    'bg-blue-500'
+  } text-white font-semibold`;
+  
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateX(400px)';
+    notification.style.transition = 'all 0.3s';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// ============================================
+// 🎭 FONCTIONS MODALES
+// ============================================
+
+function openCategoryModal() {
+  currentEditingId = null;
+  document.getElementById('category-form').reset();
+  openModal('category-modal');
+}
+
+function openPortfolioModal() {
+  currentEditingId = null;
+  document.getElementById('portfolio-form').reset();
+  openModal('portfolio-modal');
+}
+
+function openProjectModal() {
+  currentEditingId = null;
+  document.getElementById('project-form').reset();
+  openModal('project-modal');
+}
+
+function openBlogModal() {
+  currentEditingId = null;
+  document.getElementById('blog-form').reset();
+  openModal('blog-modal');
+}
+
+function openExperienceModal() {
+  currentEditingId = null;
+  document.getElementById('experience-form').reset();
+  openModal('experience-modal');
+}
+
+function openEducationModal() {
+  currentEditingId = null;
+  document.getElementById('education-form').reset();
+  openModal('education-modal');
+}
+
+function openSkillModal() {
+  currentEditingId = null;
+  document.getElementById('skill-form').reset();
+  const slider = document.getElementById('skill-slider');
+  if (slider) slider.value = 50;
+  openModal('skill-modal');
+}
+
+function openClientModal() {
+  currentEditingId = null;
+  document.getElementById('client-form').reset();
+  openModal('client-modal');
+}
+
+function openTestimonialModal() {
+  currentEditingId = null;
+  document.getElementById('testimonial-form').reset();
+  openModal('testimonial-modal');
+}
+
+function openSocialModal() {
+  currentEditingId = null;
+  document.getElementById('social-form').reset();
+  openModal('social-modal');
+}
+
+// ============================================
+// ✏️ FONCTIONS EDIT
+// ============================================
+
+async function editCategory(id) {
+  try {
+    const response = await fetch('/api/categories');
+    const categories = await response.json();
+    const category = categories.find(c => c.id === id);
+    
+    if (category) {
+      currentEditingId = id;
+      document.getElementById('category-name').value = category.name;
+      document.getElementById('category-display').value = category.display_name;
+      openModal('category-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editPortfolioProject(id) {
+  try {
+    const response = await fetch('/api/portfolio-projects');
+    const projects = await response.json();
+    const project = projects.find(p => p.id === id);
+    
+    if (project) {
+      currentEditingId = id;
+      document.getElementById('portfolio-title').value = project.title;
+      document.getElementById('portfolio-category').value = project.filterCategory || '';
+      document.getElementById('portfolio-description').value = project.description;
+      document.getElementById('portfolio-repo').value = project.repoLink || '';
+      document.getElementById('portfolio-live').value = project.liveLink || '';
+      openModal('portfolio-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editProject(id) {
+  try {
+    const response = await fetch('/api/projects');
+    const projects = await response.json();
+    const project = projects.find(p => p.id === id);
+    
+    if (project) {
+      currentEditingId = id;
+      document.getElementById('project-title').value = project.title;
+      document.getElementById('project-category').value = project.category;
+      document.getElementById('project-description').value = project.description;
+      openModal('project-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editBlog(id) {
+  try {
+    const response = await fetch('/api/blogs');
+    const blogs = await response.json();
+    const blog = blogs.find(b => b.id === id);
+    
+    if (blog) {
+      currentEditingId = id;
+      document.getElementById('blog-title').value = blog.title;
+      document.getElementById('blog-category').value = blog.category;
+      document.getElementById('blog-excerpt').value = blog.excerpt;
+      document.getElementById('blog-content').value = blog.content;
+      document.getElementById('blog-author').value = blog.author || '';
+      openModal('blog-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editExperience(id) {
+  try {
+    const response = await fetch('/api/experience');
+    const experience = await response.json();
+    const exp = experience.find(e => e.id === id);
+    
+    if (exp) {
+      currentEditingId = id;
+      document.getElementById('experience-position').value = exp.position;
+      document.getElementById('experience-period').value = exp.period;
+      document.getElementById('experience-description').value = exp.description;
+      openModal('experience-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editEducation(id) {
+  try {
+    const response = await fetch('/api/education');
+    const education = await response.json();
+    const edu = education.find(e => e.id === id);
+    
+    if (edu) {
+      currentEditingId = id;
+      document.getElementById('education-institution').value = edu.institution;
+      document.getElementById('education-period').value = edu.period;
+      document.getElementById('education-description').value = edu.description;
+      openModal('education-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editSkill(id) {
+  try {
+    const response = await fetch('/api/skills');
+    const skills = await response.json();
+    const skill = skills.find(s => s.id === id);
+    
+    if (skill) {
+      currentEditingId = id;
+      document.getElementById('skill-name').value = skill.name;
+      document.getElementById('skill-percentage').value = skill.percentage;
+      const slider = document.getElementById('skill-slider');
+      if (slider) slider.value = skill.percentage;
+      openModal('skill-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editClient(id) {
+  try {
+    const response = await fetch('/api/clients');
+    const clients = await response.json();
+    const client = clients.find(c => c.id === id);
+    
+    if (client) {
+      currentEditingId = id;
+      document.getElementById('client-name').value = client.name;
+      document.getElementById('client-website').value = client.website || '';
+      document.getElementById('client-description').value = client.description || '';
+      openModal('client-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editTestimonial(id) {
+  try {
+    const response = await fetch('/api/testimonials');
+    const testimonials = await response.json();
+    const testimonial = testimonials.find(t => t.id === id);
+    
+    if (testimonial) {
+      currentEditingId = id;
+      document.getElementById('testimonial-name').value = testimonial.name;
+      document.getElementById('testimonial-text').value = testimonial.text;
+      openModal('testimonial-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function editSocial(id) {
+  try {
+    const response = await fetch('/api/social-links');
+    const socialLinks = await response.json();
+    const social = socialLinks.find(s => s.id === id);
+    
+    if (social) {
+      currentEditingId = id;
+      document.getElementById('social-name').value = social.name;
+      document.getElementById('social-icon').value = social.icon;
+      document.getElementById('social-url').value = social.url;
+      openModal('social-modal');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+// ============================================
+// 🗑️ FONCTIONS DELETE
+// ============================================
+
+async function deleteCategory(id) {
+  if (!confirm('Supprimer cette catégorie ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/categories/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Catégorie supprimée !', 'success');
+      await loadCategories();
+      await loadCategoryOptions();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deletePortfolioProject(id) {
+  if (!confirm('Supprimer ce projet ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/portfolio-projects/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Projet supprimé !', 'success');
+      await loadPortfolioProjects();
+      await loadDashboardStats();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteProject(id) {
+  if (!confirm('Supprimer ce projet ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/projects/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Projet supprimé !', 'success');
+      await loadProjects();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteBlog(id) {
+  if (!confirm('Supprimer cet article ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/blogs/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Article supprimé !', 'success');
+      await loadBlogs();
+      await loadDashboardStats();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteExperience(id) {
+  if (!confirm('Supprimer cette expérience ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/experience/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Expérience supprimée !', 'success');
+      await loadExperience();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteEducation(id) {
+  if (!confirm('Supprimer cette formation ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/education/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Formation supprimée !', 'success');
+      await loadEducation();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteSkill(id) {
+  if (!confirm('Supprimer cette compétence ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/skills/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Compétence supprimée !', 'success');
+      await loadSkills();
+      await loadDashboardStats();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteClient(id) {
+  if (!confirm('Supprimer ce client ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/clients/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Client supprimé !', 'success');
+      await loadClients();
+      await loadDashboardStats();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteTestimonial(id) {
+  if (!confirm('Supprimer ce témoignage ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/testimonials/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Témoignage supprimé !', 'success');
+      await loadTestimonials();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+async function deleteSocial(id) {
+  if (!confirm('Supprimer ce lien social ?')) return;
+  
+  try {
+    const response = await fetchWithAuth(`/api/social-links/${id}`, {
+      method: 'DELETE'
+    });
+    
+    if (response.ok) {
+      showNotification('✅ Lien supprimé !', 'success');
+      await loadSocialLinks();
+    }
+  } catch (error) {
+    if (error.message !== 'Unauthorized') {
+      console.error('Erreur:', error);
+    }
+  }
+}
+
+// ============================================
+// ⬆️⬇️ FONCTIONS MOVE
+// ============================================
+
+async function moveExperienceUp(id) {
+  try {
+    const response = await fetchWithAuth(`/api/experience/${id}/move-up`, {
+      method: 'POST'
+    });
+    
+    if (response.ok) await loadExperience();
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function moveExperienceDown(id) {
+  try {
+    const response = await fetchWithAuth(`/api/experience/${id}/move-down`, {
+      method: 'POST'
+    });
+    
+    if (response.ok) await loadExperience();
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function moveEducationUp(id) {
+  try {
+    const response = await fetchWithAuth(`/api/education/${id}/move-up`, {
+      method: 'POST'
+    });
+    
+    if (response.ok) await loadEducation();
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+async function moveEducationDown(id) {
+  try {
+    const response = await fetchWithAuth(`/api/education/${id}/move-down`, {
+      method: 'POST'
+    });
+    
+    if (response.ok) await loadEducation();
+  } catch (error) {
+    console.error('Erreur:', error);
+  }
+}
+
+console.log('🎯 Admin Dashboard v5.0 COMPLET - Prêt ! ✅');

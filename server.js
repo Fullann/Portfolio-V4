@@ -36,7 +36,7 @@ app.use('/assets', express.static(path.join(__dirname, 'public/assets'), {
 }));
 
 // Rate limiting
-app.use('/api', generalLimiter);
+//app.use('/api', generalLimiter);
 
 // Chargement conditionnel des modules
 let authMiddleware, apiRoutes, seoRoutes, blogsController, personalInfoController;
