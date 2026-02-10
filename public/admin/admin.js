@@ -10,7 +10,7 @@ document.getElementById("login-form").addEventListener("submit", async (e) => {
   const password = document.getElementById("password").value;
 
   try {
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -148,35 +148,32 @@ async function loadProjects() {
     const projects = await response.json();
 
     const projectsList = document.getElementById("projects-list");
-    projectsList.innerHTML = "<h3>Projets existants</h3>";
+    projectsList.innerHTML = "<h3 class='text-xl font-bold text-gray-800 mb-4'>Projets existants</h3>";
 
     projects.forEach((project) => {
       const projectDiv = document.createElement("div");
-      projectDiv.className = "project-item";
+      projectDiv.className = "bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow";
       projectDiv.innerHTML = `
-                <h4>${project.title}</h4>
-                <p><strong>Catégorie:</strong> ${project.category}</p>
-                <p><strong>Description:</strong> ${project.description}</p>
-                ${
-                  project.image
-                    ? `<img src="${project.image}" alt="${project.title}" style="max-width: 100px; margin: 10px 0;">`
-                    : ""
-                }
-                <div style="margin-top: 10px;">
-                    <button onclick="editProject(${
-                      project.id
-                    })" class="btn-edit">Modifier</button>
-                    <button onclick="deleteProject(${
-                      project.id
-                    })" class="btn-delete">Supprimer</button>
-                </div>
-            `;
+        <h4 class="text-lg font-bold text-gray-800 mb-2">${project.title}</h4>
+        <p class="text-gray-700 mb-1"><span class="font-semibold">Catégorie:</span> ${project.category}</p>
+        <p class="text-gray-700 mb-3"><span class="font-semibold">Description:</span> ${project.description}</p>
+        ${project.image ? `<img src="${project.image}" alt="${project.title}" class="max-w-[150px] rounded-lg shadow-sm mb-3">` : ""}
+        <div class="flex flex-wrap gap-2">
+          <button onclick="editProject(${project.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+            ✏️ Modifier
+          </button>
+          <button onclick="deleteProject(${project.id})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+            🗑️ Supprimer
+          </button>
+        </div>
+      `;
       projectsList.appendChild(projectDiv);
     });
   } catch (error) {
     console.error("Erreur:", error);
   }
 }
+
 
 // Charger les témoignages
 async function loadTestimonials() {
@@ -215,6 +212,7 @@ async function loadTestimonials() {
 }
 
 // Modifier un projet
+// Modifier un projet
 async function editProject(id) {
   try {
     const response = await fetch("/api/projects");
@@ -224,21 +222,38 @@ async function editProject(id) {
     if (project) {
       document.getElementById("project-title").value = project.title;
       document.getElementById("project-category").value = project.category;
-      document.getElementById("project-description").value =
-        project.description;
-      document.getElementById("project-submit-btn").textContent =
-        "Modifier Projet";
+      document.getElementById("project-description").value = project.description;
+      document.getElementById("project-submit-btn").textContent = "Modifier Projet";
       editingProject = id;
 
-      // Scroll vers le formulaire
-      document
-        .getElementById("project-form")
-        .scrollIntoView({ behavior: "smooth" });
+      // ✨ Afficher l'image actuelle
+      const imageInput = document.getElementById("project-image");
+      let imagePreview = document.getElementById("project-image-preview");
+      
+      if (project.image) {
+        if (!imagePreview) {
+          imagePreview = document.createElement("div");
+          imagePreview.id = "project-image-preview";
+          imagePreview.className = "mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200";
+          imagePreview.innerHTML = `
+            <p class="text-sm font-semibold text-gray-700 mb-2">Image actuelle :</p>
+            <img src="${project.image}" alt="Aperçu" class="max-w-[150px] rounded-lg shadow-sm mb-2">
+            <p class="text-xs text-gray-600">💡 Laissez le champ vide pour conserver cette image</p>
+          `;
+          imageInput.parentNode.appendChild(imagePreview);
+        } else {
+          imagePreview.querySelector("img").src = project.image;
+          imagePreview.style.display = "block";
+        }
+      }
+
+      document.getElementById("project-form").scrollIntoView({ behavior: "smooth" });
     }
   } catch (error) {
     console.error("Erreur:", error);
   }
 }
+
 
 // Modifier un témoignage
 async function editTestimonial(id) {
@@ -269,7 +284,14 @@ function cancelEditProject() {
   document.getElementById("project-form").reset();
   document.getElementById("project-submit-btn").textContent = "Ajouter Projet";
   editingProject = null;
+  
+  // ✨ Cacher l'aperçu d'image
+  const imagePreview = document.getElementById("project-image-preview");
+  if (imagePreview) {
+    imagePreview.style.display = "none";
+  }
 }
+
 
 // Annuler la modification d'un témoignage
 function cancelEditTestimonial() {
@@ -451,22 +473,44 @@ async function editPortfolioProject(id) {
     if (project) {
       document.getElementById("portfolio-title").value = project.title;
       document.getElementById("portfolio-category").value = project.category;
-      document.getElementById("portfolio-description").value =
-        project.description;
+      document.getElementById("portfolio-description").value = project.description;
       document.getElementById("portfolio-repo").value = project.repoLink || "";
       document.getElementById("portfolio-live").value = project.liveLink || "";
-      document.getElementById("portfolio-submit-btn").textContent =
-        "Modifier Projet Portfolio";
+      document.getElementById("portfolio-submit-btn").textContent = "Modifier Projet Portfolio";
       editingPortfolioProject = id;
 
-      document
-        .getElementById("portfolio-form")
-        .scrollIntoView({ behavior: "smooth" });
+      // ✨ Afficher l'image actuelle
+      const imageInput = document.getElementById("portfolio-image");
+      const imagePreview = document.getElementById("portfolio-image-preview");
+      
+      if (project.image) {
+        if (!imagePreview) {
+          // Créer l'aperçu s'il n'existe pas
+          const preview = document.createElement("div");
+          preview.id = "portfolio-image-preview";
+          preview.style.cssText = "margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 8px;";
+          preview.innerHTML = `
+            <p style="margin: 0 0 5px 0; font-weight: bold;">Image actuelle :</p>
+            <img src="${project.image}" alt="Aperçu" style="max-width: 150px; border-radius: 4px;">
+            <p style="margin: 5px 0 0 0; font-size: 12px; color: #6c757d;">
+              💡 Laissez le champ vide pour conserver cette image
+            </p>
+          `;
+          imageInput.parentNode.insertBefore(preview, imageInput);
+        } else {
+          // Mettre à jour l'aperçu existant
+          imagePreview.querySelector("img").src = project.image;
+          imagePreview.style.display = "block";
+        }
+      }
+
+      document.getElementById("portfolio-form").scrollIntoView({ behavior: "smooth" });
     }
   } catch (error) {
     console.error("Erreur:", error);
   }
 }
+
 
 // Supprimer un projet portfolio
 async function deletePortfolioProject(id) {
@@ -494,9 +538,93 @@ async function deletePortfolioProject(id) {
 // Annuler la modification d'un projet portfolio
 function cancelEditPortfolio() {
   document.getElementById("portfolio-form").reset();
-  document.getElementById("portfolio-submit-btn").textContent =
-    "Ajouter au Portfolio";
+  document.getElementById("portfolio-submit-btn").textContent = "Ajouter au Portfolio";
   editingPortfolioProject = null;
+  
+  // ✨ Cacher l'aperçu d'image
+  const imagePreview = document.getElementById("portfolio-image-preview");
+  if (imagePreview) {
+    imagePreview.style.display = "none";
+  }
+}
+// Déplacer une formation vers le haut
+async function moveEducationUp(id) {
+  try {
+    const response = await fetch(`/api/education/${id}/move-up`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      loadEducation();
+    } else {
+      alert("Erreur lors du déplacement");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Déplacer une formation vers le bas
+async function moveEducationDown(id) {
+  try {
+    const response = await fetch(`/api/education/${id}/move-down`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      loadEducation();
+    } else {
+      alert("Erreur lors du déplacement");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Déplacer une expérience vers le haut
+async function moveExperienceUp(id) {
+  try {
+    const response = await fetch(`/api/experience/${id}/move-up`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      loadExperience();
+    } else {
+      alert("Erreur lors du déplacement");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+// Déplacer une expérience vers le bas
+async function moveExperienceDown(id) {
+  try {
+    const response = await fetch(`/api/experience/${id}/move-down`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (response.ok) {
+      loadExperience();
+    } else {
+      alert("Erreur lors du déplacement");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
 }
 
 let editingClient = null;
@@ -897,6 +1025,7 @@ async function loadBlogs() {
 }
 
 // Modifier un blog
+// Modifier un blog
 async function editBlog(id) {
   try {
     const response = await fetch("/api/blogs");
@@ -912,9 +1041,28 @@ async function editBlog(id) {
       document.getElementById("blog-submit-btn").textContent = "Modifier Blog";
       editingBlog = id;
 
-      document
-        .getElementById("blog-form")
-        .scrollIntoView({ behavior: "smooth" });
+      // ✨ Afficher l'image actuelle
+      const imageInput = document.getElementById("blog-image");
+      let imagePreview = document.getElementById("blog-image-preview");
+      
+      if (blog.image) {
+        if (!imagePreview) {
+          imagePreview = document.createElement("div");
+          imagePreview.id = "blog-image-preview";
+          imagePreview.className = "mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200";
+          imagePreview.innerHTML = `
+            <p class="text-sm font-semibold text-gray-700 mb-2">Image actuelle :</p>
+            <img src="${blog.image}" alt="Aperçu" class="max-w-[150px] rounded-lg shadow-sm mb-2">
+            <p class="text-xs text-gray-600">💡 Laissez le champ vide pour conserver cette image</p>
+          `;
+          imageInput.parentNode.appendChild(imagePreview);
+        } else {
+          imagePreview.querySelector("img").src = blog.image;
+          imagePreview.style.display = "block";
+        }
+      }
+
+      document.getElementById("blog-form").scrollIntoView({ behavior: "smooth" });
     }
   } catch (error) {
     console.error("Erreur:", error);
@@ -944,12 +1092,17 @@ async function deleteBlog(id) {
   }
 }
 
-// Annuler la modification d'un blog
 function cancelEditBlog() {
   document.getElementById("blog-form").reset();
   document.getElementById("blog-submit-btn").textContent = "Ajouter Blog";
   editingBlog = null;
+  
+  const imagePreview = document.getElementById("blog-image-preview");
+  if (imagePreview) {
+    imagePreview.style.display = "none";
+  }
 }
+
 
 // Supprimer toutes les données
 async function deleteAllData() {
@@ -959,7 +1112,7 @@ async function deleteAllData() {
 
   if (confirmation === "SUPPRIMER TOUT") {
     try {
-      const response = await fetch("/api/delete/all", {
+      const response = await fetch("/api/admin/delete/all", {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -1311,26 +1464,41 @@ document
   });
 
 // Charger l'éducation
+// Charger l'éducation
 async function loadEducation() {
   try {
     const response = await fetch("/api/education");
     const education = await response.json();
 
     const educationList = document.getElementById("education-list");
-    educationList.innerHTML = "<h3>Formations existantes</h3>";
+    educationList.innerHTML = "<h3 class='text-xl font-bold text-gray-800 mb-4'>Formations existantes</h3>";
 
-    education.forEach((edu) => {
+    education.forEach((edu, index) => {
       const eduDiv = document.createElement("div");
-      eduDiv.className = "project-item";
+      eduDiv.className = "bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow";
       eduDiv.innerHTML = `
-                <h4>${edu.institution}</h4>
-                <p><strong>Période:</strong> ${edu.period}</p>
-                <p><strong>Description:</strong> ${edu.description}</p>
-                <div style="margin-top: 10px;">
-                    <button onclick="editEducation(${edu.id})" class="btn-edit">Modifier</button>
-                    <button onclick="deleteEducation(${edu.id})" class="btn-delete">Supprimer</button>
-                </div>
-            `;
+        <h4 class="text-lg font-bold text-gray-800 mb-2">${edu.institution}</h4>
+        <p class="text-gray-700 mb-1"><span class="font-semibold">Période:</span> ${edu.period}</p>
+        <p class="text-gray-700 mb-3"><span class="font-semibold">Description:</span> ${edu.description}</p>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="editEducation(${edu.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+            ✏️ Modifier
+          </button>
+          <button onclick="deleteEducation(${edu.id})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+            🗑️ Supprimer
+          </button>
+          ${index > 0 ? `
+            <button onclick="moveEducationUp(${edu.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+              ↑ Monter
+            </button>
+          ` : ''}
+          ${index < education.length - 1 ? `
+            <button onclick="moveEducationDown(${edu.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+              ↓ Descendre
+            </button>
+          ` : ''}
+        </div>
+      `;
       educationList.appendChild(eduDiv);
     });
   } catch (error) {
@@ -1338,6 +1506,8 @@ async function loadEducation() {
   }
 }
 
+
+// Charger l'expérience
 // Charger l'expérience
 async function loadExperience() {
   try {
@@ -1345,26 +1515,41 @@ async function loadExperience() {
     const experience = await response.json();
 
     const experienceList = document.getElementById("experience-list");
-    experienceList.innerHTML = "<h3>Expériences existantes</h3>";
+    experienceList.innerHTML = "<h3 class='text-xl font-bold text-gray-800 mb-4'>Expériences existantes</h3>";
 
-    experience.forEach((exp) => {
+    experience.forEach((exp, index) => {
       const expDiv = document.createElement("div");
-      expDiv.className = "project-item";
+      expDiv.className = "bg-gray-50 border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow";
       expDiv.innerHTML = `
-                <h4>${exp.position}</h4>
-                <p><strong>Période:</strong> ${exp.period}</p>
-                <p><strong>Description:</strong> ${exp.description}</p>
-                <div style="margin-top: 10px;">
-                    <button onclick="editExperience(${exp.id})" class="btn-edit">Modifier</button>
-                    <button onclick="deleteExperience(${exp.id})" class="btn-delete">Supprimer</button>
-                </div>
-            `;
+        <h4 class="text-lg font-bold text-gray-800 mb-2">${exp.position}</h4>
+        <p class="text-gray-700 mb-1"><span class="font-semibold">Période:</span> ${exp.period}</p>
+        <p class="text-gray-700 mb-3"><span class="font-semibold">Description:</span> ${exp.description}</p>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="editExperience(${exp.id})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+            ✏️ Modifier
+          </button>
+          <button onclick="deleteExperience(${exp.id})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+            🗑️ Supprimer
+          </button>
+          ${index > 0 ? `
+            <button onclick="moveExperienceUp(${exp.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+              ↑ Monter
+            </button>
+          ` : ''}
+          ${index < experience.length - 1 ? `
+            <button onclick="moveExperienceDown(${exp.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+              ↓ Descendre
+            </button>
+          ` : ''}
+        </div>
+      `;
       experienceList.appendChild(expDiv);
     });
   } catch (error) {
     console.error("Erreur:", error);
   }
 }
+
 
 // Modifier une formation
 async function editEducation(id) {
