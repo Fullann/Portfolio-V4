@@ -46,8 +46,7 @@ exports.sendEmail = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    
-    console.log(`✅ Email envoyé par ${email} (score: ${req.recaptchaScore})`);
+
     res.json({ success: true, message: 'Email envoyé avec succès' });
   } catch (error) {
     console.error('Erreur lors de l\'envoi de l\'email:', error);

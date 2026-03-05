@@ -105,7 +105,6 @@ const filterFunc = function (selectedValue) {
   });
 
   const visibleItems = document.querySelectorAll("[data-filter-item].active");
-  console.log(`${visibleItems.length} projets visibles`);
 };
 
 // Add event in all filter button items for large screen
@@ -125,11 +124,8 @@ for (let i = 0; i < filterBtn.length; i++) {
 
 // Afficher tous les projets dès le chargement de la page
 window.addEventListener("load", function () {
-  console.log("🔄 Initialisation du filtre portfolio...");
-
   setTimeout(() => {
     filterFunc("all");
-    console.log("✅ Tous les projets affichés");
   }, 100);
 });
 
@@ -178,9 +174,6 @@ navigationLinks.forEach((link) => {
 
         // Réinitialiser le filtre quand on arrive sur Portfolio
         if (pageData === "portfolio") {
-          console.log(
-            "📂 Page Portfolio ouverte, affichage de tous les projets...",
-          );
           setTimeout(() => {
             filterFunc("all");
 
@@ -269,14 +262,14 @@ function refreshSections() {
 }
 
 setInterval(() => {
-  fetch("/api/last-update")
+  fetch("/api/admin/last-update")
     .then((response) => response.json())
     .then((data) => {
       if (data.updated) {
         refreshSections();
       }
     })
-    .catch((error) => console.log("Pas de mise à jour"));
+    .catch((error) => console.error("Pas de mise à jour"));
 }, 30000);
 
 // ============================================
@@ -329,17 +322,9 @@ document.addEventListener("DOMContentLoaded", function () {
       if (typeof grecaptcha === "undefined") {
         throw new Error("reCAPTCHA non chargé. Veuillez recharger la page.");
       }
-
-      console.log("Obtention du token reCAPTCHA...");
-
       const recaptchaToken = await grecaptcha.execute(
         "6LcQAmMsAAAAAEoyH4PTxuPChxiAaaAzDBuNByyE",
         { action: "contact" },
-      );
-
-      console.log(
-        "Token reCAPTCHA obtenu:",
-        recaptchaToken.substring(0, 20) + "...",
       );
 
       const formData = new FormData(form);
@@ -350,7 +335,7 @@ document.addEventListener("DOMContentLoaded", function () {
         "g-recaptcha-response": recaptchaToken,
       };
 
-      const response = await fetch("/api/send-email", {
+      const response = await fetch("/api/auth/send-email", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -418,51 +403,49 @@ function viewCVInline() {
 // ============================================
 
 // Variables de la modal projets
-const projectModalContainer = document.querySelector("[data-project-modal-container]");
-const projectModalCloseBtn = document.querySelector("[data-project-modal-close-btn]");
+const projectModalContainer = document.querySelector(
+  "[data-project-modal-container]",
+);
+const projectModalCloseBtn = document.querySelector(
+  "[data-project-modal-close-btn]",
+);
 const projectOverlay = document.querySelector("[data-project-overlay]");
 
 // Éléments de contenu de la modal
 const projectModalImg = document.querySelector("[data-project-modal-img]");
 const projectModalTitle = document.querySelector("[data-project-modal-title]");
-const projectModalCategory = document.querySelector("[data-project-modal-category]");
-const projectModalDescription = document.querySelector("[data-project-modal-description]");
-const projectModalActions = document.querySelector("[data-project-modal-actions]");
-
-console.log('🔍 Éléments de la modal trouvés:', {
-  container: !!projectModalContainer,
-  img: !!projectModalImg,
-  title: !!projectModalTitle,
-  category: !!projectModalCategory,
-  description: !!projectModalDescription,
-  actions: !!projectModalActions,
-  overlay: !!projectOverlay
-});
+const projectModalCategory = document.querySelector(
+  "[data-project-modal-category]",
+);
+const projectModalDescription = document.querySelector(
+  "[data-project-modal-description]",
+);
+const projectModalActions = document.querySelector(
+  "[data-project-modal-actions]",
+);
 
 // Fonction pour ouvrir/fermer la modal projets
 const projectModalFunc = function () {
   if (projectModalContainer && projectOverlay) {
     const wasActive = projectModalContainer.classList.contains("active");
-    
+
     projectModalContainer.classList.toggle("active");
     projectOverlay.classList.toggle("active");
-    
-    console.log(`📱 Modal ${wasActive ? 'fermée' : 'ouverte'}`);
-    
+
     // Force l'affichage
     if (!wasActive) {
-      projectModalContainer.style.display = 'flex';
-      projectOverlay.style.display = 'block';
+      projectModalContainer.style.display = "flex";
+      projectOverlay.style.display = "block";
     } else {
       setTimeout(() => {
-        projectModalContainer.style.display = 'none';
-        projectOverlay.style.display = 'none';
+        projectModalContainer.style.display = "none";
+        projectOverlay.style.display = "none";
       }, 300);
     }
   } else {
-    console.error('❌ Éléments de modal manquants:', {
+    console.error("❌ Éléments de modal manquants:", {
       container: !!projectModalContainer,
-      overlay: !!projectOverlay
+      overlay: !!projectOverlay,
     });
   }
 };
@@ -471,23 +454,18 @@ const projectModalFunc = function () {
 function attachProjectClickEvents() {
   // Sélectionner TOUS les projets (À propos + Portfolio)
   const allProjectItems = document.querySelectorAll("[data-project-item]");
-  
-  console.log(`🎯 ${allProjectItems.length} projets trouvés pour la modal`);
-  
+
   allProjectItems.forEach((item, index) => {
     // Supprimer l'ancien événement pour éviter les doublons
     const newItem = item.cloneNode(true);
     item.parentNode.replaceChild(newItem, item);
-    
+
     newItem.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
-      
-      console.log(`🖱️ Clic sur projet #${index}`);
-      
+
       // Empêcher l'ouverture si on clique sur les boutons d'action
-      if (e.target.closest('.project-action-btn')) {
-        console.log('⏭️ Clic sur bouton d\'action, ignorer');
+      if (e.target.closest(".project-action-btn")) {
         return;
       }
 
@@ -499,49 +477,36 @@ function attachProjectClickEvents() {
       const repoLink = this.querySelector("[data-project-repo-link]");
       const liveLink = this.querySelector("[data-project-live-link]");
 
-      console.log('📦 Données récupérées:', {
-        image: !!image,
-        imageSrc: image?.src,
-        title: title?.textContent,
-        category: category?.textContent,
-        description: description?.textContent,
-        repoLink: repoLink?.textContent,
-        liveLink: liveLink?.textContent
-      });
-
       if (image && title && category) {
         // Mettre à jour l'image
         if (projectModalImg) {
           projectModalImg.src = image.src;
           projectModalImg.alt = image.alt || title.textContent;
-          console.log('🖼️ Image mise à jour:', projectModalImg.src);
         } else {
-          console.warn('⚠️ projectModalImg introuvable');
+          console.warn("⚠️ projectModalImg introuvable");
         }
 
         // Mettre à jour le titre
         if (projectModalTitle) {
           projectModalTitle.textContent = title.textContent;
-          console.log('📝 Titre mis à jour:', projectModalTitle.textContent);
         } else {
-          console.warn('⚠️ projectModalTitle introuvable');
+          console.warn("⚠️ projectModalTitle introuvable");
         }
 
         // Mettre à jour la catégorie
         if (projectModalCategory) {
           projectModalCategory.textContent = category.textContent;
-          console.log('🏷️ Catégorie mise à jour:', projectModalCategory.textContent);
         } else {
-          console.warn('⚠️ projectModalCategory introuvable');
+          console.warn("⚠️ projectModalCategory introuvable");
         }
 
         // Mettre à jour la description
         if (projectModalDescription) {
-          const descriptionText = description?.textContent || 'Aucune description disponible';
+          const descriptionText =
+            description?.textContent || "Aucune description disponible";
           projectModalDescription.innerHTML = `<p>${descriptionText}</p>`;
-          console.log('📄 Description mise à jour');
         } else {
-          console.warn('⚠️ projectModalDescription introuvable');
+          console.warn("⚠️ projectModalDescription introuvable");
         }
 
         // Générer les boutons d'action
@@ -563,23 +528,22 @@ function attachProjectClickEvents() {
           }
 
           if (!actionsHTML) {
-            actionsHTML = '<p style="color: #888; font-size: 14px;">Aucun lien disponible</p>';
+            actionsHTML =
+              '<p style="color: #888; font-size: 14px;">Aucun lien disponible</p>';
           }
 
           projectModalActions.innerHTML = actionsHTML;
-          console.log('🔗 Actions mises à jour');
         } else {
-          console.warn('⚠️ projectModalActions introuvable');
+          console.warn("⚠️ projectModalActions introuvable");
         }
 
         // Ouvrir la modal
         projectModalFunc();
-        console.log('✅ Modal ouverte avec succès');
       } else {
-        console.error('⚠️ Données manquantes pour ouvrir la modal:', {
+        console.error("⚠️ Données manquantes pour ouvrir la modal:", {
           image: !!image,
           title: !!title,
-          category: !!category
+          category: !!category,
         });
       }
     });
@@ -587,8 +551,7 @@ function attachProjectClickEvents() {
 }
 
 // Attacher les événements au chargement initial
-window.addEventListener('load', function() {
-  console.log('🚀 Initialisation de la modal projets...');
+window.addEventListener("load", function () {
   setTimeout(() => {
     attachProjectClickEvents();
   }, 200);
@@ -596,18 +559,15 @@ window.addEventListener('load', function() {
 
 // Fermer la modal avec le bouton X
 if (projectModalCloseBtn) {
-  projectModalCloseBtn.addEventListener("click", function(e) {
-    e.preventDefault();
-    console.log('❌ Fermeture via bouton');
+  projectModalCloseBtn.addEventListener("click", function (e) {
     projectModalFunc();
   });
 }
 
 // Fermer la modal en cliquant sur l'overlay
 if (projectOverlay) {
-  projectOverlay.addEventListener("click", function(e) {
+  projectOverlay.addEventListener("click", function (e) {
     if (e.target === projectOverlay) {
-      console.log('❌ Fermeture via overlay');
       projectModalFunc();
     }
   });
@@ -616,11 +576,11 @@ if (projectOverlay) {
 // Fermer la modal avec la touche Escape
 document.addEventListener("keydown", function (e) {
   if (e.key === "Escape") {
-    if (projectModalContainer && projectModalContainer.classList.contains("active")) {
-      console.log('❌ Fermeture via Escape');
+    if (
+      projectModalContainer &&
+      projectModalContainer.classList.contains("active")
+    ) {
       projectModalFunc();
     }
   }
 });
-
-console.log("✅ Script initialisé avec support modal unifié");
