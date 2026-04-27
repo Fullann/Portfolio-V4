@@ -1,10 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fullann Portfolio</title>
+    <meta
+      name="description"
+      content="Portfolio de Nathan Fullann : projets web, expériences, compétences et contact."
+    />
+    <link rel="canonical" href="https://fullann.ch/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fullann Portfolio" />
+    <meta property="og:title" content="Nathan Füllemann | Développeur web" />
+    <meta
+      property="og:description"
+      content="Découvrez les projets, le parcours et les services web de Nathan Füllemann."
+    />
+    <meta property="og:url" content="https://fullann.ch/" />
+    <meta property="og:image" content="https://fullann.ch/assets/images/logo.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Nathan Füllemann | Développeur web" />
+    <meta
+      name="twitter:description"
+      content="Portfolio de développement web : projets, expertise et contact."
+    />
+    <meta
+      name="twitter:image"
+      content="https://fullann.ch/assets/images/logo.svg"
+    />
 
     <!--
     - favicon
@@ -146,6 +170,17 @@
           <section class="about-text">
             <!-- ABOUT_TEXT_START -->
             <!-- ABOUT_TEXT_END -->
+            <p class="availability-badge" data-reveal>
+              Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
+            </p>
+            <div class="cta-group" data-reveal>
+              <button class="cta-primary" type="button" data-contact-cta>
+                Discutons de ton projet
+              </button>
+              <button class="cta-secondary" type="button" data-portfolio-cta>
+                Voir mes projets
+              </button>
+            </div>
           </section>
 
           <!--
@@ -196,18 +231,13 @@
               </div>
 
               <div class="modal-content">
-                <h4 class="h3 modal-title" data-modal-title>Daniel lewis</h4>
+                <h4 class="h3 modal-title" data-modal-title>Témoignage</h4>
 
-                <time datetime="2021-06-14">14 June, 2021</time>
+                <time datetime="">Date</time>
 
                 <div data-modal-text>
                   <p>
-                    Richard was hired to create a corporate identity. We were
-                    very pleased with the work done. She has a lot of experience
-                    and is very concerned about the needs of client. Lorem ipsum
-                    dolor sit amet, ullamcous cididt consectetur adipiscing
-                    elit, seds do et eiusmod tempor incididunt ut laborels
-                    dolore magnarels alia.
+                    Sélectionne un témoignage pour voir son contenu complet ici.
                   </p>
                 </div>
               </div>
@@ -367,7 +397,7 @@
                   <!-- Informations du projet -->
                   <div class="project-modal-info">
                     <h3 class="project-modal-title" data-project-modal-title>
-                      Titre du projet
+                      Projet
                     </h3>
                     <p
                       class="project-modal-category"
@@ -380,7 +410,7 @@
                       class="project-modal-description"
                       data-project-modal-description
                     >
-                      <p>Description du projet...</p>
+                      <p>Sélectionne un projet pour voir sa description détaillée.</p>
                     </div>
 
                     <!-- Liens d'action -->
@@ -433,6 +463,9 @@
 
           <section class="contact-form">
             <h3 class="h3 form-title">Me contacter</h3>
+            <p class="contact-reassurance">
+              Réponse sous 24h ouvrées. Ton message reste confidentiel et n'est jamais partagé.
+            </p>
 
             <form action="/api/send-email" method="POST" class="form" data-form>
               <div class="input-wrapper">

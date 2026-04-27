@@ -1,10 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fullann Portfolio</title>
+    <meta
+      name="description"
+      content="Portfolio de Nathan Fullann : projets web, expériences, compétences et contact."
+    />
+    <link rel="canonical" href="https://fullann.ch/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fullann Portfolio" />
+    <meta property="og:title" content="Nathan Füllemann | Développeur web" />
+    <meta
+      property="og:description"
+      content="Découvrez les projets, le parcours et les services web de Nathan Füllemann."
+    />
+    <meta property="og:url" content="https://fullann.ch/" />
+    <meta property="og:image" content="https://fullann.ch/assets/images/logo.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Nathan Füllemann | Développeur web" />
+    <meta
+      name="twitter:description"
+      content="Portfolio de développement web : projets, expertise et contact."
+    />
+    <meta
+      name="twitter:image"
+      content="https://fullann.ch/assets/images/logo.svg"
+    />
 
     <!--
     - favicon
@@ -61,14 +85,14 @@
       <aside class="sidebar" data-sidebar>
         <div class="sidebar-info">
           <!-- AVATAR_START -->
-<img src="/assets/images/avatar-1770716490527-149052619" alt="Test User UPDATED" width="80">
+<img src="/assets/images/avatar-1770716490527-149052619" alt="Nathan Füllemann" width="80">
 <!-- AVATAR_END -->
 
           <div class="info-content">
             <!-- PERSONAL_INFO_START -->
 
-          <h1 class="name" title="Test User UPDATED">Test User UPDATED</h1>
-          <p class="title">Test Developer</p>
+          <h1 class="name" title="Nathan Füllemann">Nathan Füllemann</h1>
+          <p class="title">Développeur web & sécurité informatique</p>
 <!-- PERSONAL_INFO_END -->
           </div>
 
@@ -87,38 +111,11 @@
 
           <li class="contact-item">
             <div class="icon-box">
-              <ion-icon name="mail-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Adresse Email</p>
-              <a href="mailto:test@example.com" class="contact-link">test@example.com</a>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="phone-portrait-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Numéro de téléphone</p>
-              <a href="tel:+1234567890" class="contact-link">+1234567890</a>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="calendar-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Date d'anniversaire</p>
-              <time datetime="1990-01-01">1990-01-01</time>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
               <ion-icon name="location-outline"></ion-icon>
             </div>
             <div class="contact-info">
-              <p class="contact-title">Location</p>
-              <address>Test City</address>
+              <p class="contact-title">Localisation</p>
+              <address>Vaud, Suisse</address>
             </div>
           </li>
 <!-- CONTACT_INFO_END -->
@@ -130,22 +127,8 @@
             <!-- SOCIAL_LINKS_START -->
 
         <li class="social-item">
-          <a href="https:/7asd.asd" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-discord"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://asd.asd" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-twitter"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
+          <a href="https://github.com/Fullann" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-github"></ion-icon>
           </a>
         </li>
 
@@ -195,8 +178,20 @@
 
           <section class="about-text">
             <!-- ABOUT_TEXT_START -->
-<p>Test about text updated</p>
+<p>Passionné par le développement web depuis un stage découvert à 15 ans, je conçois des applications web modernes, performantes et adaptées aux besoins réels de mes clients.</p>
+<p>Après un CFC en informatique à l'ETML, je poursuis actuellement un bachelor en sécurité informatique à la HEIG-VD afin de renforcer mes compétences techniques et mon approche de la qualité logicielle.</p>
 <!-- ABOUT_TEXT_END -->
+            <p class="availability-badge" data-reveal>
+              Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
+            </p>
+            <div class="cta-group" data-reveal>
+              <button class="cta-primary" type="button" data-contact-cta>
+                Discutons de ton projet
+              </button>
+              <button class="cta-secondary" type="button" data-portfolio-cta>
+                Voir mes projets
+              </button>
+            </div>
           </section>
 
           <!--
@@ -208,62 +203,23 @@
             <ul class="service-list">
               <!-- PROJECTS_START -->
 
-      <li class="project-item active" data-filter-item data-category="Test Category" data-project-item>
+      <li class="project-item active" data-filter-item data-category="développement web" data-project-item>
         <figure class="project-img">
           <div class="project-item-icon-box">
             <ion-icon name="eye-outline"></ion-icon>
           </div>
-          <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          <img src="/assets/images/logo.svg" alt="TerraCoast" loading="lazy" data-project-image>
         </figure>
-        <h3 class="project-title" data-project-title>Test Project 1</h3>
-        <p class="project-category" data-project-category>Test Category</p>
+        <h3 class="project-title" data-project-title>TerraCoast</h3>
+        <p class="project-category" data-project-category>Développement web</p>
         
         <!-- Données cachées pour la modal -->
         <div class="project-data" style="display: none;">
-          <span data-project-description>Description du projet</span>
-          <span data-project-repo-link></span>
-          <span data-project-live-link></span>
+          <span data-project-description>Plateforme de géographie accessible à tous, conçue pour proposer une alternative gratuite et simple aux outils existants.</span>
+          <span data-project-repo-link>https://github.com/Fullann/TerraCoast-V2</span>
+          <span data-project-live-link>https://terracoast.ch/</span>
         </div>
       </li>
-    
-
-      <li class="project-item active" data-filter-item data-category="asd" data-project-item>
-        <figure class="project-img">
-          <div class="project-item-icon-box">
-            <ion-icon name="eye-outline"></ion-icon>
-          </div>
-          <img src="/assets/images/image-1770734652557-711505321.webp" alt="asd" loading="lazy" data-project-image>
-        </figure>
-        <h3 class="project-title" data-project-title>asd</h3>
-        <p class="project-category" data-project-category>asd</p>
-        
-        <!-- Données cachées pour la modal -->
-        <div class="project-data" style="display: none;">
-          <span data-project-description>asd</span>
-          <span data-project-repo-link></span>
-          <span data-project-live-link></span>
-        </div>
-      </li>
-    
-
-      <li class="project-item active" data-filter-item data-category="asd" data-project-item>
-        <figure class="project-img">
-          <div class="project-item-icon-box">
-            <ion-icon name="eye-outline"></ion-icon>
-          </div>
-          <img src="/assets/images/image-1770716573616-2032441.webp" alt="testasdasds" loading="lazy" data-project-image>
-        </figure>
-        <h3 class="project-title" data-project-title>testasdasds</h3>
-        <p class="project-category" data-project-category>asd</p>
-        
-        <!-- Données cachées pour la modal -->
-        <div class="project-data" style="display: none;">
-          <span data-project-description>asdddaddasdsadads</span>
-          <span data-project-repo-link></span>
-          <span data-project-live-link></span>
-        </div>
-      </li>
-    
 <!-- PROJECTS_END -->
             </ul>
           </section>
@@ -280,24 +236,23 @@
         <li class="testimonials-item">
           <div class="content-card" data-testimonials-item>
             <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+              <img src="/assets/images/avatar-default.png" alt="Shashi Lasserre-Gobin" width="60" data-testimonials-avatar>
             </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Shashi Lasserre-Gobin</h4>
             <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
+              <p>Les compétences professionnelles de Nathan m'ont beaucoup aidée à construire mon site. Sa clarté, son écoute et sa réactivité ont été précieuses.</p>
             </div>
           </div>
         </li>
 
-
         <li class="testimonials-item">
           <div class="content-card" data-testimonials-item>
             <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-1770716640540-730484100.webp" alt="yxc" width="60" data-testimonials-avatar>
+              <img src="/assets/images/avatar-default.png" alt="Vincent Châtelain" width="60" data-testimonials-avatar>
             </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>yxc</h4>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Vincent Châtelain</h4>
             <div class="testimonials-text" data-testimonials-text>
-              <p>yxc</p>
+              <p>Merci à Nathan pour son engagement constant. Nos échanges ont permis d'aboutir à un résultat final qui correspond parfaitement à ma demande.</p>
             </div>
           </div>
         </li>
@@ -328,18 +283,13 @@
               </div>
 
               <div class="modal-content">
-                <h4 class="h3 modal-title" data-modal-title>Daniel lewis</h4>
+                <h4 class="h3 modal-title" data-modal-title>Témoignage</h4>
 
-                <time datetime="2021-06-14">14 June, 2021</time>
+                <time datetime="">Date</time>
 
                 <div data-modal-text>
                   <p>
-                    Richard was hired to create a corporate identity. We were
-                    very pleased with the work done. She has a lot of experience
-                    and is very concerned about the needs of client. Lorem ipsum
-                    dolor sit amet, ullamcous cididt consectetur adipiscing
-                    elit, seds do et eiusmod tempor incididunt ut laborels
-                    dolore magnarels alia.
+                    Sélectionne un témoignage pour voir son contenu complet ici.
                   </p>
                 </div>
               </div>
@@ -358,15 +308,8 @@
               <!-- CLIENTS_START -->
 
         <li class="clients-item">
-          <a href="https://testclient.com">
-            <img src="null" alt="Test Client">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://ads.asd">
-            <img src="/assets/images/logo-1770716843715-386473694.webp" alt="test">
+          <a href="https://terracoast.ch/" target="_blank" rel="noopener noreferrer">
+            <img src="/assets/images/logo.svg" alt="TerraCoast">
           </a>
         </li>
 
@@ -396,16 +339,15 @@
               <!-- EDUCATION_START -->
 
         <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">test</h4>
-          <span>2007-2008</span>
-          <p class="timeline-text">asd</p>
+          <h4 class="h4 timeline-item-title">Ecole technique - Ecole des métiers de Lausanne</h4>
+          <span>2019 - 2023</span>
+          <p class="timeline-text">Apprentissage en informatique, orientation développement web et applications, avec maturité professionnelle intégrée.</p>
         </li>
 
-
         <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
+          <h4 class="h4 timeline-item-title">HEIG-VD</h4>
+          <span>2023 - à ce jour</span>
+          <p class="timeline-text">Bachelor en sécurité informatique.</p>
         </li>
 
 <!-- EDUCATION_END -->
@@ -424,23 +366,15 @@
               <!-- EXPERIENCE_START -->
 
         <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">sd</h4>
-          <span>2012-123</span>
-          <p class="timeline-text">sdf</p>
+          <h4 class="h4 timeline-item-title">Développeur chez Solmani SA</h4>
+          <span>2022 - 2023</span>
+          <p class="timeline-text">Stage frontend/backend sur des projets PHP, Laravel, C#, JavaScript et Node.js.</p>
         </li>
 
-
         <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">asdsada</h4>
-          <span>2011-1233</span>
-          <p class="timeline-text">asd</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
+          <h4 class="h4 timeline-item-title">Développeur web et gestion de médias à la demande</h4>
+          <span>2024 - à ce jour</span>
+          <p class="timeline-text">Réalisation d'applications web sur mesure, création et publication de contenus digitaux.</p>
         </li>
 
 <!-- EXPERIENCE_END -->
@@ -492,55 +426,51 @@
 
         <li class="skills-item">
           <div class="title-wrapper">
-            <h5 class="h5">Web design</h5>
-            <data value="80">80%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 80%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Graphic design</h5>
-            <data value="47">47%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 47%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Branding</h5>
-            <data value="100">100%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 100%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
             <h5 class="h5">WordPress</h5>
-            <data value="50">50%</data>
+            <data value="75">75%</data>
           </div>
           <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 50%"></div>
+            <div class="skill-progress-fill" style="width: 75%"></div>
           </div>
         </li>
 
-
         <li class="skills-item">
           <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
+            <h5 class="h5">Développement web (PHP, JS, React, Vue.js, Node.js)</h5>
             <data value="85">85%</data>
           </div>
           <div class="skill-progress-bg">
             <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Embarqué (C)</h5>
+            <data value="60">60%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 60%"></div>
+          </div>
+        </li>
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Développement (C++, Java, C#, Python)</h5>
+            <data value="70">70%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 70%"></div>
+          </div>
+        </li>
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Design</h5>
+            <data value="65">65%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 65%"></div>
           </div>
         </li>
 
@@ -567,37 +497,16 @@
               <!-- CATEGORY_FILTERS_START -->
 
         <li class="filter-item">
-          <button data-filter-btn>app</button>
+          <button data-filter-btn>Design</button>
         </li>
 
 
         <li class="filter-item">
-          <button data-filter-btn>Mobile Apps</button>
+          <button data-filter-btn>Développement Web</button>
         </li>
 
-
         <li class="filter-item">
-          <button data-filter-btn>Test Category 1</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Test Category 2</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>web</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Web Design</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Web Development</button>
+          <button data-filter-btn>WordPress</button>
         </li>
 
 <!-- CATEGORY_FILTERS_END -->
@@ -619,37 +528,16 @@
                 <!-- CATEGORY_SELECT_START -->
 
         <li class="select-item">
-                    <button data-select-item>app</button>
+                    <button data-select-item>Design</button>
                 </li>
 
 
         <li class="select-item">
-                    <button data-select-item>Mobile Apps</button>
+                    <button data-select-item>Développement Web</button>
                 </li>
 
-
         <li class="select-item">
-                    <button data-select-item>Test Category 1</button>
-                </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Test Category 2</button>
-                </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>web</button>
-                </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Web Design</button>
-                </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Web Development</button>
+                    <button data-select-item>WordPress</button>
                 </li>
 
 <!-- CATEGORY_SELECT_END -->
@@ -659,43 +547,43 @@
             <ul class="project-list">
               <!-- PORTFOLIO_PROJECTS_START -->
 
-      <li class="project-item" data-filter-item data-category="test-category-1">
+      <li class="project-item" data-filter-item data-category="développement web">
         <a href="#" data-project-item>
           <figure class="project-img">
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+            <img src="/assets/images/logo.svg" alt="DJQueue" loading="lazy" data-project-image>
           </figure>
-          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
-          <p class="project-category" data-project-category>Test Category 1</p>
+          <h3 class="project-title" data-project-title>DJQueue</h3>
+          <p class="project-category" data-project-category>Développement Web</p>
           
           <!-- Données pour la modal -->
           <div style="display: none;">
-            <span data-project-description>Description du projet de test</span>
-            <span data-project-repo-link>https://github.com/test/project1</span>
-            <span data-project-live-link>https://project1.test.com</span>
+            <span data-project-description>Application web en temps réel permettant aux participants d'une soirée de proposer des musiques au DJ via QR code, avec votes et lecture Spotify.</span>
+            <span data-project-repo-link>https://github.com/Fullann/dj-queue-app</span>
+            <span data-project-live-link></span>
           </div>
         </a>
       </li>
 
 
-      <li class="project-item" data-filter-item data-category="mobile apps">
+      <li class="project-item" data-filter-item data-category="développement web">
         <a href="#" data-project-item>
           <figure class="project-img">
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="/assets/images/image-1770716811194-701802795" alt="asd" loading="lazy" data-project-image>
+            <img src="/assets/images/image-1770716811194-701802795" alt="TerraCoast" loading="lazy" data-project-image>
           </figure>
-          <h3 class="project-title" data-project-title>asd</h3>
-          <p class="project-category" data-project-category>Mobile Apps</p>
+          <h3 class="project-title" data-project-title>TerraCoast</h3>
+          <p class="project-category" data-project-category>Développement Web</p>
           
           <!-- Données pour la modal -->
           <div style="display: none;">
-            <span data-project-description>asdasdasda</span>
-            <span data-project-repo-link></span>
-            <span data-project-live-link>Https://asd.asd</span>
+            <span data-project-description>Projet collaboratif visant à rendre la géographie accessible gratuitement via une plateforme intuitive et moderne.</span>
+            <span data-project-repo-link>https://github.com/Fullann/TerraCoast-V2</span>
+            <span data-project-live-link>https://terracoast.ch/</span>
           </div>
         </a>
       </li>
@@ -729,7 +617,7 @@
                   <!-- Informations du projet -->
                   <div class="project-modal-info">
                     <h3 class="project-modal-title" data-project-modal-title>
-                      Titre du projet
+                      Projet
                     </h3>
                     <p
                       class="project-modal-category"
@@ -742,7 +630,7 @@
                       class="project-modal-description"
                       data-project-modal-description
                     >
-                      <p>Description du projet...</p>
+                      <p>Sélectionne un projet pour voir sa description détaillée.</p>
                     </div>
 
                     <!-- Liens d'action -->
@@ -773,38 +661,9 @@
               <!-- BLOGS_START -->
 
       <li class="blog-post-item">
-        <a href="/blog/test-blog-article-1">
-          <figure class="blog-banner-box">
-            <img src="null" alt="Test Blog Article 1" loading="lazy">
-          </figure>
-          <div class="blog-content">
-            <div class="blog-meta">
-              <p class="blog-category">Tech</p>
-              <span class="dot"></span>
-              <time datetime="2026-02-10">2026-02-10</time>
-            </div>
-            <h3 class="h3 blog-item-title">Test Blog Article 1</h3>
-            <p class="blog-text">Extrait de l'article de test</p>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="blog-post-item">
-        <a href="/blog/asd">
-          <figure class="blog-banner-box">
-            <img src="/assets/images/image-1770735106872-111851026.webp" alt="asd" loading="lazy">
-          </figure>
-          <div class="blog-content">
-            <div class="blog-meta">
-              <p class="blog-category">asd</p>
-              <span class="dot"></span>
-              <time datetime="2026-02-10">2026-02-10</time>
-            </div>
-            <h3 class="h3 blog-item-title">asd</h3>
-            <p class="blog-text">asdasda</p>
-          </div>
-        </a>
+        <div class="blog-content">
+          <p class="blog-text">De nouveaux articles arrivent bientôt. Reviens prochainement pour découvrir mes retours d'expérience techniques.</p>
+        </div>
       </li>
 
 <!-- BLOGS_END -->
@@ -825,7 +684,7 @@
               <!-- MAP_START -->
 
                     <iframe
-                        src="https://maps.google.com/maps?q=Test%20City&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                        src="https://maps.google.com/maps?q=Lausanne%2C%20Suisse&t=&z=11&ie=UTF8&iwloc=&output=embed"
                         width="400"
                         height="300"
                         loading="lazy"
@@ -839,6 +698,9 @@
 
           <section class="contact-form">
             <h3 class="h3 form-title">Me contacter</h3>
+            <p class="contact-reassurance">
+              Réponse sous 24h ouvrées. Ton message reste confidentiel et n'est jamais partagé.
+            </p>
 
             <form action="/api/send-email" method="POST" class="form" data-form>
               <div class="input-wrapper">

@@ -261,16 +261,21 @@ function refreshSections() {
   location.reload();
 }
 
-setInterval(() => {
-  fetch("/api/admin/last-update")
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.updated) {
-        refreshSections();
-      }
-    })
-    .catch((error) => console.error("Pas de mise à jour"));
-}, 30000);
+if (
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+) {
+  setInterval(() => {
+    fetch("/api/admin/last-update")
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.updated) {
+          refreshSections();
+        }
+      })
+      .catch(() => console.debug("Pas de mise à jour"));
+  }, 30000);
+}
 
 // ============================================
 // GESTION DU FORMULAIRE DE CONTACT
@@ -285,6 +290,25 @@ document.addEventListener("DOMContentLoaded", function () {
     console.warn("Formulaire de contact non trouvé");
     return;
   }
+
+  const trackEvent = (eventName, params = {}) => {
+    try {
+      if (typeof window.gtag === "function") {
+        window.gtag("event", eventName, params);
+      } else {
+        const key = "portfolio_events";
+        const previous = JSON.parse(localStorage.getItem(key) || "[]");
+        previous.push({
+          event: eventName,
+          params,
+          timestamp: new Date().toISOString(),
+        });
+        localStorage.setItem(key, JSON.stringify(previous.slice(-50)));
+      }
+    } catch (e) {
+      console.debug("Tracking non disponible");
+    }
+  };
 
   new ThemeManager();
 
@@ -346,12 +370,17 @@ document.addEventListener("DOMContentLoaded", function () {
       const result = await response.json();
 
       if (response.ok) {
+        trackEvent("contact_form_submit_success", { source: "contact_form" });
         alert(
           "✅ Message envoyé avec succès ! Je vous répondrai dans les plus brefs délais.",
         );
         form.reset();
         formBtn.disabled = true;
       } else {
+        trackEvent("contact_form_submit_error", {
+          source: "contact_form",
+          status: response.status,
+        });
         console.error("Erreur serveur:", result);
         if (response.status === 429) {
           alert(
@@ -360,10 +389,16 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (response.status === 403) {
           alert("⚠️ Activité suspecte détectée. Veuillez ressayer.");
         } else {
-          alert("❌ Erreur: " + result.error);
+          const serverMessage =
+            result?.details || result?.error || "Erreur serveur";
+          alert(
+            "❌ L'envoi du message a échoué. Vérifie la configuration email du serveur puis réessaie.\n\nDétail: " +
+              serverMessage,
+          );
         }
       }
     } catch (error) {
+      trackEvent("contact_form_submit_exception", { source: "contact_form" });
       console.error("Erreur complète:", error);
 
       if (error.message && error.message.includes("reCAPTCHA")) {
@@ -385,6 +420,64 @@ document.addEventListener("DOMContentLoaded", function () {
       formBtn.disabled = !allValid;
     }
   });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const trackEvent = (eventName, params = {}) => {
+    try {
+      if (typeof window.gtag === "function") {
+        window.gtag("event", eventName, params);
+      }
+    } catch (e) {
+      console.debug("Tracking CTA non disponible");
+    }
+  };
+
+  const revealTargets = document.querySelectorAll(
+    ".about-text, .service, .testimonials, .clients, .timeline, .skill, .projects, .blog-posts, .mapbox, .contact-form",
+  );
+
+  revealTargets.forEach((element) => {
+    element.setAttribute("data-reveal", "");
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("revealed");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15 },
+  );
+
+  revealTargets.forEach((element) => observer.observe(element));
+
+  const goToPage = (targetLabel) => {
+    const navLink = Array.from(document.querySelectorAll("[data-nav-link]")).find(
+      (button) =>
+        button.textContent.trim().toLowerCase() === targetLabel.toLowerCase(),
+    );
+    if (navLink) navLink.click();
+  };
+
+  const contactCta = document.querySelector("[data-contact-cta]");
+  if (contactCta) {
+    contactCta.addEventListener("click", () => {
+      trackEvent("cta_click_contact", { location: "about_section" });
+      goToPage("contact");
+    });
+  }
+
+  const portfolioCta = document.querySelector("[data-portfolio-cta]");
+  if (portfolioCta) {
+    portfolioCta.addEventListener("click", () => {
+      trackEvent("cta_click_portfolio", { location: "about_section" });
+      goToPage("portfolio");
+    });
+  }
 });
 
 function viewCVInline() {
