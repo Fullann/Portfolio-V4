@@ -322,6 +322,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Initialiser la sitekey hCaptcha depuis le backend
+  const hcaptchaWidget = document.getElementById("hcaptcha-widget") || document.querySelector(".h-captcha");
+  if (hcaptchaWidget) {
+    fetch("/api/settings/public/hcaptcha-sitekey")
+      .then(res => res.json())
+      .then(data => {
+        if (data.sitekey) {
+          hcaptchaWidget.setAttribute("data-sitekey", data.sitekey);
+          if (typeof hcaptcha !== "undefined" && hcaptcha.render) {
+            try {
+              hcaptcha.render(hcaptchaWidget, { sitekey: data.sitekey });
+            } catch (e) {
+              // Déjà rendu automatiquement par l'API script
+            }
+          }
+        }
+      })
+      .catch(err => console.warn("Impossible de charger la sitekey hCaptcha:", err));
+  }
+
   formInputs.forEach((input) => {
     input.addEventListener("input", function () {
       let allValid = true;
@@ -343,20 +363,21 @@ document.addEventListener("DOMContentLoaded", function () {
       '<ion-icon name="hourglass-outline"></ion-icon><span>Envoi en cours...</span>';
 
     try {
-      if (typeof grecaptcha === "undefined") {
-        throw new Error("reCAPTCHA non chargé. Veuillez recharger la page.");
+      let hcaptchaToken = "";
+      if (typeof hcaptcha !== "undefined") {
+        hcaptchaToken = hcaptcha.getResponse();
       }
-      const recaptchaToken = await grecaptcha.execute(
-        "6LcQAmMsAAAAAEoyH4PTxuPChxiAaaAzDBuNByyE",
-        { action: "contact" },
-      );
+      if (!hcaptchaToken) {
+        const formDataObj = new FormData(form);
+        hcaptchaToken = formDataObj.get("h-captcha-response") || "";
+      }
 
       const formData = new FormData(form);
       const data = {
         fullname: formData.get("fullname"),
         email: formData.get("email"),
         message: formData.get("message"),
-        "g-recaptcha-response": recaptchaToken,
+        "h-captcha-response": hcaptchaToken,
       };
 
       const response = await fetch("/api/auth/send-email", {
@@ -375,6 +396,9 @@ document.addEventListener("DOMContentLoaded", function () {
           "✅ Message envoyé avec succès ! Je vous répondrai dans les plus brefs délais.",
         );
         form.reset();
+        if (typeof hcaptcha !== "undefined") {
+          hcaptcha.reset();
+        }
         formBtn.disabled = true;
       } else {
         trackEvent("contact_form_submit_error", {
@@ -382,6 +406,9 @@ document.addEventListener("DOMContentLoaded", function () {
           status: response.status,
         });
         console.error("Erreur serveur:", result);
+        if (typeof hcaptcha !== "undefined") {
+          hcaptcha.reset();
+        }
         if (response.status === 429) {
           alert(
             "⚠️ Trop de tentatives d'envoi. Veuillez ressayer dans quelques minutes.",
@@ -401,7 +428,11 @@ document.addEventListener("DOMContentLoaded", function () {
       trackEvent("contact_form_submit_exception", { source: "contact_form" });
       console.error("Erreur complète:", error);
 
-      if (error.message && error.message.includes("reCAPTCHA")) {
+      if (typeof hcaptcha !== "undefined") {
+        hcaptcha.reset();
+      }
+
+      if (error.message && error.message.includes("CAPTCHA")) {
         alert("❌ Erreur de sécurité. Veuillez recharger la page et ressayer.");
       } else {
         alert(

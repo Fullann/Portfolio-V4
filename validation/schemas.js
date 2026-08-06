@@ -25,7 +25,7 @@ const emailSchema = z.object({
     .min(5, 'Le message doit contenir au moins 5 caractères')
     .max(5000, 'Le message est trop long')
     .trim(),
-  'g-recaptcha-response': z.string().min(1, 'CAPTCHA manquant')
+  'h-captcha-response': z.string().min(1, 'CAPTCHA manquant')
 });
 
 // Schema pour les projets

@@ -38,7 +38,7 @@
       href="/assets/images/icon.ico"
       type="image/x-icon"
     />
-<script src="https://www.google.com/recaptcha/api.js?render=6LcQAmMsAAAAAEoyH4PTxuPChxiAaaAzDBuNByyE"></script>
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <!--
     - custom css link
   -->
@@ -85,14 +85,14 @@
       <aside class="sidebar" data-sidebar>
         <div class="sidebar-info">
           <!-- AVATAR_START -->
-<img src="/assets/images/avatar-1770716490527-149052619" alt="Nathan Füllemann" width="80">
+<img src="./assets/images/my-avatar.png" alt="asd" width="80">
 <!-- AVATAR_END -->
 
           <div class="info-content">
             <!-- PERSONAL_INFO_START -->
 
-          <h1 class="name" title="Nathan Füllemann">Nathan Füllemann</h1>
-          <p class="title">Développeur web & sécurité informatique</p>
+          <h1 class="name" title="asd">asd</h1>
+          <p class="title">Web developer</p>
 <!-- PERSONAL_INFO_END -->
           </div>
 
@@ -111,11 +111,38 @@
 
           <li class="contact-item">
             <div class="icon-box">
+              <ion-icon name="mail-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Adresse Email</p>
+              <a href="mailto:test@test.test" class="contact-link">test@test.test</a>
+            </div>
+          </li>
+          <li class="contact-item">
+            <div class="icon-box">
+              <ion-icon name="phone-portrait-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Numéro de téléphone</p>
+              <a href="tel:+1 (213) 352-2795" class="contact-link">+1 (213) 352-2795</a>
+            </div>
+          </li>
+          <li class="contact-item">
+            <div class="icon-box">
+              <ion-icon name="calendar-outline"></ion-icon>
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Date d'anniversaire</p>
+              <time datetime="1982-06-23">1982-06-23</time>
+            </div>
+          </li>
+          <li class="contact-item">
+            <div class="icon-box">
               <ion-icon name="location-outline"></ion-icon>
             </div>
             <div class="contact-info">
-              <p class="contact-title">Localisation</p>
-              <address>Vaud, Suisse</address>
+              <p class="contact-title">Location</p>
+              <address>Sacramento, California, USA</address>
             </div>
           </li>
 <!-- CONTACT_INFO_END -->
@@ -125,12 +152,6 @@
 
           <ul class="social-list">
             <!-- SOCIAL_LINKS_START -->
-
-        <li class="social-item">
-          <a href="https://github.com/Fullann" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-github"></ion-icon>
-          </a>
-        </li>
 
 <!-- SOCIAL_LINKS_END -->
           </ul>
@@ -178,8 +199,8 @@
 
           <section class="about-text">
             <!-- ABOUT_TEXT_START -->
-<p>Passionné par le développement web depuis un stage découvert à 15 ans, je conçois des applications web modernes, performantes et adaptées aux besoins réels de mes clients.</p>
-<p>Après un CFC en informatique à l'ETML, je poursuis actuellement un bachelor en sécurité informatique à la HEIG-VD afin de renforcer mes compétences techniques et mon approche de la qualité logicielle.</p>
+<p>I'm Creative Director and UI/UX Designer from Sydney, Australia, working in web development and print media. I enjoy turning complex problems into simple, beautiful and intuitive designs.
+My job is to build your website so that it is functional and user-friendly but at the same time attractive. Moreover, I add personal touch to your product and make sure that is eye-catching and easy to use. My aim is to bring across your message and identity in the most creative way. I created web design for many famous brand companies.</p>
 <!-- ABOUT_TEXT_END -->
             <p class="availability-badge" data-reveal>
               Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
@@ -203,23 +224,24 @@
             <ul class="service-list">
               <!-- PROJECTS_START -->
 
-      <li class="project-item active" data-filter-item data-category="développement web" data-project-item>
+      <li class="project-item active" data-filter-item data-category="web development" data-project-item>
         <figure class="project-img">
           <div class="project-item-icon-box">
             <ion-icon name="eye-outline"></ion-icon>
           </div>
-          <img src="/assets/images/logo.svg" alt="TerraCoast" loading="lazy" data-project-image>
+          <img src="./assets/images/project-1.jpg" alt="Finance" loading="lazy" data-project-image>
         </figure>
-        <h3 class="project-title" data-project-title>TerraCoast</h3>
-        <p class="project-category" data-project-category>Développement web</p>
+        <h3 class="project-title" data-project-title>Finance</h3>
+        <p class="project-category" data-project-category>web development</p>
         
         <!-- Données cachées pour la modal -->
         <div class="project-data" style="display: none;">
-          <span data-project-description>Plateforme de géographie accessible à tous, conçue pour proposer une alternative gratuite et simple aux outils existants.</span>
-          <span data-project-repo-link>https://github.com/Fullann/TerraCoast-V2</span>
-          <span data-project-live-link>https://terracoast.ch/</span>
+          <span data-project-description>Projet de développement web financier</span>
+          <span data-project-repo-link></span>
+          <span data-project-live-link></span>
         </div>
       </li>
+    
 <!-- PROJECTS_END -->
             </ul>
           </section>
@@ -236,23 +258,11 @@
         <li class="testimonials-item">
           <div class="content-card" data-testimonials-item>
             <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Shashi Lasserre-Gobin" width="60" data-testimonials-avatar>
+              <img src="./assets/images/avatar-1.png" alt="Daniel Lewis" width="60" data-testimonials-avatar>
             </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Shashi Lasserre-Gobin</h4>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Daniel Lewis</h4>
             <div class="testimonials-text" data-testimonials-text>
-              <p>Les compétences professionnelles de Nathan m'ont beaucoup aidée à construire mon site. Sa clarté, son écoute et sa réactivité ont été précieuses.</p>
-            </div>
-          </div>
-        </li>
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Vincent Châtelain" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Vincent Châtelain</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Merci à Nathan pour son engagement constant. Nos échanges ont permis d'aboutir à un résultat final qui correspond parfaitement à ma demande.</p>
+              <p>Richard was hired to create a corporate identity. We were very pleased with the work done.</p>
             </div>
           </div>
         </li>
@@ -307,12 +317,6 @@
             <ul class="clients-list has-scrollbar">
               <!-- CLIENTS_START -->
 
-        <li class="clients-item">
-          <a href="https://terracoast.ch/" target="_blank" rel="noopener noreferrer">
-            <img src="/assets/images/logo.svg" alt="TerraCoast">
-          </a>
-        </li>
-
 <!-- CLIENTS_END -->
             </ul>
           </section>
@@ -338,18 +342,6 @@
             <ol class="timeline-list">
               <!-- EDUCATION_START -->
 
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Ecole technique - Ecole des métiers de Lausanne</h4>
-          <span>2019 - 2023</span>
-          <p class="timeline-text">Apprentissage en informatique, orientation développement web et applications, avec maturité professionnelle intégrée.</p>
-        </li>
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">HEIG-VD</h4>
-          <span>2023 - à ce jour</span>
-          <p class="timeline-text">Bachelor en sécurité informatique.</p>
-        </li>
-
 <!-- EDUCATION_END -->
             </ol>
           </section>
@@ -365,18 +357,6 @@
             <ol class="timeline-list">
               <!-- EXPERIENCE_START -->
 
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Développeur chez Solmani SA</h4>
-          <span>2022 - 2023</span>
-          <p class="timeline-text">Stage frontend/backend sur des projets PHP, Laravel, C#, JavaScript et Node.js.</p>
-        </li>
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Développeur web et gestion de médias à la demande</h4>
-          <span>2024 - à ce jour</span>
-          <p class="timeline-text">Réalisation d'applications web sur mesure, création et publication de contenus digitaux.</p>
-        </li>
-
 <!-- EXPERIENCE_END -->
             </ol>
           </section>
@@ -391,28 +371,7 @@
               <!-- CV_SECTION_START -->
 
             <div class="cv-container">
-                <div class="cv-preview">
-                    <div class="cv-info">
-                        <ion-icon name="document-text-outline"></ion-icon>
-                        <div class="cv-details">
-                            <h4>Télécharger mon CV</h4>
-                            <p>Consultez mon parcours complet au format PDF</p>
-                        </div>
-                    </div>
-                    <div class="cv-actions">
-                        <a href="/download-cv" class="cv-download-btn" target="_blank">
-                            <ion-icon name="download-outline"></ion-icon>
-                            <span>Télécharger PDF</span>
-                        </a>
-                        <button onclick="viewCVInline()" class="cv-view-btn">
-                            <ion-icon name="eye-outline"></ion-icon>
-                            <span>Aperçu</span>
-                        </button>
-                    </div>
-                </div>
-                <div id="cv-viewer" class="cv-viewer" style="display: none;">
-                    <iframe src="/assets/documents/cv-1770735180394-849550420.pdf" width="100%" height="600px"></iframe>
-                </div>
+                <p>Aucun CV disponible pour le moment.</p>
             </div>
         
 <!-- CV_SECTION_END -->
@@ -426,37 +385,18 @@
 
         <li class="skills-item">
           <div class="title-wrapper">
-            <h5 class="h5">WordPress</h5>
-            <data value="75">75%</data>
+            <h5 class="h5">Web design</h5>
+            <data value="80">80%</data>
           </div>
           <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 75%"></div>
+            <div class="skill-progress-fill" style="width: 80%"></div>
           </div>
         </li>
 
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Développement web (PHP, JS, React, Vue.js, Node.js)</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
 
         <li class="skills-item">
           <div class="title-wrapper">
-            <h5 class="h5">Embarqué (C)</h5>
-            <data value="60">60%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 60%"></div>
-          </div>
-        </li>
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Développement (C++, Java, C#, Python)</h5>
+            <h5 class="h5">Graphic design</h5>
             <data value="70">70%</data>
           </div>
           <div class="skill-progress-bg">
@@ -464,13 +404,25 @@
           </div>
         </li>
 
+
         <li class="skills-item">
           <div class="title-wrapper">
-            <h5 class="h5">Design</h5>
-            <data value="65">65%</data>
+            <h5 class="h5">Branding</h5>
+            <data value="90">90%</data>
           </div>
           <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 65%"></div>
+            <div class="skill-progress-fill" style="width: 90%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">WordPress</h5>
+            <data value="50">50%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 50%"></div>
           </div>
         </li>
 
@@ -497,16 +449,22 @@
               <!-- CATEGORY_FILTERS_START -->
 
         <li class="filter-item">
-          <button data-filter-btn>Design</button>
+          <button data-filter-btn>Applications</button>
         </li>
 
 
         <li class="filter-item">
-          <button data-filter-btn>Développement Web</button>
+          <button data-filter-btn>Mobile Apps</button>
         </li>
 
+
         <li class="filter-item">
-          <button data-filter-btn>WordPress</button>
+          <button data-filter-btn>Web Design</button>
+        </li>
+
+
+        <li class="filter-item">
+          <button data-filter-btn>Web Development</button>
         </li>
 
 <!-- CATEGORY_FILTERS_END -->
@@ -528,16 +486,22 @@
                 <!-- CATEGORY_SELECT_START -->
 
         <li class="select-item">
-                    <button data-select-item>Design</button>
+                    <button data-select-item>Applications</button>
                 </li>
 
 
         <li class="select-item">
-                    <button data-select-item>Développement Web</button>
+                    <button data-select-item>Mobile Apps</button>
                 </li>
 
+
         <li class="select-item">
-                    <button data-select-item>WordPress</button>
+                    <button data-select-item>Web Design</button>
+                </li>
+
+
+        <li class="select-item">
+                    <button data-select-item>Web Development</button>
                 </li>
 
 <!-- CATEGORY_SELECT_END -->
@@ -546,47 +510,6 @@
 
             <ul class="project-list">
               <!-- PORTFOLIO_PROJECTS_START -->
-
-      <li class="project-item" data-filter-item data-category="développement web">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="/assets/images/logo.svg" alt="DJQueue" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title>DJQueue</h3>
-          <p class="project-category" data-project-category>Développement Web</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description>Application web en temps réel permettant aux participants d'une soirée de proposer des musiques au DJ via QR code, avec votes et lecture Spotify.</span>
-            <span data-project-repo-link>https://github.com/Fullann/dj-queue-app</span>
-            <span data-project-live-link></span>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="project-item" data-filter-item data-category="développement web">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="/assets/images/image-1770716811194-701802795" alt="TerraCoast" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title>TerraCoast</h3>
-          <p class="project-category" data-project-category>Développement Web</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description>Projet collaboratif visant à rendre la géographie accessible gratuitement via une plateforme intuitive et moderne.</span>
-            <span data-project-repo-link>https://github.com/Fullann/TerraCoast-V2</span>
-            <span data-project-live-link>https://terracoast.ch/</span>
-          </div>
-        </a>
-      </li>
 
 <!-- PORTFOLIO_PROJECTS_END -->
             </ul>
@@ -660,12 +583,6 @@
             <ul class="blog-posts-list">
               <!-- BLOGS_START -->
 
-      <li class="blog-post-item">
-        <div class="blog-content">
-          <p class="blog-text">De nouveaux articles arrivent bientôt. Reviens prochainement pour découvrir mes retours d'expérience techniques.</p>
-        </div>
-      </li>
-
 <!-- BLOGS_END -->
             </ul>
           </section>
@@ -684,7 +601,7 @@
               <!-- MAP_START -->
 
                     <iframe
-                        src="https://maps.google.com/maps?q=Lausanne%2C%20Suisse&t=&z=11&ie=UTF8&iwloc=&output=embed"
+                        src="https://maps.google.com/maps?q=Sacramento%2C%20California%2C%20USA&t=&z=13&ie=UTF8&iwloc=&output=embed"
                         width="400"
                         height="300"
                         loading="lazy"
@@ -730,6 +647,8 @@
                 required
                 data-form-input
               ></textarea>
+
+              <div class="h-captcha" data-sitekey="" id="hcaptcha-widget"></div>
 
               <button class="form-btn" type="submit" data-form-btn>
                 <ion-icon name="paper-plane"></ion-icon>

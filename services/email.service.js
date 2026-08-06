@@ -1,11 +1,15 @@
 const transporter = require('../config/nodemailer');
+const { dbOperations } = require('../config/database');
 
 async function sendContactEmail(data) {
-  const { fullname, email, message, recaptchaScore } = data;
+  const { fullname, email, message } = data;
+
+  // Récupérer l'email admin depuis les settings DB
+  const adminEmail = await dbOperations.settings.get('admin_email') || process.env.EMAIL_USER;
 
   const mailOptions = {
     from: email,
-    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+    to: adminEmail,
     subject: `Nouveau message de ${fullname}`,
     html: `
       <h2>Nouveau message depuis le portfolio</h2>
@@ -13,8 +17,6 @@ async function sendContactEmail(data) {
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Message:</strong></p>
       <p>${message}</p>
-      <hr>
-      <p><small>Score reCAPTCHA: ${recaptchaScore || 'N/A'}</small></p>
     `
   };
 

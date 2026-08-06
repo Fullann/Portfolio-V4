@@ -11,9 +11,9 @@ exports.sitemap = async (req, res) => {
   }
 };
 
-exports.robots = (req, res) => {
+exports.robots = async (req, res) => {
   try {
-    const robotsTxt = generateRobotsTxt();
+    const robotsTxt = await generateRobotsTxt();
     res.header('Content-Type', 'text/plain');
     res.send(robotsTxt);
   } catch (error) {

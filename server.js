@@ -4,13 +4,16 @@ const path = require('path');
 const cors = require('cors');
 const compression = require('compression');
 
+const helmet = require('helmet');
+
 const { initializeDatabase } = require('./mysql-db');
 const { generalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware globaux
+// Middleware globaux de sécurité et performance
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,8 +38,8 @@ app.use('/assets', express.static(path.join(__dirname, 'public/assets'), {
   }
 }));
 
-// Rate limiting
-//app.use('/api', generalLimiter);
+// Rate limiting global sur l'API
+app.use('/api', generalLimiter);
 
 // Chargement conditionnel des modules
 let authMiddleware, apiRoutes, seoRoutes, blogsController, personalInfoController;
@@ -52,32 +55,6 @@ try {
   apiRoutes = require('./routes/index');
   app.use('/api', apiRoutes);
   console.log('✅ Routes API chargées');
-  // Après le montage des routes, ajoute :
-app.use('/api', apiRoutes);
-
-// ✨ DEBUG : Afficher toutes les routes disponibles
-if (process.env.NODE_ENV === 'development') {
-  console.log('\n📋 Routes disponibles:');
-  
-  function printRoutes(router, prefix = '') {
-    router.stack.forEach(layer => {
-      if (layer.route) {
-        const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
-        console.log(`  ${methods.padEnd(7)} ${prefix}${layer.route.path}`);
-      } else if (layer.name === 'router') {
-        const path = layer.regexp.source
-          .replace('\\/?', '')
-          .replace('(?=\\/|$)', '')
-          .replace(/\\\//g, '/');
-        printRoutes(layer.handle, prefix + path);
-      }
-    });
-  }
-  
-  printRoutes(app._router);
-  console.log('');
-}
-
 } catch (e) {
   console.warn('⚠️ Routes API non trouvées:', e.message);
 }

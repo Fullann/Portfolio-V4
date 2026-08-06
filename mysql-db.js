@@ -123,6 +123,7 @@ async function initializeDatabase() {
                 institution VARCHAR(255) NOT NULL,
                 period VARCHAR(255) NOT NULL,
                 description TEXT,
+                display_order INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -133,9 +134,23 @@ async function initializeDatabase() {
                 position VARCHAR(255) NOT NULL,
                 period VARCHAR(255) NOT NULL,
                 description TEXT,
+                display_order INT DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+    // Migration automatique des colonnes pour les tables existantes
+    try {
+      await connection.execute("ALTER TABLE education ADD COLUMN display_order INT DEFAULT 0");
+    } catch (e) {
+      // Ignorer si la colonne existe déjà
+    }
+
+    try {
+      await connection.execute("ALTER TABLE experience ADD COLUMN display_order INT DEFAULT 0");
+    } catch (e) {
+      // Ignorer si la colonne existe déjà
+    }
 
     await connection.execute(`
             CREATE TABLE IF NOT EXISTS skills (
@@ -152,6 +167,14 @@ async function initializeDatabase() {
                 username VARCHAR(255) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+    await connection.execute(`
+            CREATE TABLE IF NOT EXISTS settings (
+                setting_key VARCHAR(255) PRIMARY KEY,
+                setting_value TEXT,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
         `);
 
@@ -279,12 +302,56 @@ async function insertDefaultData() {
         );
       }
     }
+
+    // Insérer les paramètres par défaut
+    const [settingsRows] = await pool.execute(
+      "SELECT COUNT(*) as count FROM settings",
+    );
+    if (settingsRows[0].count === 0) {
+      const defaultSettings = [
+        ["site_name", "Mon Portfolio"],
+        ["site_description", "Portfolio personnel"],
+        ["site_author", "Fullann"],
+        ["base_url", "http://localhost:3000"],
+        ["admin_email", ""],
+        ["hcaptcha_sitekey", ""],
+        ["hcaptcha_secret", ""],
+      ];
+
+      for (const [key, value] of defaultSettings) {
+        await pool.execute(
+          `INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)`,
+          [key, value],
+        );
+      }
+    }
   } catch (error) {
     console.error(
       "❌ Erreur lors de l'insertion des données par défaut:",
       error,
     );
   }
+}
+
+// Helper pour sécuriser les requêtes UPDATE dynamiques avec liste blanche
+async function safeUpdate(tableName, id, data, allowedFieldsMap, idColumn = "id") {
+  const fields = [];
+  const values = [];
+
+  for (const [jsKey, dbColumn] of Object.entries(allowedFieldsMap)) {
+    if (data[jsKey] !== undefined) {
+      fields.push(`${dbColumn} = ?`);
+      values.push(data[jsKey]);
+    }
+  }
+
+  if (fields.length === 0) return;
+
+  values.push(id);
+  await pool.execute(
+    `UPDATE ${tableName} SET ${fields.join(", ")} WHERE ${idColumn} = ?`,
+    values
+  );
 }
 
 // Fonctions d'accès aux données
@@ -314,35 +381,12 @@ const dbOperations = {
       return { id: result.insertId, ...data };
     },
     update: async (id, data) => {
-      const fields = [];
-      const values = [];
-
-      if (data.title !== undefined) {
-        fields.push("title = ?");
-        values.push(data.title);
-      }
-      if (data.category !== undefined) {
-        fields.push("category = ?");
-        values.push(data.category);
-      }
-      if (data.image !== undefined) {
-        fields.push("image = ?");
-        values.push(data.image);
-      }
-      if (data.description !== undefined) {
-        fields.push("description = ?");
-        values.push(data.description);
-      }
-
-      values.push(id);
-
-      await pool.execute(
-        `
-                UPDATE projects SET ${fields.join(", ")} WHERE id = ?
-            `,
-        values,
-      );
-
+      await safeUpdate("projects", id, data, {
+        title: "title",
+        category: "category",
+        image: "image",
+        description: "description"
+      });
       return dbOperations.projects.getById(id);
     },
     delete: async (id) => {
@@ -379,35 +423,12 @@ const dbOperations = {
       return { id: result.insertId, ...data };
     },
     update: async (id, data) => {
-      const fields = [];
-      const values = [];
-
-      if (data.name !== undefined) {
-        fields.push("name = ?");
-        values.push(data.name);
-      }
-      if (data.text !== undefined) {
-        fields.push("text = ?");
-        values.push(data.text);
-      }
-      if (data.avatar !== undefined) {
-        fields.push("avatar = ?");
-        values.push(data.avatar);
-      }
-      if (data.date !== undefined) {
-        fields.push("date = ?");
-        values.push(data.date);
-      }
-
-      values.push(id);
-
-      await pool.execute(
-        `
-                UPDATE testimonials SET ${fields.join(", ")} WHERE id = ?
-            `,
-        values,
-      );
-
+      await safeUpdate("testimonials", id, data, {
+        name: "name",
+        text: "text",
+        avatar: "avatar",
+        date: "date"
+      });
       return dbOperations.testimonials.getById(id);
     },
     delete: async (id) => {
@@ -1248,6 +1269,43 @@ const dbOperations = {
         [newPassword, username],
       );
       return result;
+    },
+  },
+
+  // Paramètres du site
+  settings: {
+    getAll: async () => {
+      const [rows] = await pool.execute(
+        "SELECT setting_key, setting_value FROM settings ORDER BY setting_key",
+      );
+      const settings = {};
+      rows.forEach((row) => {
+        settings[row.setting_key] = row.setting_value;
+      });
+      return settings;
+    },
+    get: async (key) => {
+      const [rows] = await pool.execute(
+        "SELECT setting_value FROM settings WHERE setting_key = ?",
+        [key],
+      );
+      return rows[0]?.setting_value || null;
+    },
+    set: async (key, value) => {
+      await pool.execute(
+        `INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()`,
+        [key, value, value],
+      );
+    },
+    setBulk: async (keyValuePairs) => {
+      for (const [key, value] of Object.entries(keyValuePairs)) {
+        await pool.execute(
+          `INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)
+           ON DUPLICATE KEY UPDATE setting_value = ?, updated_at = NOW()`,
+          [key, value, value],
+        );
+      }
     },
   },
 

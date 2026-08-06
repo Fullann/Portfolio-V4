@@ -1,7 +1,8 @@
 const { dbOperations } = require('../config/database');
 
 async function generateSitemap() {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+  // Récupérer base_url depuis les settings DB
+  const baseUrl = await dbOperations.settings.get('base_url') || 'http://localhost:3000';
   
   try {
     const blogs = await dbOperations.blogs.getAll();
@@ -43,8 +44,8 @@ async function generateSitemap() {
   }
 }
 
-function generateRobotsTxt() {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+async function generateRobotsTxt() {
+  const baseUrl = await dbOperations.settings.get('base_url') || 'http://localhost:3000';
   
   return `User-agent: *
 Allow: /

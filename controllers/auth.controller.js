@@ -30,9 +30,12 @@ exports.sendEmail = async (req, res) => {
     const { fullname, email, message } = req.body;
     const transporter = require('../config/nodemailer');
 
+    // Récupérer l'email admin depuis les settings DB
+    const adminEmail = await dbOperations.settings.get('admin_email') || process.env.EMAIL_USER;
+
     const mailOptions = {
       from: email,
-      to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+      to: adminEmail,
       subject: `Nouveau message de ${fullname}`,
       html: `
         <h2>Nouveau message depuis le portfolio</h2>
@@ -40,8 +43,6 @@ exports.sendEmail = async (req, res) => {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong></p>
         <p>${message}</p>
-        <hr>
-        <p><small>Score reCAPTCHA: ${req.recaptchaScore || 'N/A'}</small></p>
       `
     };
 
