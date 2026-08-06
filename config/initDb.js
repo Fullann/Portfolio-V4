@@ -37,9 +37,16 @@ async function initializeDatabase() {
         repo_link TEXT,
         live_link TEXT,
         filter_category VARCHAR(255),
+        is_current_work INT DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    try {
+      await connection.execute("ALTER TABLE portfolio_projects ADD COLUMN is_current_work INT DEFAULT 0");
+    } catch (e) {
+      // Ignorer si la colonne existe déjà
+    }
 
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS clients (
@@ -195,27 +202,56 @@ async function initializeDatabase() {
         ['fr', 'nav.portfolio', 'Portfolio'],
         ['fr', 'nav.blog', 'Blog'],
         ['fr', 'nav.contact', 'Contact'],
+        ['fr', 'about.availability', 'Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).'],
+        ['fr', 'about.cta_discuss', 'Discutons de ton projet'],
+        ['fr', 'about.cta_view', 'Voir mes projets'],
+        ['fr', 'about.working_on', 'Sur quoi je travaille actuellement'],
+        ['fr', 'about.recommendations', 'Recommandations'],
+        ['fr', 'resume.education', 'Formation'],
+        ['fr', 'resume.experience', 'Expérience'],
+        ['fr', 'resume.skills', 'Mes Compétences'],
         ['fr', 'contact.title', 'Formulaire de Contact'],
         ['fr', 'contact.name', 'Nom complet'],
         ['fr', 'contact.email', 'Adresse email'],
         ['fr', 'contact.message', 'Votre message'],
         ['fr', 'contact.send', 'Envoyer le message'],
-        ['fr', 'hero.working_on', 'Sur quoi je travaille actuellement'],
-        ['fr', 'hero.recommendations', 'Recommandations'],
         ['fr', 'portfolio.all', 'Tous'],
+        ['fr', 'blog.read_time', 'min de lecture'],
+        ['fr', 'blog.share_title', 'Partager cet article'],
+        ['fr', 'blog.copy_link', 'Copier le lien'],
+        ['fr', 'sidebar.contacts_show', 'Afficher les contacts'],
+        ['fr', 'sidebar.email', 'Email'],
+        ['fr', 'sidebar.phone', 'Téléphone'],
+        ['fr', 'sidebar.birthday', 'Date de naissance'],
+        ['fr', 'sidebar.location', 'Localisation'],
+
         ['en', 'nav.about', 'About Me'],
         ['en', 'nav.resume', 'Resume'],
         ['en', 'nav.portfolio', 'Portfolio'],
         ['en', 'nav.blog', 'Blog'],
         ['en', 'nav.contact', 'Contact'],
+        ['en', 'about.availability', 'Available for freelance web projects (showcase sites, applications & maintenance).'],
+        ['en', 'about.cta_discuss', "Let's discuss your project"],
+        ['en', 'about.cta_view', 'View my projects'],
+        ['en', 'about.working_on', 'What I am currently working on'],
+        ['en', 'about.recommendations', 'Recommendations'],
+        ['en', 'resume.education', 'Education'],
+        ['en', 'resume.experience', 'Experience'],
+        ['en', 'resume.skills', 'My Skills'],
         ['en', 'contact.title', 'Contact Form'],
         ['en', 'contact.name', 'Full Name'],
         ['en', 'contact.email', 'Email Address'],
         ['en', 'contact.message', 'Your Message'],
         ['en', 'contact.send', 'Send Message'],
-        ['en', 'hero.working_on', 'What I am currently working on'],
-        ['en', 'hero.recommendations', 'Recommendations'],
-        ['en', 'portfolio.all', 'All']
+        ['en', 'portfolio.all', 'All'],
+        ['en', 'blog.read_time', 'min read'],
+        ['en', 'blog.share_title', 'Share this article'],
+        ['en', 'blog.copy_link', 'Copy link'],
+        ['en', 'sidebar.contacts_show', 'Show contacts'],
+        ['en', 'sidebar.email', 'Email'],
+        ['en', 'sidebar.phone', 'Phone'],
+        ['en', 'sidebar.birthday', 'Birthday'],
+        ['en', 'sidebar.location', 'Location']
       ];
 
       for (const [lang, key, val] of defaultTranslations) {

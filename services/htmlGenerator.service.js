@@ -67,25 +67,28 @@ async function updateHtmlFile() {
       .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/>/i, `<meta name="twitter:description" content="${siteDesc}" />`)
       .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/>/i, `<meta name="twitter:image" content="${avatarUrl}" />`);
 
-    // Générer le HTML pour les projets
-    const projectsHtml = projects
+    // Générer le HTML pour les projets "Sur quoi je travaille actuellement"
+    const currentWorkProjects = formattedPortfolioProjects.filter(p => p.isCurrentWork === 1);
+    const heroProjects = currentWorkProjects.length > 0 ? currentWorkProjects : formattedPortfolioProjects.slice(0, 4);
+
+    const projectsHtml = heroProjects
       .map(project => `
-      <li class="project-item active" data-filter-item data-category="${project.category}">
+      <li class="project-item active" data-filter-item data-category="${project.filterCategory || project.category}">
         <a href="#" data-project-item>
           <figure class="project-img">
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="${project.image}" alt="${project.title}" loading="lazy" data-project-image>
+            <img src="${project.image || '/assets/images/project-1.jpg'}" alt="${project.title}" loading="lazy" data-project-image>
           </figure>
           <h3 class="project-title" data-project-title>${project.title}</h3>
           <p class="project-category" data-project-category>${project.category}</p>
           
           <!-- Données cachées pour la modal -->
           <div style="display: none;">
-            <span data-project-description>${project.description}</span>
-            <span data-project-repo-link></span>
-            <span data-project-live-link></span>
+            <span data-project-description>${project.description || ''}</span>
+            <span data-project-repo-link>${project.repoLink || ''}</span>
+            <span data-project-live-link>${project.liveLink || ''}</span>
           </div>
         </a>
       </li>
@@ -184,7 +187,7 @@ async function updateHtmlFile() {
               <span class="dot"></span>
               <time datetime="${blog.date}">${blog.date}</time>
               <span class="dot"></span>
-              <span>⏱️ ${calculateReadingTime(blog.content || blog.excerpt)}</span>
+              <span>${calculateReadingTime(blog.content || blog.excerpt)}</span>
             </div>
             <h3 class="h3 blog-item-title">${blog.title}</h3>
             <p class="blog-text">${blog.excerpt}</p>

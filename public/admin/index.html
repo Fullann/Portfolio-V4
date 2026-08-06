@@ -202,27 +202,6 @@
                   d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
                 ></path>
               </svg>
-              <span class="font-medium">Portfolio</span>
-            </button>
-
-            <button
-              onclick="showSection('projects')"
-              class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-gray-700"
-              data-section="projects"
-            >
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                ></path>
-              </svg>
               <span class="font-medium">Projets</span>
             </button>
 
@@ -1067,11 +1046,11 @@
               class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6 border border-gray-100"
             >
               <h2 class="text-lg font-bold text-gray-800 mb-6">
-                ⚙️ Paramètres du compte
+                Paramètres du compte
               </h2>
 
               <!-- Infos actuelles -->
-              <div class="bg-blue-50 rounded-lg p-4 mb-6">
+              <div class="bg-blue-50 rounded-lg p-4 mb-6 border border-blue-100">
                 <h3 class="font-semibold text-gray-800 mb-2">
                   Informations actuelles
                 </h3>
@@ -1098,7 +1077,7 @@
                     id="new-username"
                     required
                     minlength="3"
-                    class="flex-1 px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition"
+                    class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition"
                     placeholder="Nouveau nom"
                   />
                   <button
@@ -1113,7 +1092,7 @@
               <!-- Changer mot de passe -->
               <form id="password-change-form">
                 <h3 class="font-semibold text-gray-800 mb-4">
-                  🔒 Changer le mot de passe
+                  Changer le mot de passe
                 </h3>
                 <div class="space-y-3">
                   <input
@@ -1121,7 +1100,7 @@
                     id="current-password"
                     required
                     placeholder="Mot de passe actuel"
-                    class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-yellow-500 outline-none transition"
+                    class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition"
                   />
                   <input
                     type="password"
@@ -1129,7 +1108,7 @@
                     required
                     minlength="6"
                     placeholder="Nouveau mot de passe"
-                    class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-yellow-500 outline-none transition"
+                    class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition"
                   />
                   <input
                     type="password"
@@ -1137,11 +1116,11 @@
                     required
                     minlength="6"
                     placeholder="Confirmer le mot de passe"
-                    class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-yellow-500 outline-none transition"
+                    class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition"
                   />
                   <button
                     type="submit"
-                    class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-gray-900 rounded-lg font-semibold transition"
+                    class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition"
                   >
                     Changer le mot de passe
                   </button>
@@ -1151,33 +1130,33 @@
               <!-- Configuration Générale du Site & hCaptcha -->
               <form id="site-settings-form" class="mt-8 pt-6 border-t border-gray-200">
                 <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                  🌐 Configuration Générale & hCaptcha
+                  Configuration Générale & hCaptcha
                 </h3>
                 <div class="space-y-4">
                   <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Nom du site</label>
-                    <input type="text" id="setting-site-name" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Mon Portfolio" />
+                    <input type="text" id="setting-site-name" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Mon Portfolio" />
                   </div>
                   <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Description du site (SEO / Open Graph)</label>
-                    <textarea id="setting-site-description" rows="2" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Portfolio personnel..."></textarea>
+                    <textarea id="setting-site-description" rows="2" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Portfolio personnel..."></textarea>
                   </div>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label class="block text-xs font-semibold text-gray-600 mb-1">Auteur</label>
-                      <input type="text" id="setting-site-author" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Fullann" />
+                      <input type="text" id="setting-site-author" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Fullann" />
                     </div>
                     <div>
                       <label class="block text-xs font-semibold text-gray-600 mb-1">URL du site (Base URL)</label>
-                      <input type="url" id="setting-base-url" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="http://localhost:3000" />
+                      <input type="url" id="setting-base-url" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="http://localhost:3000" />
                     </div>
                   </div>
                   <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1">Email de réception (Formulaire de contact)</label>
-                    <input type="email" id="setting-admin-email" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="contact@votre-domaine.ch" />
+                    <input type="email" id="setting-admin-email" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="contact@votre-domaine.ch" />
                   </div>
                   <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-3 mt-4">
-                    <h4 class="font-semibold text-xs text-gray-700 uppercase tracking-wider">🛡️ Configuration hCaptcha</h4>
+                    <h4 class="font-semibold text-xs text-gray-700 uppercase tracking-wider">Configuration hCaptcha</h4>
                     <div>
                       <label class="block text-xs font-medium text-gray-600 mb-1">hCaptcha Sitekey (Clé publique)</label>
                       <input type="text" id="setting-hcaptcha-sitekey" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none" placeholder="10000000-ffff-ffff-ffff-100000000001" />
@@ -1187,32 +1166,32 @@
                       <input type="password" id="setting-hcaptcha-secret" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none" placeholder="••••••••" />
                     </div>
                   </div>
-                  <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold transition shadow-sm">
-                    💾 Enregistrer tous les paramètres
+                  <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition shadow-sm">
+                    Enregistrer tous les paramètres
                   </button>
                 </div>
               </form>
             </div>
 
-            <!-- Catégories & Optimisation -->
+            <!-- Catégories & Zone sensible -->
             <div class="space-y-6">
               <div
                 class="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
               >
-                <h3 class="font-bold text-gray-800 mb-4">🏷️ Catégories</h3>
+                <h3 class="font-bold text-gray-800 mb-4">Catégories</h3>
                 <button
                   onclick="openCategoryModal()"
-                  class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition mb-4"
+                  class="w-full px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-semibold transition mb-4"
                 >
-                  ➕ Nouvelle catégorie
+                  Nouvelle catégorie
                 </button>
                 <div id="categories-list" class="space-y-2"></div>
               </div>
 
               <div
-                class="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl shadow-sm p-6 border-2 border-red-200"
+                class="bg-red-50/50 rounded-xl shadow-sm p-6 border border-red-200"
               >
-                <h3 class="font-bold text-red-700 mb-2">⚠️ Zone dangereuse</h3>
+                <h3 class="font-bold text-red-700 mb-2">Zone sensible</h3>
                 <p class="text-sm text-gray-700 mb-4">
                   Supprimer toutes les données
                 </p>
@@ -1220,7 +1199,7 @@
                   onclick="deleteAllData()"
                   class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition"
                 >
-                  🗑️ Tout supprimer
+                  Tout supprimer
                 </button>
               </div>
             </div>
@@ -1231,8 +1210,8 @@
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <div class="flex flex-wrap justify-between items-center gap-4 mb-6 pb-4 border-b border-gray-100">
               <div>
-                <h3 class="text-xl font-bold text-gray-800">🌐 Configuration Multilingue (i18n)</h3>
-                <p class="text-sm text-gray-500">Gérez les langues actives et éditez les textes du site dans chaque langue.</p>
+                <h3 class="text-xl font-bold text-gray-800">Configuration Multilingue (i18n)</h3>
+                <p class="text-sm text-gray-500">Gérez les langues actives et éditez l'intégralité des textes du site par langue.</p>
               </div>
               <div class="flex items-center gap-2" id="i18n-lang-selectors">
                 <!-- Injeté dynamiquement -->
@@ -1249,7 +1228,7 @@
                   type="submit"
                   class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition flex items-center gap-2"
                 >
-                  💾 Enregistrer les traductions
+                  Enregistrer les traductions
                 </button>
               </div>
             </form>
@@ -1414,13 +1393,20 @@
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Image du projet</label>
-        <input type="file" id="portfolio-image" accept="image/*" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"/>
+        <input type="file" id="portfolio-image" accept="image/*" class="w-full px-4 py-3 border border-gray-200 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer"/>
         <div id="portfolio-image-preview" class="mt-3 hidden"></div>
+      </div>
+
+      <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+        <input type="checkbox" id="portfolio-current-work" class="w-4 h-4 text-indigo-600 rounded cursor-pointer"/>
+        <label for="portfolio-current-work" class="text-sm font-semibold text-gray-700 cursor-pointer">
+          Afficher dans "Sur quoi je travaille actuellement"
+        </label>
       </div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="portfolio-submit-btn" class="flex-1 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-md transition">
-          💾 Enregistrer
+        <button type="submit" id="portfolio-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-sm transition">
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('portfolio-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1480,7 +1466,7 @@
 <div id="blog-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-slide-in">
     <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
-      <h3 class="text-xl font-bold text-gray-800" id="blog-modal-title">✍️ Nouvel Article</h3>
+      <h3 class="text-xl font-bold text-gray-800" id="blog-modal-title">Nouvel Article</h3>
       <button onclick="closeModal('blog-modal')" class="p-2 hover:bg-gray-100 rounded-lg transition">
         <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -1525,8 +1511,8 @@
       <div id="blog-image-preview" class="hidden"></div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="blog-submit-btn" class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
-          📝 Publier l'article
+        <button type="submit" id="blog-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+          Publier l'article
         </button>
         <button type="button" onclick="closeModal('blog-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1539,29 +1525,29 @@
 <!-- Modal Expérience -->
 <div id="experience-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full animate-slide-in">
-    <div class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white p-6 rounded-t-2xl">
-      <h3 class="text-xl font-bold">💼 Expérience Professionnelle</h3>
+    <div class="bg-slate-800 text-white p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold">Expérience Professionnelle</h3>
     </div>
     
     <form id="experience-form" class="p-6 space-y-4">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Poste *</label>
-        <input type="text" id="experience-position" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="Développeur Full-Stack"/>
+        <input type="text" id="experience-position" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="Développeur Full-Stack"/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Période *</label>
-        <input type="text" id="experience-period" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="2020 - Présent"/>
+        <input type="text" id="experience-period" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="2020 - Présent"/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-        <textarea id="experience-description" required rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition resize-none" placeholder="Décrivez vos missions et réalisations..."></textarea>
+        <textarea id="experience-description" required rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition resize-none" placeholder="Décrivez vos missions et réalisations..."></textarea>
       </div>
       
       <div class="flex gap-3 pt-4">
         <button type="submit" id="experience-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
-          💾 Enregistrer
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('experience-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1574,29 +1560,29 @@
 <!-- Modal Éducation -->
 <div id="education-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full animate-slide-in">
-    <div class="bg-gradient-to-r from-purple-500 to-pink-600 text-white p-6 rounded-t-2xl">
-      <h3 class="text-xl font-bold">🎓 Formation</h3>
+    <div class="bg-slate-800 text-white p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold">Formation</h3>
     </div>
     
     <form id="education-form" class="p-6 space-y-4">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Institution *</label>
-        <input type="text" id="education-institution" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 outline-none transition" placeholder="Université / École"/>
+        <input type="text" id="education-institution" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="Université / École"/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Période *</label>
-        <input type="text" id="education-period" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 outline-none transition" placeholder="2018 - 2021"/>
+        <input type="text" id="education-period" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="2018 - 2021"/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
-        <textarea id="education-description" required rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 outline-none transition resize-none" placeholder="Diplôme, spécialisation..."></textarea>
+        <textarea id="education-description" required rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition resize-none" placeholder="Diplôme, spécialisation..."></textarea>
       </div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="education-submit-btn" class="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition">
-          💾 Enregistrer
+        <button type="submit" id="education-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('education-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1609,25 +1595,25 @@
 <!-- Modal Compétence -->
 <div id="skill-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-in">
-    <div class="bg-gradient-to-r from-amber-500 to-orange-600 text-white p-6 rounded-t-2xl">
-      <h3 class="text-xl font-bold">⚡ Compétence</h3>
+    <div class="bg-slate-800 text-white p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold">Compétence</h3>
     </div>
     
     <form id="skill-form" class="p-6 space-y-4">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Nom de la compétence *</label>
-        <input type="text" id="skill-name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-amber-500 outline-none transition" placeholder="JavaScript, React..."/>
+        <input type="text" id="skill-name" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="JavaScript, React..."/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Niveau (%) *</label>
-        <input type="number" id="skill-percentage" required min="0" max="100" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-amber-500 outline-none transition" placeholder="85"/>
+        <input type="number" id="skill-percentage" required min="0" max="100" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="85"/>
         <input type="range" id="skill-slider" min="0" max="100" value="50" class="w-full mt-2" oninput="document.getElementById('skill-percentage').value = this.value"/>
       </div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="skill-submit-btn" class="flex-1 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg transition">
-          💾 Enregistrer
+        <button type="submit" id="skill-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('skill-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1640,34 +1626,34 @@
 <!-- Modal Client -->
 <div id="client-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full animate-slide-in">
-    <div class="bg-gradient-to-r from-purple-500 to-pink-600 text-white p-6 rounded-t-2xl">
-      <h3 class="text-xl font-bold">🤝 Nouveau Client</h3>
+    <div class="bg-slate-800 text-white p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold">Nouveau Client</h3>
     </div>
     
     <form id="client-form" class="p-6 space-y-4">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Nom du client *</label>
-        <input type="text" id="client-name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 outline-none transition"/>
+        <input type="text" id="client-name" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition"/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Site web</label>
-        <input type="url" id="client-website" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 outline-none transition" placeholder="https://..."/>
+        <input type="url" id="client-website" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="https://..."/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-        <textarea id="client-description" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 outline-none transition resize-none"></textarea>
+        <textarea id="client-description" rows="3" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition resize-none"></textarea>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Logo</label>
-        <input type="file" id="client-logo" accept="image/*" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-50 file:text-purple-700 cursor-pointer"/>
+        <input type="file" id="client-logo" accept="image/*" class="w-full px-4 py-3 border border-gray-200 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 cursor-pointer"/>
       </div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="client-submit-btn" class="flex-1 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition">
-          💾 Enregistrer
+        <button type="submit" id="client-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('client-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1680,29 +1666,29 @@
 <!-- Modal Témoignage -->
 <div id="testimonial-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full animate-slide-in">
-    <div class="bg-gradient-to-r from-orange-500 to-red-600 text-white p-6 rounded-t-2xl">
-      <h3 class="text-xl font-bold">💬 Nouveau Témoignage</h3>
+    <div class="bg-slate-800 text-white p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold">Nouveau Témoignage</h3>
     </div>
     
     <form id="testimonial-form" class="p-6 space-y-4">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Nom *</label>
-        <input type="text" id="testimonial-name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 outline-none transition"/>
+        <input type="text" id="testimonial-name" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition"/>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Témoignage *</label>
-        <textarea id="testimonial-text" required rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-orange-500 outline-none transition resize-none" placeholder="Ce que le client dit de vous..."></textarea>
+        <textarea id="testimonial-text" required rows="4" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition resize-none" placeholder="Ce que le client dit de vous..."></textarea>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Avatar</label>
-        <input type="file" id="testimonial-avatar" accept="image/*" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-orange-50 file:text-orange-700 cursor-pointer"/>
+        <input type="file" id="testimonial-avatar" accept="image/*" class="w-full px-4 py-3 border border-gray-200 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-700 cursor-pointer"/>
       </div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="testimonial-submit-btn" class="flex-1 px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
-          💾 Enregistrer
+        <button type="submit" id="testimonial-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('testimonial-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1715,8 +1701,8 @@
 <!-- Modal Lien Social -->
 <div id="social-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-in">
-    <div class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-6 rounded-t-2xl">
-      <h3 class="text-xl font-bold">🔗 Lien Social</h3>
+    <div class="bg-slate-800 text-white p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold">Lien Social</h3>
     </div>
     
     <form id="social-form" class="p-6 space-y-4">
@@ -1746,8 +1732,8 @@
       </div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="social-submit-btn" class="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">
-          💾 Enregistrer
+        <button type="submit" id="social-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('social-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler
@@ -1760,25 +1746,25 @@
 <!-- Modal Catégorie -->
 <div id="category-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-slide-in">
-    <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-6 rounded-t-2xl">
-      <h3 class="text-xl font-bold">🏷️ Catégorie</h3>
+    <div class="bg-slate-800 text-white p-6 rounded-t-2xl">
+      <h3 class="text-xl font-bold">Catégorie</h3>
     </div>
     
     <form id="category-form" class="p-6 space-y-4">
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Nom technique *</label>
-        <input type="text" id="category-name" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 outline-none transition" placeholder="web-development"/>
+        <input type="text" id="category-name" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="web-development"/>
         <p class="text-xs text-gray-500 mt-1">Minuscules et tirets uniquement</p>
       </div>
       
       <div>
         <label class="block text-sm font-semibold text-gray-700 mb-2">Nom d'affichage *</label>
-        <input type="text" id="category-display" required class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-green-500 outline-none transition" placeholder="Web Development"/>
+        <input type="text" id="category-display" required class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition" placeholder="Web Development"/>
       </div>
       
       <div class="flex gap-3 pt-4">
-        <button type="submit" id="category-submit-btn" class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
-          💾 Enregistrer
+        <button type="submit" id="category-submit-btn" class="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg transition">
+          Enregistrer
         </button>
         <button type="button" onclick="closeModal('category-modal')" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition">
           Annuler

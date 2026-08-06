@@ -242,6 +242,14 @@ async function testPortfolioProjects() {
       logSuccess('Projet portfolio mis à jour');
     }
     
+    // TOGGLE CURRENT WORK
+    const toggle = await request('POST', `/api/portfolio-projects/${createdIds.portfolioProjects[0]}/toggle-current-work`, {
+      isCurrentWork: 1
+    }, true);
+    if (toggle.status === 200) {
+      logSuccess('Statut "Sur quoi je travaille actuellement" basculé avec succès');
+    }
+    
   } catch (error) {
     logError(`Erreur projets portfolio: ${error.message}`);
   }

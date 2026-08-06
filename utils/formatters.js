@@ -46,7 +46,8 @@ async function formatPortfolioProject(dbData) {
     description: dbData.description,
     repoLink: dbData.repo_link,
     liveLink: dbData.live_link,
-    filterCategory: dbData.filter_category || null
+    filterCategory: dbData.filter_category || null,
+    isCurrentWork: Number(dbData.is_current_work) || 0
   };
 }
 

@@ -283,6 +283,10 @@ async function handlePortfolioSubmit(e) {
     "filterCategory",
     document.getElementById("portfolio-category").value,
   );
+  formData.append(
+    "isCurrentWork",
+    document.getElementById("portfolio-current-work").checked ? "1" : "0",
+  );
 
   const imageFile = document.getElementById("portfolio-image").files[0];
   if (imageFile) formData.append("image", imageFile);
@@ -982,36 +986,52 @@ async function loadPortfolioProjects() {
     list.innerHTML = projects
       .map(
         (project) => `
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition group">
-        ${
-          project.image
-            ? `
-          <div class="h-48 overflow-hidden bg-gray-100">
-            <img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"/>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition group flex flex-col justify-between">
+        <div>
+          ${
+            project.image
+              ? `
+            <div class="h-48 overflow-hidden bg-gray-100">
+              <img src="${project.image}" alt="${project.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+            </div>
+          `
+              : `
+            <div class="h-48 bg-slate-800 flex items-center justify-center">
+              <svg class="w-12 h-12 text-gray-400 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+              </svg>
+            </div>
+          `
+          }
+          <div class="p-4">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h3 class="font-bold text-gray-800 text-base line-clamp-1">${project.title}</h3>
+            </div>
+            <p class="text-sm text-gray-600 mb-3 line-clamp-2">${project.description || "Pas de description"}</p>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs rounded-full font-medium">${project.category || "Non catégorisé"}</span>
+              <button
+                type="button"
+                onclick="toggleCurrentWorkProject(${project.id}, ${project.isCurrentWork ? 0 : 1})"
+                class="px-2.5 py-1 rounded-full text-xs font-semibold transition flex items-center gap-1 ${
+                  project.isCurrentWork
+                    ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                }"
+                title="Afficher dans 'Sur quoi je travaille actuellement'"
+              >
+                <span>${project.isCurrentWork ? "En vedette (Accueil)" : "+ Ajouter à l'accueil"}</span>
+              </button>
+            </div>
+            <div class="flex gap-2">
+              ${project.repoLink ? `<a href="${project.repoLink}" target="_blank" class="flex-1 text-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition">Code</a>` : ""}
+              ${project.liveLink ? `<a href="${project.liveLink}" target="_blank" class="flex-1 text-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition">Voir Site</a>` : ""}
+            </div>
           </div>
-        `
-            : `
-          <div class="h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <svg class="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-          </div>
-        `
-        }
-        <div class="p-4">
-          <h3 class="font-bold text-gray-800 mb-1">${project.title}</h3>
-          <p class="text-sm text-gray-600 mb-3 line-clamp-2">${project.description || "Pas de description"}</p>
-          <div class="flex items-center gap-2 mb-3">
-            <span class="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">${project.category || "Non catégorisé"}</span>
-          </div>
-          <div class="flex gap-2">
-            ${project.repoLink ? `<a href="${project.repoLink}" target="_blank" class="flex-1 text-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition">Code</a>` : ""}
-            ${project.liveLink ? `<a href="${project.liveLink}" target="_blank" class="flex-1 text-center px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition">Voir</a>` : ""}
-          </div>
-          <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-            <button onclick="editPortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">✏️ Modifier</button>
-            <button onclick="deletePortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-red-50 text-red-700 rounded-lg text-sm font-semibold transition">🗑️ Supprimer</button>
-          </div>
+        </div>
+        <div class="flex gap-2 p-4 pt-0 border-t border-gray-100 mt-2">
+          <button onclick="editPortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 bg-gray-50 hover:bg-indigo-50 text-indigo-700 rounded-lg text-xs font-semibold transition">Modifier</button>
+          <button onclick="deletePortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 bg-gray-50 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold transition">Supprimer</button>
         </div>
       </div>
     `,
@@ -1531,6 +1551,8 @@ function openCategoryModal() {
 function openPortfolioModal() {
   currentEditingId = null;
   document.getElementById("portfolio-form").reset();
+  const currentWorkCheckbox = document.getElementById("portfolio-current-work");
+  if (currentWorkCheckbox) currentWorkCheckbox.checked = false;
   openModal("portfolio-modal");
 }
 
@@ -1613,17 +1635,43 @@ async function editPortfolioProject(id) {
 
     if (project) {
       currentEditingId = id;
-      document.getElementById("portfolio-title").value = project.title;
+      document.getElementById("portfolio-title").value = project.title || "";
       document.getElementById("portfolio-category").value =
-        project.filterCategory || "";
+        project.filterCategory || project.category || "";
       document.getElementById("portfolio-description").value =
-        project.description;
+        project.description || "";
       document.getElementById("portfolio-repo").value = project.repoLink || "";
       document.getElementById("portfolio-live").value = project.liveLink || "";
+      const currentWorkCheckbox = document.getElementById("portfolio-current-work");
+      if (currentWorkCheckbox) currentWorkCheckbox.checked = Boolean(project.isCurrentWork);
       openModal("portfolio-modal");
     }
   } catch (error) {
     console.error("Erreur:", error);
+  }
+}
+
+async function toggleCurrentWorkProject(id, isCurrentWork) {
+  try {
+    const response = await fetchWithAuth(`/api/portfolio-projects/${id}/toggle-current-work`, {
+      method: "POST",
+      body: JSON.stringify({ isCurrentWork }),
+    });
+
+    if (response.ok) {
+      showNotification(
+        isCurrentWork
+          ? "Projet ajouté à 'Sur quoi je travaille actuellement'"
+          : "Projet retiré de 'Sur quoi je travaille actuellement'",
+        "success"
+      );
+      await loadPortfolioProjects();
+    } else {
+      showNotification("Erreur lors du changement de statut", "error");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+    showNotification("Erreur lors du changement de statut", "error");
   }
 }
 
@@ -2081,37 +2129,72 @@ function renderI18nTranslationFields() {
   const fieldsContainer = document.getElementById("i18n-translations-fields");
   if (!fieldsContainer) return;
 
-  const keyLabels = {
-    "nav.about": "Menu - À propos",
-    "nav.resume": "Menu - Parcours",
-    "nav.portfolio": "Menu - Portfolio",
-    "nav.blog": "Menu - Blog",
-    "nav.contact": "Menu - Contact",
-    "contact.title": "Titre du formulaire de contact",
-    "contact.name": "Label Champ Nom",
-    "contact.email": "Label Champ Email",
-    "contact.message": "Label Champ Message",
-    "contact.send": "Bouton Envoyer",
-    "hero.working_on": "Titre 'Sur quoi je travaille'",
-    "hero.recommendations": "Titre 'Recommandations'",
-    "portfolio.all": "Filtre 'Tous les projets'"
+  const keyCategories = {
+    "Navigation": {
+      "nav.about": "Menu - À propos",
+      "nav.resume": "Menu - Parcours",
+      "nav.portfolio": "Menu - Portfolio",
+      "nav.blog": "Menu - Blog",
+      "nav.contact": "Menu - Contact"
+    },
+    "Boutons & Titres d'En-tête": {
+      "about.availability": "Texte de disponibilité",
+      "about.cta_discuss": "Bouton 'Discutons de ton projet'",
+      "about.cta_view": "Bouton 'Voir mes projets'",
+      "about.working_on": "Titre 'Sur quoi je travaille'",
+      "about.recommendations": "Titre 'Recommandations'"
+    },
+    "Parcours & Compétences": {
+      "resume.education": "Titre 'Formation'",
+      "resume.experience": "Titre 'Expérience'",
+      "resume.skills": "Titre 'Mes Compétences'"
+    },
+    "Formulaire de Contact": {
+      "contact.title": "Titre du formulaire",
+      "contact.name": "Label Champ Nom",
+      "contact.email": "Label Champ Email",
+      "contact.message": "Label Champ Message",
+      "contact.send": "Bouton Envoyer"
+    },
+    "Blog & Portfolio": {
+      "portfolio.all": "Filtre 'Tous les projets'",
+      "blog.read_time": "Unité temps de lecture",
+      "blog.share_title": "Titre du bloc de partage",
+      "blog.copy_link": "Bouton Copier le lien"
+    },
+    "Barre Latérale & Contacts": {
+      "sidebar.contacts_show": "Bouton Afficher les contacts",
+      "sidebar.email": "Libellé Email",
+      "sidebar.phone": "Libellé Téléphone",
+      "sidebar.birthday": "Libellé Date de naissance",
+      "sidebar.location": "Libellé Localisation"
+    }
   };
 
-  fieldsContainer.innerHTML = Object.entries(keyLabels)
-    .map(
-      ([key, label]) => `
-      <div>
-        <label class="block text-xs font-semibold text-gray-600 mb-1">${label} <code class="text-gray-400">(${key})</code></label>
-        <input
-          type="text"
-          data-i18n-key="${key}"
-          value="${(currentI18nTranslations[key] || "").replace(/"/g, '&quot;')}"
-          class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-indigo-500 outline-none transition"
-        />
+  let html = "";
+  for (const [catName, keys] of Object.entries(keyCategories)) {
+    html += `
+      <div class="col-span-full border-b border-gray-200 pb-2 pt-4 first:pt-0">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-600">${catName}</h4>
       </div>
-    `
-    )
-    .join("");
+    `;
+    for (const [key, label] of Object.entries(keys)) {
+      const val = (currentI18nTranslations[key] || "").replace(/"/g, '&quot;');
+      html += `
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">${label} <code class="text-gray-400 font-mono text-[10px]">(${key})</code></label>
+          <input
+            type="text"
+            data-i18n-key="${key}"
+            value="${val}"
+            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-indigo-500 outline-none transition"
+          />
+        </div>
+      `;
+    }
+  }
+
+  fieldsContainer.innerHTML = html;
 }
 
 async function handleI18nFormSubmit(e) {

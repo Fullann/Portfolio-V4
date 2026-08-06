@@ -17,7 +17,7 @@ exports.getAllPortfolioProjects = async (req, res) => {
 
 exports.createPortfolioProject = async (req, res) => {
   try {
-    const { title, category, description, repoLink, liveLink, filterCategory } = req.body;
+    const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork } = req.body;
     const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
     lastUpdate = Date.now();
@@ -29,7 +29,8 @@ exports.createPortfolioProject = async (req, res) => {
       description,
       repoLink: repoLink || '',
       liveLink: liveLink || '',
-      filterCategory: filterCategory || category
+      filterCategory: filterCategory || category,
+      isCurrentWork: isCurrentWork === '1' || isCurrentWork === 1 || isCurrentWork === 'true' || isCurrentWork === true ? 1 : 0
     });
 
     await updateHtmlFile();
@@ -43,11 +44,14 @@ exports.createPortfolioProject = async (req, res) => {
 exports.updatePortfolioProject = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, category, description, repoLink, liveLink, filterCategory } = req.body;
+    const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork } = req.body;
 
     lastUpdate = Date.now();
 
     const updateData = { title, category, description, repoLink, liveLink, filterCategory };
+    if (isCurrentWork !== undefined) {
+      updateData.isCurrentWork = isCurrentWork === '1' || isCurrentWork === 1 || isCurrentWork === 'true' || isCurrentWork === true ? 1 : 0;
+    }
     if (req.file) {
       updateData.image = `/assets/images/${req.file.filename}`;
     }
@@ -62,6 +66,22 @@ exports.updatePortfolioProject = async (req, res) => {
   } catch (error) {
     console.error('Erreur:', error);
     res.status(500).json({ error: 'Erreur lors de la mise à jour du projet portfolio' });
+  }
+};
+
+exports.toggleCurrentWork = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isCurrentWork } = req.body;
+
+    lastUpdate = Date.now();
+
+    const updatedProject = await dbOperations.portfolioProjects.toggleCurrentWork(id, isCurrentWork);
+    await updateHtmlFile();
+    res.json(await formatPortfolioProject(updatedProject));
+  } catch (error) {
+    console.error('Erreur:', error);
+    res.status(500).json({ error: 'Erreur lors de la bascule du projet en travail actuel' });
   }
 };
 

@@ -16,8 +16,8 @@ const portfolioProjectModel = {
   },
   create: async (data) => {
     const [result] = await pool.execute(
-      `INSERT INTO portfolio_projects (title, category, image, description, repo_link, live_link, filter_category)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO portfolio_projects (title, category, image, description, repo_link, live_link, filter_category, is_current_work)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.title,
         data.category,
@@ -26,6 +26,7 @@ const portfolioProjectModel = {
         data.repoLink,
         data.liveLink,
         data.filterCategory,
+        data.isCurrentWork ? 1 : 0,
       ]
     );
     return { id: result.insertId, ...data };
@@ -38,8 +39,17 @@ const portfolioProjectModel = {
       description: "description",
       repoLink: "repo_link",
       liveLink: "live_link",
-      filterCategory: "filter_category"
+      filterCategory: "filter_category",
+      isCurrentWork: "is_current_work"
     });
+    return portfolioProjectModel.getById(id);
+  },
+  toggleCurrentWork: async (id, isCurrentWork) => {
+    const val = (isCurrentWork === '1' || isCurrentWork === 1 || isCurrentWork === true || isCurrentWork === 'true') ? 1 : 0;
+    await pool.execute(
+      "UPDATE portfolio_projects SET is_current_work = ? WHERE id = ?",
+      [val, Number(id)]
+    );
     return portfolioProjectModel.getById(id);
   },
   delete: async (id) => {
