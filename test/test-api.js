@@ -10,8 +10,8 @@ const http = require('http');
 
 // Configuration
 const API_URL = 'http://localhost:3000';
-const ADMIN_USERNAME = 'admin'; // 🔐 Change si différent
-const ADMIN_PASSWORD = 'admin123'; // 🔐 Change si différent
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'adminpassword';
 
 // Couleurs pour la console
 const colors = {
@@ -697,6 +697,22 @@ async function cleanup() {
 // 🚀 EXÉCUTION PRINCIPALE
 // ============================================
 
+async function testI18n() {
+  logSection('🌐 TEST MULTILINGUE (i18n)');
+  try {
+    const langs = await request('GET', '/api/i18n/languages');
+    if (langs.status === 200) {
+      logSuccess(`${langs.data.length} langues actives récupérées`);
+    }
+    const trans = await request('GET', '/api/i18n/translations/fr');
+    if (trans.status === 200) {
+      logSuccess(`Dictionnaire FR récupéré (${Object.keys(trans.data).length} clés)`);
+    }
+  } catch (error) {
+    logError(`Erreur i18n: ${error.message}`);
+  }
+}
+
 async function runAllTests() {
   console.log('\n' + colors.bright + colors.cyan);
   console.log('╔════════════════════════════════════════════════╗');
@@ -729,6 +745,7 @@ async function runAllTests() {
   await testTestimonials();
   await testSocialLinks();
   await testPersonalInfo();
+  await testI18n();
   
   // Nettoyage
   await cleanup();

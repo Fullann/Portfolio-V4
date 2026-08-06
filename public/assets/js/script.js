@@ -14,6 +14,169 @@ sidebarBtn.addEventListener("click", function () {
   elementToggleFunc(sidebar);
 });
 
+// 🔔 FONCTION NOTIFICATION TOAST ANIMÉE
+function showToast(message, type = 'success', duration = 4000) {
+  let container = document.getElementById('toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toast-container';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+  }
+
+  const icons = {
+    success: '✅',
+    error: '❌',
+    warning: '⚠️'
+  };
+
+  const toast = document.createElement('div');
+  toast.className = `custom-toast ${type}`;
+  toast.innerHTML = `
+    <span class="custom-toast-icon">${icons[type] || 'ℹ️'}</span>
+    <span class="custom-toast-message">${message}</span>
+  `;
+
+  container.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add('show');
+  });
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.parentNode.removeChild(toast);
+      }
+    }, 400);
+  }, duration);
+}
+
+// ✨ SCROLL REVEAL ANIMATION
+function initScrollReveal() {
+  const revealElements = document.querySelectorAll(
+    ".service-item, .testimonials-item, .project-item, .timeline-item, .skills-item, .clients-item, [data-reveal]"
+  );
+
+  revealElements.forEach((el) => {
+    el.setAttribute("data-reveal", "");
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("revealed");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: "0px 0px -30px 0px" }
+  );
+
+  revealElements.forEach((el) => observer.observe(el));
+}
+
+// 📊 SCROLL PROGRESS BAR
+function initScrollProgressBar() {
+  let bar = document.getElementById("scroll-progress-bar");
+  if (!bar) {
+    bar = document.createElement("div");
+    bar.id = "scroll-progress-bar";
+    bar.className = "scroll-progress-bar";
+    document.body.appendChild(bar);
+  }
+
+  window.addEventListener("scroll", () => {
+    const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+    bar.style.width = scrolled + "%";
+  });
+}
+
+// 🌐 SYSTÈME I18N PUBLIC
+let activeLanguages = [];
+let currentLang = localStorage.getItem("portfolio_lang") || "fr";
+let translations = {};
+
+async function initI18n() {
+  try {
+    const resLangs = await fetch("/api/i18n/languages");
+    if (resLangs.ok) {
+      activeLanguages = await resLangs.json();
+    }
+    await loadTranslations(currentLang);
+    renderLangSelector();
+  } catch (error) {
+    console.error("Erreur init i18n:", error);
+  }
+}
+
+async function loadTranslations(langCode) {
+  try {
+    const resTrans = await fetch(`/api/i18n/translations/${langCode}`);
+    if (resTrans.ok) {
+      translations = await resTrans.json();
+      currentLang = langCode;
+      localStorage.setItem("portfolio_lang", langCode);
+      applyTranslations();
+      renderLangSelector();
+    }
+  } catch (error) {
+    console.error("Erreur chargement traductions:", error);
+  }
+}
+
+function applyTranslations() {
+  document.querySelectorAll("[data-i18n]").forEach((el) => {
+    const key = el.getAttribute("data-i18n");
+    if (translations[key]) {
+      el.textContent = translations[key];
+    }
+  });
+}
+
+function renderLangSelector() {
+  const container = document.getElementById("lang-selector");
+  if (!container) return;
+
+  const listToRender = activeLanguages && activeLanguages.length > 0
+    ? activeLanguages
+    : [{ code: 'fr', name: 'Français' }, { code: 'en', name: 'English' }];
+
+  container.innerHTML = listToRender
+    .map(
+      (l) => `
+      <button
+        type="button"
+        onclick="switchLanguage('${l.code}')"
+        class="lang-btn ${l.code === currentLang ? "active" : ""}"
+        title="${l.name || l.code.toUpperCase()}"
+      >
+        ${l.code.toUpperCase()}
+      </button>
+    `
+    )
+    .join("");
+}
+
+function switchLanguage(code) {
+  if (code !== currentLang) {
+    loadTranslations(code);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initScrollReveal();
+  initScrollProgressBar();
+  initI18n();
+  if (document.getElementById("theme-toggle-btn")) {
+    new ThemeManager();
+  }
+});
+
 // Testimonials variables
 const testimonialsItem = document.querySelectorAll("[data-testimonials-item]");
 const modalContainer = document.querySelector("[data-modal-container]");
@@ -310,8 +473,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  new ThemeManager();
-
   const themeBtn = document.getElementById("theme-toggle-btn");
   if (themeBtn) {
     themeBtn.addEventListener("mouseenter", () => {
@@ -392,8 +553,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (response.ok) {
         trackEvent("contact_form_submit_success", { source: "contact_form" });
-        alert(
-          "✅ Message envoyé avec succès ! Je vous répondrai dans les plus brefs délais.",
+        showToast(
+          "Message envoyé avec succès ! Je vous répondrai dans les plus brefs délais.",
+          "success"
         );
         form.reset();
         if (typeof hcaptcha !== "undefined") {
@@ -410,17 +572,18 @@ document.addEventListener("DOMContentLoaded", function () {
           hcaptcha.reset();
         }
         if (response.status === 429) {
-          alert(
-            "⚠️ Trop de tentatives d'envoi. Veuillez ressayer dans quelques minutes.",
+          showToast(
+            "Trop de tentatives d'envoi. Veuillez réessayer dans quelques minutes.",
+            "warning"
           );
         } else if (response.status === 403) {
-          alert("⚠️ Activité suspecte détectée. Veuillez ressayer.");
+          showToast("Activité suspecte détectée. Veuillez réessayer.", "warning");
         } else {
           const serverMessage =
             result?.details || result?.error || "Erreur serveur";
-          alert(
-            "❌ L'envoi du message a échoué. Vérifie la configuration email du serveur puis réessaie.\n\nDétail: " +
-              serverMessage,
+          showToast(
+            "L'envoi du message a échoué : " + serverMessage,
+            "error"
           );
         }
       }
@@ -433,10 +596,11 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (error.message && error.message.includes("CAPTCHA")) {
-        alert("❌ Erreur de sécurité. Veuillez recharger la page et ressayer.");
+        showToast("Erreur de sécurité CAPTCHA. Veuillez recharger la page et réessayer.", "error");
       } else {
-        alert(
-          "❌ Erreur lors de l'envoi du message. Veuillez vérifier votre connexion et ressayer.",
+        showToast(
+          "Erreur lors de l'envoi du message. Veuillez vérifier votre connexion et réessayer.",
+          "error"
         );
       }
     } finally {

@@ -67,15 +67,18 @@
     <!--
     - #MAIN
   -->
-    <div class="theme-toggle">
-      <button
-        id="theme-toggle-btn"
-        class="theme-toggle-btn"
-        aria-label="Basculer le thème"
-      >
-        <ion-icon name="sunny-outline" class="light-icon"></ion-icon>
-        <ion-icon name="moon-outline" class="dark-icon"></ion-icon>
-      </button>
+    <div class="header-controls">
+      <div class="lang-selector" id="lang-selector"></div>
+      <div class="theme-toggle">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          aria-label="Basculer le thème"
+        >
+          <ion-icon name="sunny-outline" class="light-icon"></ion-icon>
+          <ion-icon name="moon-outline" class="dark-icon"></ion-icon>
+        </button>
+      </div>
     </div>
     <main>
       <!--
@@ -89,21 +92,32 @@
           <figure class="avatar-box">
             <img
               src="./assets/images/my-avatar.png"
-              alt="Richard hanrick"
+              alt="Avatar"
               width="80"
+              data-avatar-img
             />
           </figure>
 
           <!-- AVATAR_END -->
 
           <div class="info-content">
-            <!-- PERSONAL_INFO_START -->
+            <!-- NAME_START -->
 
-            <!-- PERSONAL_INFO_END -->
+            <h1 class="name" title="Richard hanrick" data-name>
+              Richard hanrick
+            </h1>
+
+            <!-- NAME_END -->
+
+            <!-- TITLE_START -->
+
+            <p class="title" data-title>Web developer</p>
+
+            <!-- TITLE_END -->
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
-            <span>Afficher les informations </span>
+            <span>Afficher les contacts</span>
 
             <ion-icon name="chevron-down"></ion-icon>
           </button>
@@ -113,9 +127,83 @@
           <div class="separator"></div>
 
           <ul class="contacts-list">
-            <!-- CONTACT_INFO_START -->
+            <!-- CONTACT_EMAIL_START -->
 
-            <!-- CONTACT_INFO_END -->
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="mail-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Email</p>
+
+                <a
+                  href="mailto:richard@example.com"
+                  class="contact-link"
+                  data-contact-email
+                  >richard@example.com</a
+                >
+              </div>
+            </li>
+
+            <!-- CONTACT_EMAIL_END -->
+
+            <!-- CONTACT_PHONE_START -->
+
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="phone-portrait-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Téléphone</p>
+
+                <a
+                  href="tel:+12133522795"
+                  class="contact-link"
+                  data-contact-phone
+                  >+1 (213) 352-2795</a
+                >
+              </div>
+            </li>
+
+            <!-- CONTACT_PHONE_END -->
+
+            <!-- CONTACT_BIRTHDAY_START -->
+
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="calendar-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Date de naissance</p>
+
+                <time datetime="1982-06-23" data-contact-birthday
+                  >23 Juin, 1982</time
+                >
+              </div>
+            </li>
+
+            <!-- CONTACT_BIRTHDAY_END -->
+
+            <!-- CONTACT_LOCATION_START -->
+
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="location-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Localisation</p>
+
+                <address data-contact-location>
+                  Sacramento, California, USA
+                </address>
+              </div>
+            </li>
+
+            <!-- CONTACT_LOCATION_END -->
           </ul>
 
           <div class="separator"></div>
@@ -141,19 +229,19 @@
         <nav class="navbar">
           <ul class="navbar-list">
             <li class="navbar-item">
-              <button class="navbar-link active" data-nav-link>À propos</button>
+              <button class="navbar-link active" data-nav-link data-i18n="nav.about">À propos</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Parcours</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.resume">Parcours</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Portfolio</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.portfolio">Portfolio</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Blog</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.blog">Blog</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Contact</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.contact">Contact</button>
             </li>
           </ul>
         </nav>
@@ -164,7 +252,7 @@
 
         <article class="about active" data-page="à propos">
           <header>
-            <h2 class="h2 article-title">À propos</h2>
+            <h2 class="h2 article-title" data-i18n="nav.about">À propos</h2>
           </header>
 
           <section class="about-text">

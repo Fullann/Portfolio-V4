@@ -38,39 +38,70 @@ async function optimizeImage(inputPath, outputPath, options = {}) {
   }
 }
 
-// Middleware d'optimisation pour multer
-const optimizeUploadedImage = async (req, res, next) => {
-  if (!req.file || req.file.fieldname === 'cv') {
-    return next();
+// Traiter un fichier individuel
+async function processSingleFile(fileObj) {
+  if (!fileObj || fileObj.fieldname === 'cv') {
+    return;
+  }
+  const isImage = /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(fileObj.filename || fileObj.originalname || '');
+  if (!isImage) {
+    return;
   }
 
+  const originalPath = fileObj.path;
+  const fileName = path.parse(fileObj.filename).name;
+  const outputPath = path.join(fileObj.destination, `${fileName}.webp`);
+
+  let optimizationOptions = { format: 'webp', quality: 85 };
+
+  if (fileObj.fieldname === 'image' || fileObj.fieldname === 'logo') {
+    optimizationOptions = { ...optimizationOptions, width: 800, height: 600 };
+  } else if (fileObj.fieldname === 'avatar') {
+    optimizationOptions = { ...optimizationOptions, width: 300, height: 300 };
+  }
+
+  const result = await optimizeImage(originalPath, outputPath, optimizationOptions);
+
+  if (result.success) {
+    if (fs.existsSync(originalPath) && originalPath !== outputPath) {
+      try {
+        fs.unlinkSync(originalPath);
+      } catch (e) {
+        // Ignorer erreur suppression temporaire
+      }
+    }
+    fileObj.path = outputPath;
+    fileObj.filename = `${fileName}.webp`;
+    fileObj.optimized = true;
+    fileObj.optimizationStats = {
+      originalSize: result.originalSize,
+      optimizedSize: result.optimizedSize,
+      savings: result.savings
+    };
+  }
+}
+
+// Middleware d'optimisation pour multer (gère req.file et req.files)
+const optimizeUploadedImage = async (req, res, next) => {
   try {
-    const originalPath = req.file.path;
-    const fileName = path.parse(req.file.filename).name;
-    const outputPath = path.join(req.file.destination, `${fileName}.webp`);
-
-    let optimizationOptions = { format: 'webp', quality: 85 };
-
-    if (req.file.fieldname === 'image' || req.file.fieldname === 'logo') {
-      optimizationOptions = { ...optimizationOptions, width: 800, height: 600 };
-    } else if (req.file.fieldname === 'avatar') {
-      optimizationOptions = { ...optimizationOptions, width: 200, height: 200 };
+    if (req.file) {
+      await processSingleFile(req.file);
+    } else if (req.files) {
+      if (Array.isArray(req.files)) {
+        for (const f of req.files) {
+          await processSingleFile(f);
+        }
+      } else if (typeof req.files === 'object') {
+        for (const key of Object.keys(req.files)) {
+          const filesArr = req.files[key];
+          if (Array.isArray(filesArr)) {
+            for (const f of filesArr) {
+              await processSingleFile(f);
+            }
+          }
+        }
+      }
     }
-
-    const result = await optimizeImage(originalPath, outputPath, optimizationOptions);
-
-    if (result.success) {
-      fs.unlinkSync(originalPath);
-      req.file.path = outputPath;
-      req.file.filename = `${fileName}.webp`;
-      req.file.optimized = true;
-      req.file.optimizationStats = {
-        originalSize: result.originalSize,
-        optimizedSize: result.optimizedSize,
-        savings: result.savings
-      };
-    }
-
     next();
   } catch (error) {
     console.error('Erreur lors de l\'optimisation de l\'upload:', error);

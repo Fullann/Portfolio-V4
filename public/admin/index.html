@@ -315,6 +315,16 @@
               </svg>
               <span class="font-medium">Paramètres</span>
             </button>
+
+            <button
+              data-tab="i18n"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 transition"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+              </svg>
+              <span class="font-medium">Multilingue (i18n)</span>
+            </button>
           </div>
         </nav>
 
@@ -1137,6 +1147,51 @@
                   </button>
                 </div>
               </form>
+
+              <!-- Configuration Générale du Site & hCaptcha -->
+              <form id="site-settings-form" class="mt-8 pt-6 border-t border-gray-200">
+                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                  🌐 Configuration Générale & hCaptcha
+                </h3>
+                <div class="space-y-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Nom du site</label>
+                    <input type="text" id="setting-site-name" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Mon Portfolio" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Description du site (SEO / Open Graph)</label>
+                    <textarea id="setting-site-description" rows="2" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Portfolio personnel..."></textarea>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-600 mb-1">Auteur</label>
+                      <input type="text" id="setting-site-author" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="Fullann" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-600 mb-1">URL du site (Base URL)</label>
+                      <input type="url" id="setting-base-url" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="http://localhost:3000" />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Email de réception (Formulaire de contact)</label>
+                    <input type="email" id="setting-admin-email" class="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 outline-none transition text-sm" placeholder="contact@votre-domaine.ch" />
+                  </div>
+                  <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 space-y-3 mt-4">
+                    <h4 class="font-semibold text-xs text-gray-700 uppercase tracking-wider">🛡️ Configuration hCaptcha</h4>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-600 mb-1">hCaptcha Sitekey (Clé publique)</label>
+                      <input type="text" id="setting-hcaptcha-sitekey" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none" placeholder="10000000-ffff-ffff-ffff-100000000001" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-gray-600 mb-1">hCaptcha Secret Key (Clé secrète)</label>
+                      <input type="password" id="setting-hcaptcha-secret" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-indigo-500 outline-none" placeholder="••••••••" />
+                    </div>
+                  </div>
+                  <button type="submit" class="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-semibold transition shadow-sm">
+                    💾 Enregistrer tous les paramètres
+                  </button>
+                </div>
+              </form>
             </div>
 
             <!-- Catégories & Optimisation -->
@@ -1170,6 +1225,36 @@
               </div>
             </div>
           </div>
+
+        <!-- ONGLET MULTILINGUE (i18n) -->
+        <div id="i18n-tab" class="tab-content hidden space-y-6">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <div class="flex flex-wrap justify-between items-center gap-4 mb-6 pb-4 border-b border-gray-100">
+              <div>
+                <h3 class="text-xl font-bold text-gray-800">🌐 Configuration Multilingue (i18n)</h3>
+                <p class="text-sm text-gray-500">Gérez les langues actives et éditez les textes du site dans chaque langue.</p>
+              </div>
+              <div class="flex items-center gap-2" id="i18n-lang-selectors">
+                <!-- Injeté dynamiquement -->
+              </div>
+            </div>
+
+            <form id="i18n-translations-form" class="space-y-6">
+              <div id="i18n-translations-fields" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Injeté dynamiquement -->
+              </div>
+
+              <div class="flex justify-end pt-4 border-t border-gray-100">
+                <button
+                  type="submit"
+                  class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition flex items-center gap-2"
+                >
+                  💾 Enregistrer les traductions
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
         </div>
       </main>
     </div>

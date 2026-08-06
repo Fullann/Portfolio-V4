@@ -18,6 +18,7 @@ const experienceRoutes = require('./experience.routes');
 const skillsRoutes = require('./skills.routes');
 const adminRoutes = require('./admin.routes');
 const settingsRoutes = require('./settings.routes');
+const i18nRoutes = require('./i18n.routes');
 
 // Routes modulaires
 router.use('/auth', authRoutes);
@@ -34,6 +35,7 @@ router.use('/experience', experienceRoutes);
 router.use('/skills', skillsRoutes);
 router.use('/admin', adminRoutes);
 router.use('/settings', settingsRoutes);
+router.use('/i18n', i18nRoutes);
 router.get('/optimization-stats', authenticateToken, adminController.getOptimizationStats);
 
 

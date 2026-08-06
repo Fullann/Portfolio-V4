@@ -4,31 +4,19 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fullann Portfolio</title>
-    <meta
-      name="description"
-      content="Portfolio de Nathan Fullann : projets web, expériences, compétences et contact."
-    />
-    <link rel="canonical" href="https://fullann.ch/" />
+    <title>Mon Portfolio | Test Developer</title>
+    <meta name="description" content="Portfolio personnel" />
+    <link rel="canonical" href="http://localhost:3000/" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Fullann Portfolio" />
-    <meta property="og:title" content="Nathan Füllemann | Développeur web" />
-    <meta
-      property="og:description"
-      content="Découvrez les projets, le parcours et les services web de Nathan Füllemann."
-    />
-    <meta property="og:url" content="https://fullann.ch/" />
-    <meta property="og:image" content="https://fullann.ch/assets/images/logo.svg" />
+    <meta property="og:site_name" content="Mon Portfolio" />
+    <meta property="og:title" content="Test User UPDATED | Test Developer" />
+    <meta property="og:description" content="Portfolio personnel" />
+    <meta property="og:url" content="http://localhost:3000/" />
+    <meta property="og:image" content="http://localhost:3000/assets/images/my-avatar.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Nathan Füllemann | Développeur web" />
-    <meta
-      name="twitter:description"
-      content="Portfolio de développement web : projets, expertise et contact."
-    />
-    <meta
-      name="twitter:image"
-      content="https://fullann.ch/assets/images/logo.svg"
-    />
+    <meta name="twitter:title" content="Test User UPDATED | Test Developer" />
+    <meta name="twitter:description" content="Portfolio personnel" />
+    <meta name="twitter:image" content="http://localhost:3000/assets/images/my-avatar.png" />
 
     <!--
     - favicon
@@ -67,15 +55,18 @@
     <!--
     - #MAIN
   -->
-    <div class="theme-toggle">
-      <button
-        id="theme-toggle-btn"
-        class="theme-toggle-btn"
-        aria-label="Basculer le thème"
-      >
-        <ion-icon name="sunny-outline" class="light-icon"></ion-icon>
-        <ion-icon name="moon-outline" class="dark-icon"></ion-icon>
-      </button>
+    <div class="header-controls">
+      <div class="lang-selector" id="lang-selector"></div>
+      <div class="theme-toggle">
+        <button
+          id="theme-toggle-btn"
+          class="theme-toggle-btn"
+          aria-label="Basculer le thème"
+        >
+          <ion-icon name="sunny-outline" class="light-icon"></ion-icon>
+          <ion-icon name="moon-outline" class="dark-icon"></ion-icon>
+        </button>
+      </div>
     </div>
     <main>
       <!--
@@ -85,19 +76,27 @@
       <aside class="sidebar" data-sidebar>
         <div class="sidebar-info">
           <!-- AVATAR_START -->
-<img src="./assets/images/my-avatar.png" alt="asd" width="80">
+<img src="./assets/images/my-avatar.png" alt="Test User UPDATED" width="80">
 <!-- AVATAR_END -->
 
           <div class="info-content">
-            <!-- PERSONAL_INFO_START -->
+            <!-- NAME_START -->
 
-          <h1 class="name" title="asd">asd</h1>
-          <p class="title">Web developer</p>
-<!-- PERSONAL_INFO_END -->
+            <h1 class="name" title="Richard hanrick" data-name>
+              Richard hanrick
+            </h1>
+
+            <!-- NAME_END -->
+
+            <!-- TITLE_START -->
+
+            <p class="title" data-title>Web developer</p>
+
+            <!-- TITLE_END -->
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
-            <span>Afficher les informations </span>
+            <span>Afficher les contacts</span>
 
             <ion-icon name="chevron-down"></ion-icon>
           </button>
@@ -107,51 +106,165 @@
           <div class="separator"></div>
 
           <ul class="contacts-list">
-            <!-- CONTACT_INFO_START -->
+            <!-- CONTACT_EMAIL_START -->
 
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="mail-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Adresse Email</p>
-              <a href="mailto:test@test.test" class="contact-link">test@test.test</a>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="phone-portrait-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Numéro de téléphone</p>
-              <a href="tel:+1 (213) 352-2795" class="contact-link">+1 (213) 352-2795</a>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="calendar-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Date d'anniversaire</p>
-              <time datetime="1982-06-23">1982-06-23</time>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="location-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Location</p>
-              <address>Sacramento, California, USA</address>
-            </div>
-          </li>
-<!-- CONTACT_INFO_END -->
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="mail-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Email</p>
+
+                <a
+                  href="mailto:richard@example.com"
+                  class="contact-link"
+                  data-contact-email
+                  >richard@example.com</a
+                >
+              </div>
+            </li>
+
+            <!-- CONTACT_EMAIL_END -->
+
+            <!-- CONTACT_PHONE_START -->
+
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="phone-portrait-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Téléphone</p>
+
+                <a
+                  href="tel:+12133522795"
+                  class="contact-link"
+                  data-contact-phone
+                  >+1 (213) 352-2795</a
+                >
+              </div>
+            </li>
+
+            <!-- CONTACT_PHONE_END -->
+
+            <!-- CONTACT_BIRTHDAY_START -->
+
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="calendar-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Date de naissance</p>
+
+                <time datetime="1982-06-23" data-contact-birthday
+                  >23 Juin, 1982</time
+                >
+              </div>
+            </li>
+
+            <!-- CONTACT_BIRTHDAY_END -->
+
+            <!-- CONTACT_LOCATION_START -->
+
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="location-outline"></ion-icon>
+              </div>
+
+              <div class="contact-info">
+                <p class="contact-title">Localisation</p>
+
+                <address data-contact-location>
+                  Sacramento, California, USA
+                </address>
+              </div>
+            </li>
+
+            <!-- CONTACT_LOCATION_END -->
           </ul>
 
           <div class="separator"></div>
 
           <ul class="social-list">
             <!-- SOCIAL_LINKS_START -->
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
+
+
+        <li class="social-item">
+          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="logo-test"></ion-icon>
+          </a>
+        </li>
 
 <!-- SOCIAL_LINKS_END -->
           </ul>
@@ -171,19 +284,19 @@
         <nav class="navbar">
           <ul class="navbar-list">
             <li class="navbar-item">
-              <button class="navbar-link active" data-nav-link>À propos</button>
+              <button class="navbar-link active" data-nav-link data-i18n="nav.about">À propos</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Parcours</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.resume">Parcours</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Portfolio</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.portfolio">Portfolio</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Blog</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.blog">Blog</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link>Contact</button>
+              <button class="navbar-link" data-nav-link data-i18n="nav.contact">Contact</button>
             </li>
           </ul>
         </nav>
@@ -194,13 +307,12 @@
 
         <article class="about active" data-page="à propos">
           <header>
-            <h2 class="h2 article-title">À propos</h2>
+            <h2 class="h2 article-title" data-i18n="nav.about">À propos</h2>
           </header>
 
           <section class="about-text">
             <!-- ABOUT_TEXT_START -->
-<p>I'm Creative Director and UI/UX Designer from Sydney, Australia, working in web development and print media. I enjoy turning complex problems into simple, beautiful and intuitive designs.
-My job is to build your website so that it is functional and user-friendly but at the same time attractive. Moreover, I add personal touch to your product and make sure that is eye-catching and easy to use. My aim is to bring across your message and identity in the most creative way. I created web design for many famous brand companies.</p>
+<p>Test about text updated</p>
 <!-- ABOUT_TEXT_END -->
             <p class="availability-badge" data-reveal>
               Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
@@ -224,22 +336,276 @@ My job is to build your website so that it is functional and user-friendly but a
             <ul class="service-list">
               <!-- PROJECTS_START -->
 
-      <li class="project-item active" data-filter-item data-category="web development" data-project-item>
-        <figure class="project-img">
-          <div class="project-item-icon-box">
-            <ion-icon name="eye-outline"></ion-icon>
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
           </div>
-          <img src="./assets/images/project-1.jpg" alt="Finance" loading="lazy" data-project-image>
-        </figure>
-        <h3 class="project-title" data-project-title>Finance</h3>
-        <p class="project-category" data-project-category>web development</p>
-        
-        <!-- Données cachées pour la modal -->
-        <div class="project-data" style="display: none;">
-          <span data-project-description>Projet de développement web financier</span>
-          <span data-project-repo-link></span>
-          <span data-project-live-link></span>
-        </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="Test Category">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Project 1</h3>
+          <p class="project-category" data-project-category>Test Category</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
+      </li>
+    
+
+      <li class="project-item active" data-filter-item data-category="web development">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="./assets/images/project-1.jpg" alt="Finance" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Finance</h3>
+          <p class="project-category" data-project-category>web development</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Projet de développement web financier</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
+          </div>
+        </a>
       </li>
     
 <!-- PROJECTS_END -->
@@ -254,6 +620,149 @@ My job is to build your website so that it is functional and user-friendly but a
             <h3 class="h3 testimonials-title">Recommandations</h3>
             <ul class="testimonials-list has-scrollbar">
               <!-- TESTIMONIALS_START -->
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
+
+        <li class="testimonials-item">
+          <div class="content-card" data-testimonials-item>
+            <figure class="testimonials-avatar-box">
+              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+            </figure>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+            <div class="testimonials-text" data-testimonials-text>
+              <p>Excellent travail ! Très professionnel.</p>
+            </div>
+          </div>
+        </li>
+
 
         <li class="testimonials-item">
           <div class="content-card" data-testimonials-item>
@@ -317,6 +826,82 @@ My job is to build your website so that it is functional and user-friendly but a
             <ul class="clients-list has-scrollbar">
               <!-- CLIENTS_START -->
 
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
+
+        <li class="clients-item">
+          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+          </a>
+        </li>
+
 <!-- CLIENTS_END -->
             </ul>
           </section>
@@ -342,6 +927,89 @@ My job is to build your website so that it is functional and user-friendly but a
             <ol class="timeline-list">
               <!-- EDUCATION_START -->
 
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test University</h4>
+          <span>2015 - 2019</span>
+          <p class="timeline-text">Bachelor in Computer Science</p>
+        </li>
+
 <!-- EDUCATION_END -->
             </ol>
           </section>
@@ -356,6 +1024,89 @@ My job is to build your website so that it is functional and user-friendly but a
 
             <ol class="timeline-list">
               <!-- EXPERIENCE_START -->
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
+
+
+        <li class="timeline-item">
+          <h4 class="h4 timeline-item-title">Test Developer</h4>
+          <span>2020 - 2022</span>
+          <p class="timeline-text">Description de l'expérience de test</p>
+        </li>
 
 <!-- EXPERIENCE_END -->
             </ol>
@@ -426,6 +1177,127 @@ My job is to build your website so that it is functional and user-friendly but a
           </div>
         </li>
 
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
+
+        <li class="skills-item">
+          <div class="title-wrapper">
+            <h5 class="h5">Test Skill</h5>
+            <data value="85">85%</data>
+          </div>
+          <div class="skill-progress-bg">
+            <div class="skill-progress-fill" style="width: 85%"></div>
+          </div>
+        </li>
+
 <!-- SKILLS_END -->
             </ul>
           </section>
@@ -455,6 +1327,16 @@ My job is to build your website so that it is functional and user-friendly but a
 
         <li class="filter-item">
           <button data-filter-btn>Mobile Apps</button>
+        </li>
+
+
+        <li class="filter-item">
+          <button data-filter-btn>Test Category 1</button>
+        </li>
+
+
+        <li class="filter-item">
+          <button data-filter-btn>Test Category 2</button>
         </li>
 
 
@@ -496,6 +1378,16 @@ My job is to build your website so that it is functional and user-friendly but a
 
 
         <li class="select-item">
+                    <button data-select-item>Test Category 1</button>
+                </li>
+
+
+        <li class="select-item">
+                    <button data-select-item>Test Category 2</button>
+                </li>
+
+
+        <li class="select-item">
                     <button data-select-item>Web Design</button>
                 </li>
 
@@ -510,6 +1402,257 @@ My job is to build your website so that it is functional and user-friendly but a
 
             <ul class="project-list">
               <!-- PORTFOLIO_PROJECTS_START -->
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
+
+
+      <li class="project-item" data-filter-item data-category="test-category-1">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <p class="project-category" data-project-category>Test Category 1</p>
+          
+          <!-- Données pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>Description du projet de test</span>
+            <span data-project-repo-link>https://github.com/test/project1</span>
+            <span data-project-live-link>https://project1.test.com</span>
+          </div>
+        </a>
+      </li>
 
 <!-- PORTFOLIO_PROJECTS_END -->
             </ul>
@@ -583,6 +1726,25 @@ My job is to build your website so that it is functional and user-friendly but a
             <ul class="blog-posts-list">
               <!-- BLOGS_START -->
 
+      <li class="blog-post-item">
+        <a href="/blog/test-blog-article-1">
+          <figure class="blog-banner-box">
+            <img src="null" alt="Test Blog Article 1" loading="lazy">
+          </figure>
+          <div class="blog-content">
+            <div class="blog-meta">
+              <p class="blog-category">Tech</p>
+              <span class="dot"></span>
+              <time datetime="2026-08-06">2026-08-06</time>
+              <span class="dot"></span>
+              <span>⏱️ 1 min de lecture</span>
+            </div>
+            <h3 class="h3 blog-item-title">Test Blog Article 1</h3>
+            <p class="blog-text">Extrait de l'article de test</p>
+          </div>
+        </a>
+      </li>
+
 <!-- BLOGS_END -->
             </ul>
           </section>
@@ -601,7 +1763,7 @@ My job is to build your website so that it is functional and user-friendly but a
               <!-- MAP_START -->
 
                     <iframe
-                        src="https://maps.google.com/maps?q=Sacramento%2C%20California%2C%20USA&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                        src="https://maps.google.com/maps?q=Test%20City&t=&z=13&ie=UTF8&iwloc=&output=embed"
                         width="400"
                         height="300"
                         loading="lazy"

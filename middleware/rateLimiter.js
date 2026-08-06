@@ -29,10 +29,11 @@ const emailLimiter = rateLimit({
   }
 });
 
-// Rate limiter général pour l'API (100 requêtes / 15 minutes)
+// Rate limiter général pour l'API (500 requêtes / 15 minutes)
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 500,
+  skip: (req) => process.env.NODE_ENV === 'test' || req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1',
   message: {
     error: 'Trop de requêtes. Veuillez ralentir.'
   },

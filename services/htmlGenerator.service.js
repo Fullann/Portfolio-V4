@@ -23,7 +23,8 @@ async function updateHtmlFile() {
       socialLinks,
       education,
       experience,
-      skills
+      skills,
+      siteSettings
     ] = await Promise.all([
       dbOperations.projects.getAll(),
       dbOperations.testimonials.getAll(),
@@ -35,7 +36,8 @@ async function updateHtmlFile() {
       dbOperations.socialLinks.getAll(),
       dbOperations.education.getAll(),
       dbOperations.experience.getAll(),
-      dbOperations.skills.getAll()
+      dbOperations.skills.getAll(),
+      dbOperations.settings.getAll()
     ]);
 
     const formattedPersonalInfo = formatPersonalInfo(personalInfo);
@@ -43,25 +45,49 @@ async function updateHtmlFile() {
       portfolioProjects.map(formatPortfolioProject)
     );
 
+    // Mettre à jour le SEO, Open Graph & Twitter Cards
+    const siteName = siteSettings.site_name || `${formattedPersonalInfo.name} Portfolio`;
+    const siteDesc = siteSettings.site_description || `Portfolio de ${formattedPersonalInfo.name} : projets web, expériences, compétences et contact.`;
+    const baseUrl = (siteSettings.base_url || 'http://localhost:3000').replace(/\/$/, '');
+    let avatarUrl = formattedPersonalInfo.avatar || '/assets/images/my-avatar.png';
+    if (!avatarUrl.startsWith('http')) {
+      avatarUrl = `${baseUrl}/${avatarUrl.replace(/^\.\//, '')}`;
+    }
+
+    htmlContent = htmlContent
+      .replace(/<title>.*?<\/title>/i, `<title>${siteName} | ${formattedPersonalInfo.title || 'Portfolio'}</title>`)
+      .replace(/<meta\s+name="description"\s+content=".*?"\s*\/>/i, `<meta name="description" content="${siteDesc}" />`)
+      .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/>/i, `<link rel="canonical" href="${baseUrl}/" />`)
+      .replace(/<meta\s+property="og:site_name"\s+content=".*?"\s*\/>/i, `<meta property="og:site_name" content="${siteName}" />`)
+      .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/>/i, `<meta property="og:title" content="${formattedPersonalInfo.name} | ${formattedPersonalInfo.title}" />`)
+      .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/>/i, `<meta property="og:description" content="${siteDesc}" />`)
+      .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/>/i, `<meta property="og:url" content="${baseUrl}/" />`)
+      .replace(/<meta\s+property="og:image"\s+content=".*?"\s*\/>/i, `<meta property="og:image" content="${avatarUrl}" />`)
+      .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/>/i, `<meta name="twitter:title" content="${formattedPersonalInfo.name} | ${formattedPersonalInfo.title}" />`)
+      .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/>/i, `<meta name="twitter:description" content="${siteDesc}" />`)
+      .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/>/i, `<meta name="twitter:image" content="${avatarUrl}" />`);
+
     // Générer le HTML pour les projets
     const projectsHtml = projects
       .map(project => `
-      <li class="project-item active" data-filter-item data-category="${project.category}" data-project-item>
-        <figure class="project-img">
-          <div class="project-item-icon-box">
-            <ion-icon name="eye-outline"></ion-icon>
+      <li class="project-item active" data-filter-item data-category="${project.category}">
+        <a href="#" data-project-item>
+          <figure class="project-img">
+            <div class="project-item-icon-box">
+              <ion-icon name="eye-outline"></ion-icon>
+            </div>
+            <img src="${project.image}" alt="${project.title}" loading="lazy" data-project-image>
+          </figure>
+          <h3 class="project-title" data-project-title>${project.title}</h3>
+          <p class="project-category" data-project-category>${project.category}</p>
+          
+          <!-- Données cachées pour la modal -->
+          <div style="display: none;">
+            <span data-project-description>${project.description}</span>
+            <span data-project-repo-link></span>
+            <span data-project-live-link></span>
           </div>
-          <img src="${project.image}" alt="${project.title}" loading="lazy" data-project-image>
-        </figure>
-        <h3 class="project-title" data-project-title>${project.title}</h3>
-        <p class="project-category" data-project-category>${project.category}</p>
-        
-        <!-- Données cachées pour la modal -->
-        <div class="project-data" style="display: none;">
-          <span data-project-description>${project.description}</span>
-          <span data-project-repo-link></span>
-          <span data-project-live-link></span>
-        </div>
+        </a>
       </li>
     `)
       .join('\n');
@@ -112,8 +138,8 @@ async function updateHtmlFile() {
     const clientsHtml = clients
       .map(client => `
         <li class="clients-item">
-          <a href="${client.website || '#'}">
-            <img src="${client.logo}" alt="${client.name}">
+          <a href="${client.website || '#'}" ${client.website ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+            <img src="${client.logo}" alt="${client.name}" class="client-logo" loading="lazy">
           </a>
         </li>
 `)
@@ -138,6 +164,13 @@ async function updateHtmlFile() {
       .join('\n');
 
     // Générer le HTML pour les blogs
+    const calculateReadingTime = (text) => {
+      if (!text) return '1 min de lecture';
+      const words = text.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length;
+      const minutes = Math.max(1, Math.ceil(words / 200));
+      return `${minutes} min de lecture`;
+    };
+
     const blogsHtml = blogs
       .map(blog => `
       <li class="blog-post-item">
@@ -150,6 +183,8 @@ async function updateHtmlFile() {
               <p class="blog-category">${blog.category}</p>
               <span class="dot"></span>
               <time datetime="${blog.date}">${blog.date}</time>
+              <span class="dot"></span>
+              <span>⏱️ ${calculateReadingTime(blog.content || blog.excerpt)}</span>
             </div>
             <h3 class="h3 blog-item-title">${blog.title}</h3>
             <p class="blog-text">${blog.excerpt}</p>

@@ -132,8 +132,12 @@ exports.changePassword = async (req, res) => {
       return res.status(400).json({ error: 'Les nouveaux mots de passe ne correspondent pas' });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 6 caractères' });
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'Le mot de passe doit contenir au moins 8 caractères' });
+    }
+
+    if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(newPassword)) {
+      return res.status(400).json({ error: 'Le mot de passe doit contenir au moins une lettre et un chiffre' });
     }
 
     // Vérifier l'ancien mot de passe

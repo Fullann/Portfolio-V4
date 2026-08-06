@@ -89,25 +89,54 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+function isTokenExpired(tokenStr) {
+  if (!tokenStr) return true;
+  try {
+    const base64Url = tokenStr.split(".")[1];
+    if (!base64Url) return true;
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    const payload = JSON.parse(jsonPayload);
+    if (payload.exp && payload.exp * 1000 < Date.now()) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    return true;
+  }
+}
+
   // Vérifier token au chargement
   if (token) {
-    fetch("/api/portfolio-projects", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((response) => {
-        if (response.ok) {
-          document.getElementById("login-section").classList.add("hidden");
-          document.getElementById("admin-panel").classList.remove("hidden");
-          initializeDashboard();
-        } else {
+    if (isTokenExpired(token)) {
+      console.warn("⚠️ Token JWT expiré");
+      localStorage.removeItem("adminToken");
+      token = null;
+      showNotification("⚠️ Session expirée, veuillez vous reconnecter", "warning");
+    } else {
+      fetch("/api/portfolio-projects", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((response) => {
+          if (response.ok) {
+            document.getElementById("login-section").classList.add("hidden");
+            document.getElementById("admin-panel").classList.remove("hidden");
+            initializeDashboard();
+          } else {
+            localStorage.removeItem("adminToken");
+            token = null;
+          }
+        })
+        .catch(() => {
           localStorage.removeItem("adminToken");
           token = null;
-        }
-      })
-      .catch(() => {
-        localStorage.removeItem("adminToken");
-        token = null;
-      });
+        });
+    }
   }
 
   // Attacher tous les autres event listeners
@@ -163,6 +192,8 @@ function attachAllEventListeners() {
     "personal-info-form": handlePersonalInfoSubmit,
     "account-update-form": handleAccountUpdate,
     "password-change-form": handlePasswordChange,
+    "site-settings-form": handleSiteSettingsSubmit,
+    "i18n-translations-form": handleI18nFormSubmit,
   };
 
   Object.entries(forms).forEach(([formId, handler]) => {
@@ -712,14 +743,24 @@ async function handlePasswordChange(e) {
     return false;
   }
 
+  if (newPassword.length < 8) {
+    showNotification("❌ Le mot de passe doit contenir au moins 8 caractères !", "error");
+    return false;
+  }
+
+  if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(newPassword)) {
+    showNotification("❌ Le mot de passe doit contenir au moins une lettre et un chiffre !", "error");
+    return false;
+  }
+
   try {
     const response = await fetchWithAuth("/api/admin/change-password", {
       method: "POST",
-      body: JSON.stringify({ currentPassword, newPassword }),
+      body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
     });
 
     if (response.ok) {
-      showNotification("✅ Mot de passe changé !", "success");
+      showNotification("✅ Mot de passe changé avec succès !", "success");
       document.getElementById("password-change-form").reset();
     } else {
       const error = await response.json();
@@ -755,6 +796,7 @@ async function initializeDashboard() {
       loadCategories(),
       loadCategoryOptions(),
       loadAccountInfo(),
+      loadI18nSettings(),
     ]);
   } catch (error) {
     console.error("❌ Erreur init:", error);
@@ -1027,9 +1069,26 @@ async function loadProjects() {
 
 async function loadBlogs() {
   try {
+    const list = document.getElementById("blogs-list");
+    if (list) {
+      list.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="blog-skeleton-card">
+            <div class="blog-skeleton-banner"></div>
+            <div class="blog-skeleton-line short"></div>
+            <div class="blog-skeleton-line medium"></div>
+          </div>
+          <div class="blog-skeleton-card">
+            <div class="blog-skeleton-banner"></div>
+            <div class="blog-skeleton-line short"></div>
+            <div class="blog-skeleton-line medium"></div>
+          </div>
+        </div>
+      `;
+    }
+
     const response = await fetch("/api/blogs");
     const blogs = await response.json();
-    const list = document.getElementById("blogs-list");
 
     if (!list) return;
 
@@ -1303,8 +1362,61 @@ async function loadAccountInfo() {
         document.getElementById("account-created").textContent = created;
       }
     }
+    await loadSiteSettings();
   } catch (error) {
     console.error("Erreur:", error);
+  }
+}
+
+async function loadSiteSettings() {
+  try {
+    const response = await fetchWithAuth("/api/settings");
+    if (response.ok) {
+      const settings = await response.json();
+      if (document.getElementById("setting-site-name")) {
+        document.getElementById("setting-site-name").value = settings.site_name || "";
+        document.getElementById("setting-site-description").value = settings.site_description || "";
+        document.getElementById("setting-site-author").value = settings.site_author || "";
+        document.getElementById("setting-base-url").value = settings.base_url || "";
+        document.getElementById("setting-admin-email").value = settings.admin_email || "";
+        document.getElementById("setting-hcaptcha-sitekey").value = settings.hcaptcha_sitekey || "";
+        document.getElementById("setting-hcaptcha-secret").value = settings.hcaptcha_secret || "";
+      }
+    }
+  } catch (error) {
+    console.error("Erreur chargement des paramètres:", error);
+  }
+}
+
+async function handleSiteSettingsSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const settingsData = {
+    site_name: document.getElementById("setting-site-name").value,
+    site_description: document.getElementById("setting-site-description").value,
+    site_author: document.getElementById("setting-site-author").value,
+    base_url: document.getElementById("setting-base-url").value,
+    admin_email: document.getElementById("setting-admin-email").value,
+    hcaptcha_sitekey: document.getElementById("setting-hcaptcha-sitekey").value,
+    hcaptcha_secret: document.getElementById("setting-hcaptcha-secret").value,
+  };
+
+  try {
+    const response = await fetchWithAuth("/api/settings", {
+      method: "PUT",
+      body: JSON.stringify(settingsData),
+    });
+
+    if (response.ok) {
+      showNotification("✅ Paramètres enregistrés avec succès !", "success");
+    } else {
+      const errData = await response.json();
+      showNotification(`❌ Erreur: ${errData.error || 'Impossible de sauvegarder'}`, "error");
+    }
+  } catch (error) {
+    console.error("Erreur enregistrement paramètres:", error);
+    showNotification("❌ Erreur lors de l'enregistrement", "error");
   }
 }
 
@@ -1911,5 +2023,123 @@ async function moveEducationDown(id) {
     if (response.ok) await loadEducation();
   } catch (error) {
     console.error("Erreur:", error);
+  }
+}
+
+// ============================================
+// 🌐 GESTION MULTILINGUE (i18n)
+// ============================================
+
+let currentI18nLang = 'fr';
+let currentI18nTranslations = {};
+
+async function loadI18nSettings() {
+  try {
+    const resLangs = await fetchWithAuth("/api/i18n/languages/all");
+    if (!resLangs.ok) return;
+    const languages = await resLangs.json();
+
+    const selectorsContainer = document.getElementById("i18n-lang-selectors");
+    if (selectorsContainer) {
+      selectorsContainer.innerHTML = languages
+        .map(
+          (l) => `
+        <button
+          type="button"
+          onclick="selectI18nLang('${l.code}')"
+          class="px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 ${
+            l.code === currentI18nLang
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "bg-gray-100 hover:bg-gray-200 text-gray-700"
+          }"
+        >
+          <span>${l.flag}</span>
+          <span>${l.name}</span>
+          <span class="text-xs ${l.is_active ? "text-green-300" : "text-gray-400"}">(${l.is_active ? "Actif" : "Inactif"})</span>
+        </button>
+      `
+        )
+        .join("");
+    }
+
+    const resTrans = await fetch(`/api/i18n/translations/${currentI18nLang}`);
+    if (resTrans.ok) {
+      currentI18nTranslations = await resTrans.json();
+      renderI18nTranslationFields();
+    }
+  } catch (error) {
+    console.error("Erreur chargement i18n:", error);
+  }
+}
+
+function selectI18nLang(code) {
+  currentI18nLang = code;
+  loadI18nSettings();
+}
+
+function renderI18nTranslationFields() {
+  const fieldsContainer = document.getElementById("i18n-translations-fields");
+  if (!fieldsContainer) return;
+
+  const keyLabels = {
+    "nav.about": "Menu - À propos",
+    "nav.resume": "Menu - Parcours",
+    "nav.portfolio": "Menu - Portfolio",
+    "nav.blog": "Menu - Blog",
+    "nav.contact": "Menu - Contact",
+    "contact.title": "Titre du formulaire de contact",
+    "contact.name": "Label Champ Nom",
+    "contact.email": "Label Champ Email",
+    "contact.message": "Label Champ Message",
+    "contact.send": "Bouton Envoyer",
+    "hero.working_on": "Titre 'Sur quoi je travaille'",
+    "hero.recommendations": "Titre 'Recommandations'",
+    "portfolio.all": "Filtre 'Tous les projets'"
+  };
+
+  fieldsContainer.innerHTML = Object.entries(keyLabels)
+    .map(
+      ([key, label]) => `
+      <div>
+        <label class="block text-xs font-semibold text-gray-600 mb-1">${label} <code class="text-gray-400">(${key})</code></label>
+        <input
+          type="text"
+          data-i18n-key="${key}"
+          value="${(currentI18nTranslations[key] || "").replace(/"/g, '&quot;')}"
+          class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-indigo-500 outline-none transition"
+        />
+      </div>
+    `
+    )
+    .join("");
+}
+
+async function handleI18nFormSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const inputs = document.querySelectorAll("[data-i18n-key]");
+  const payload = {};
+  inputs.forEach((input) => {
+    const key = input.getAttribute("data-i18n-key");
+    payload[key] = input.value.trim();
+  });
+
+  try {
+    const res = await fetchWithAuth(`/api/i18n/translations/${currentI18nLang}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      showNotification(`✅ Traductions (${currentI18nLang.toUpperCase()}) sauvegardées !`, "success");
+      await loadI18nSettings();
+    } else {
+      const err = await res.json();
+      showNotification("❌ " + (err.error || "Erreur de sauvegarde"), "error");
+    }
+  } catch (error) {
+    console.error("Erreur enregistrement i18n:", error);
+    showNotification("❌ Erreur de sauvegarde des traductions", "error");
   }
 }
