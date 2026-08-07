@@ -4,7 +4,7 @@
   "description": "Portfolio dynamique avec interface d'administration",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node --jitless --max-old-space-size=256 server.js",
     "dev": "node --watch server.js",
     "optimize-images": "node scripts/optimize-images.js"
   },
