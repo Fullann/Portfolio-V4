@@ -20,10 +20,8 @@ router.put('/:id',
   portfolioController.updatePortfolioProject
 );
 
-router.post('/:id/toggle-current-work',
-  authenticateToken,
-  portfolioController.toggleCurrentWork
-);
+router.post('/:id/toggle-current-work', authenticateToken, portfolioController.toggleCurrentWork);
+router.post('/:id/toggle-visibility', authenticateToken, portfolioController.toggleVisibility);
 
 router.delete('/:id',
   authenticateToken,

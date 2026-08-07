@@ -38,12 +38,19 @@ async function initializeDatabase() {
         live_link TEXT,
         filter_category VARCHAR(255),
         is_current_work INT DEFAULT 0,
+        is_visible INT DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
 
     try {
       await connection.execute("ALTER TABLE portfolio_projects ADD COLUMN is_current_work INT DEFAULT 0");
+    } catch (e) {
+      // Ignorer si la colonne existe déjà
+    }
+
+    try {
+      await connection.execute("ALTER TABLE portfolio_projects ADD COLUMN is_visible INT DEFAULT 1");
     } catch (e) {
       // Ignorer si la colonne existe déjà
     }

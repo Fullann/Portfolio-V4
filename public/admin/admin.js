@@ -287,6 +287,11 @@ async function handlePortfolioSubmit(e) {
     "isCurrentWork",
     document.getElementById("portfolio-current-work").checked ? "1" : "0",
   );
+  
+  const isVisibleCheckbox = document.getElementById("portfolio-is-visible");
+  if (isVisibleCheckbox) {
+    formData.append("isVisible", isVisibleCheckbox.checked ? "1" : "0");
+  }
 
   const imageFile = document.getElementById("portfolio-image").files[0];
   if (imageFile) formData.append("image", imageFile);
@@ -1010,18 +1015,32 @@ async function loadPortfolioProjects() {
             <p class="text-sm text-gray-600 mb-3 line-clamp-2">${project.description || "Pas de description"}</p>
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs rounded-full font-medium">${project.category || "Non catégorisé"}</span>
-              <button
-                type="button"
-                onclick="toggleCurrentWorkProject(${project.id}, ${project.isCurrentWork ? 0 : 1})"
-                class="px-2.5 py-1 rounded-full text-xs font-semibold transition flex items-center gap-1 ${
-                  project.isCurrentWork
-                    ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
-                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                }"
-                title="Afficher dans 'Sur quoi je travaille actuellement'"
-              >
-                <span>${project.isCurrentWork ? "En vedette (Accueil)" : "+ Ajouter à l'accueil"}</span>
-              </button>
+              <div class="flex gap-2">
+                <button
+                  type="button"
+                  onclick="togglePortfolioVisibility(${project.id}, ${project.isVisible ? 0 : 1})"
+                  class="px-2 py-1 rounded-lg text-xs font-semibold transition flex items-center justify-center ${
+                    project.isVisible
+                      ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
+                      : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
+                  }"
+                  title="${project.isVisible ? 'Masquer du site' : 'Afficher sur le site'}"
+                >
+                  ${project.isVisible ? '👁️ Visible' : '🚫 Masqué'}
+                </button>
+                <button
+                  type="button"
+                  onclick="toggleCurrentWorkProject(${project.id}, ${project.isCurrentWork ? 0 : 1})"
+                  class="px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
+                    project.isCurrentWork
+                      ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
+                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  }"
+                  title="Afficher dans 'Sur quoi je travaille actuellement'"
+                >
+                  <span>${project.isCurrentWork ? "Accueil" : "+ Accueil"}</span>
+                </button>
+              </div>
             </div>
             <div class="flex gap-2">
               ${project.repoLink ? `<a href="${project.repoLink}" target="_blank" class="flex-1 text-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold transition">Code</a>` : ""}
@@ -1440,6 +1459,30 @@ async function handleSiteSettingsSubmit(e) {
   }
 }
 
+async function togglePortfolioVisibility(id, isVisible) {
+  try {
+    const response = await fetchWithAuth(`/api/portfolio-projects/${id}/toggle-visibility`, {
+      method: "POST",
+      body: JSON.stringify({ isVisible }),
+    });
+
+    if (response.ok) {
+      showNotification(
+        isVisible
+          ? "Projet de nouveau visible en public"
+          : "Projet masqué (non visible sur le site)",
+        "success"
+      );
+      await loadPortfolioProjects();
+    } else {
+      showNotification("Erreur lors de la modification de la visibilité", "error");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+    showNotification("Erreur lors de l'opération", "error");
+  }
+}
+
 // ============================================
 // 🔧 FONCTIONS UTILITAIRES
 // ============================================
@@ -1645,6 +1688,11 @@ async function editPortfolioProject(id) {
       document.getElementById("portfolio-live").value = project.liveLink || "";
       const currentWorkCheckbox = document.getElementById("portfolio-current-work");
       if (currentWorkCheckbox) currentWorkCheckbox.checked = Boolean(project.isCurrentWork);
+      const isVisibleCheckbox = document.getElementById("portfolio-is-visible");
+      if (isVisibleCheckbox) {
+        // By default, visible (1) unless explicitly 0
+        isVisibleCheckbox.checked = project.isVisible !== 0;
+      }
       openModal("portfolio-modal");
     }
   } catch (error) {

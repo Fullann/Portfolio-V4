@@ -41,8 +41,9 @@ async function updateHtmlFile() {
     ]);
 
     const formattedPersonalInfo = formatPersonalInfo(personalInfo);
+    const visiblePortfolioProjects = portfolioProjects.filter(p => p.is_visible !== 0);
     const formattedPortfolioProjects = await Promise.all(
-      portfolioProjects.map(formatPortfolioProject)
+      visiblePortfolioProjects.map(formatPortfolioProject)
     );
 
     // Mettre à jour le SEO, Open Graph & Twitter Cards
