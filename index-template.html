@@ -117,7 +117,7 @@
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
-            <span>Afficher les contacts</span>
+            <span data-i18n="sidebar.contacts_show">Afficher les contacts</span>
 
             <ion-icon name="chevron-down"></ion-icon>
           </button>
@@ -135,7 +135,7 @@
               </div>
 
               <div class="contact-info">
-                <p class="contact-title">Email</p>
+                <p class="contact-title" data-i18n="sidebar.email">Email</p>
 
                 <a
                   href="mailto:richard@example.com"
@@ -156,7 +156,7 @@
               </div>
 
               <div class="contact-info">
-                <p class="contact-title">Téléphone</p>
+                <p class="contact-title" data-i18n="sidebar.phone">Téléphone</p>
 
                 <a
                   href="tel:+12133522795"
@@ -177,7 +177,7 @@
               </div>
 
               <div class="contact-info">
-                <p class="contact-title">Date de naissance</p>
+                <p class="contact-title" data-i18n="sidebar.birthday">Date de naissance</p>
 
                 <time datetime="1982-06-23" data-contact-birthday
                   >23 Juin, 1982</time
@@ -195,7 +195,7 @@
               </div>
 
               <div class="contact-info">
-                <p class="contact-title">Localisation</p>
+                <p class="contact-title" data-i18n="sidebar.location">Localisation</p>
 
                 <address data-contact-location>
                   Sacramento, California, USA
@@ -229,19 +229,19 @@
         <nav class="navbar">
           <ul class="navbar-list">
             <li class="navbar-item">
-              <button class="navbar-link active" data-nav-link data-i18n="nav.about">À propos</button>
+              <button class="navbar-link active" data-nav-link data-nav-target="à propos" data-i18n="nav.about">À propos</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.resume">Parcours</button>
+              <button class="navbar-link" data-nav-link data-nav-target="parcours" data-i18n="nav.resume">Parcours</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.portfolio">Portfolio</button>
+              <button class="navbar-link" data-nav-link data-nav-target="portfolio" data-i18n="nav.portfolio">Portfolio</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.blog">Blog</button>
+              <button class="navbar-link" data-nav-link data-nav-target="blog" data-i18n="nav.blog">Blog</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.contact">Contact</button>
+              <button class="navbar-link" data-nav-link data-nav-target="contact" data-i18n="nav.contact">Contact</button>
             </li>
           </ul>
         </nav>
@@ -258,14 +258,14 @@
           <section class="about-text">
             <!-- ABOUT_TEXT_START -->
             <!-- ABOUT_TEXT_END -->
-            <p class="availability-badge" data-reveal>
+            <p class="availability-badge" data-reveal data-i18n="about.availability">
               Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
             </p>
             <div class="cta-group" data-reveal>
-              <button class="cta-primary" type="button" data-contact-cta>
+              <button class="cta-primary" type="button" data-contact-cta data-i18n="about.cta_discuss">
                 Discutons de ton projet
               </button>
-              <button class="cta-secondary" type="button" data-portfolio-cta>
+              <button class="cta-secondary" type="button" data-portfolio-cta data-i18n="about.cta_view">
                 Voir mes projets
               </button>
             </div>
@@ -276,7 +276,7 @@
         -->
 
           <section class="service">
-            <h3 class="h3 service-title">Sur quoi je travaille actuellement</h3>
+            <h3 class="h3 service-title" data-i18n="about.working_on">Sur quoi je travaille actuellement</h3>
             <ul class="service-list">
               <!-- PROJECTS_START -->
 
@@ -289,7 +289,7 @@
         -->
 
           <section class="testimonials">
-            <h3 class="h3 testimonials-title">Recommandations</h3>
+            <h3 class="h3 testimonials-title" data-i18n="about.recommendations">Recommandations</h3>
             <ul class="testimonials-list has-scrollbar">
               <!-- TESTIMONIALS_START -->
 
@@ -338,7 +338,7 @@
 
           <!-- clients -->
           <section class="clients">
-            <h3 class="h3 clients-title">Clients</h3>
+            <h3 class="h3 clients-title" data-i18n="about.clients">Clients</h3>
 
             <ul class="clients-list has-scrollbar">
               <!-- CLIENTS_START -->
@@ -354,7 +354,7 @@
 
         <article class="resume" data-page="parcours">
           <header>
-            <h2 class="h2 article-title">Parcours</h2>
+            <h2 class="h2 article-title" data-i18n="nav.resume">Parcours</h2>
           </header>
 
           <section class="timeline">
@@ -391,7 +391,7 @@
               <div class="icon-box">
                 <ion-icon name="document-text-outline"></ion-icon>
               </div>
-              <h3 class="h3">Mon CV</h3>
+              <h3 class="h3" data-i18n="resume.cv">Mon CV</h3>
             </div>
             <div>
               <!-- CV_SECTION_START -->
@@ -436,7 +436,7 @@
 
             <div class="filter-select-box">
               <button class="filter-select" data-select>
-                <div class="select-value" data-selecct-value>
+                <div class="select-value" data-selecct-value data-i18n="portfolio.select_category">
                   Sélectionner une catégorie
                 </div>
                 <div class="select-icon">
@@ -551,7 +551,7 @@
 
           <section class="contact-form">
             <h3 class="h3 form-title" data-i18n="contact.title">Formulaire de Contact</h3>
-            <p class="contact-reassurance">
+            <p class="contact-reassurance" data-i18n="contact.reassurance">
               Réponse sous 24h ouvrées. Ton message reste confidentiel et n'est jamais partagé.
             </p>
 
@@ -562,6 +562,7 @@
                   name="fullname"
                   class="form-input"
                   placeholder="Ton nom"
+                  data-i18n-placeholder="contact.name_placeholder"
                   required
                   data-form-input
                 />
@@ -571,6 +572,7 @@
                   name="email"
                   class="form-input"
                   placeholder="Adresse e-mail"
+                  data-i18n-placeholder="contact.email_placeholder"
                   required
                   data-form-input
                 />
@@ -580,6 +582,7 @@
                 name="message"
                 class="form-input"
                 placeholder="Ton message ici..."
+                data-i18n-placeholder="contact.message_placeholder"
                 required
                 data-form-input
               ></textarea>

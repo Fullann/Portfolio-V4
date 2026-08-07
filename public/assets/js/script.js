@@ -12,6 +12,16 @@ const sidebarBtn = document.querySelector("[data-sidebar-btn]");
 // Sidebar toggle functionality for mobile
 sidebarBtn.addEventListener("click", function () {
   elementToggleFunc(sidebar);
+  // Update toggle button label based on state
+  const isActive = sidebar.classList.contains("active");
+  const textKey = isActive ? "sidebar.contacts_hide" : "sidebar.contacts_show";
+  const span = this.querySelector("span[data-i18n]");
+  if (span) {
+    span.setAttribute("data-i18n", textKey);
+    if (translations && translations[textKey]) {
+      span.textContent = translations[textKey];
+    }
+  }
 });
 
 // 🔔 FONCTION NOTIFICATION TOAST ANIMÉE
@@ -130,12 +140,32 @@ async function loadTranslations(langCode) {
 }
 
 function applyTranslations() {
+  // 1. Textes (textContent)
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
-    if (translations[key]) {
+    if (translations[key] !== undefined) {
       el.textContent = translations[key];
     }
   });
+
+  // 2. Placeholders (inputs, textareas)
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-placeholder");
+    if (translations[key] !== undefined) {
+      el.placeholder = translations[key];
+    }
+  });
+
+  // 3. Aria-labels
+  document.querySelectorAll("[data-i18n-aria]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-aria");
+    if (translations[key] !== undefined) {
+      el.setAttribute("aria-label", translations[key]);
+    }
+  });
+
+  // 4. Mettre à jour l'attribut lang du document
+  document.documentElement.lang = currentLang;
 }
 
 function renderLangSelector() {
@@ -317,20 +347,13 @@ const pages = document.querySelectorAll("[data-page]");
 
 navigationLinks.forEach((link) => {
   link.addEventListener("click", function () {
-    const linkText = this.innerHTML.toLowerCase().trim();
+    // Utiliser data-nav-target (invariant selon la langue) ou innerHTML en fallback
+    const target = this.dataset.navTarget || this.innerHTML.toLowerCase().trim();
 
     pages.forEach((page) => {
       const pageData = page.dataset.page.toLowerCase();
 
-      const matches = {
-        "à propos": "à propos",
-        parcours: "parcours",
-        portfolio: "portfolio",
-        blog: "blog",
-        contact: "contact",
-      };
-
-      if (matches[linkText] === pageData) {
+      if (target === pageData) {
         page.classList.add("active");
         link.classList.add("active");
         window.scrollTo(0, 0);
@@ -347,7 +370,7 @@ navigationLinks.forEach((link) => {
           }, 50);
         }
 
-        // 🔥 NOUVEAU : Réattacher les événements de clic sur les projets
+        // Réattacher les événements de clic sur les projets
         if (pageData === "à propos" || pageData === "portfolio") {
           setTimeout(attachProjectClickEvents, 100);
         }
@@ -650,11 +673,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
   revealTargets.forEach((element) => observer.observe(element));
 
-  const goToPage = (targetLabel) => {
-    const navLink = Array.from(document.querySelectorAll("[data-nav-link]")).find(
-      (button) =>
-        button.textContent.trim().toLowerCase() === targetLabel.toLowerCase(),
+  // Naviguer vers une page par data-nav-target (invariant selon la langue)
+  const goToPage = (targetPage) => {
+    // Chercher par data-nav-target d'abord (insensible à la langue)
+    let navLink = Array.from(document.querySelectorAll("[data-nav-link]")).find(
+      (button) => button.dataset.navTarget === targetPage
     );
+    // Fallback : chercher par texte (compatibilité si data-nav-target absent)
+    if (!navLink) {
+      navLink = Array.from(document.querySelectorAll("[data-nav-link]")).find(
+        (button) =>
+          button.textContent.trim().toLowerCase() === targetPage.toLowerCase()
+      );
+    }
     if (navLink) navLink.click();
   };
 

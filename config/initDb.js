@@ -224,6 +224,14 @@ async function initializeDatabase() {
         ['fr', 'sidebar.phone', 'Téléphone'],
         ['fr', 'sidebar.birthday', 'Date de naissance'],
         ['fr', 'sidebar.location', 'Localisation'],
+        ['fr', 'sidebar.contacts_hide', 'Masquer les contacts'],
+        ['fr', 'about.clients', 'Clients'],
+        ['fr', 'resume.cv', 'Mon CV'],
+        ['fr', 'contact.reassurance', 'Réponse sous 24h ouvrées. Ton message reste confidentiel et n\'est jamais partagé.'],
+        ['fr', 'contact.name_placeholder', 'Ton nom'],
+        ['fr', 'contact.email_placeholder', 'Adresse e-mail'],
+        ['fr', 'contact.message_placeholder', 'Ton message ici...'],
+        ['fr', 'portfolio.select_category', 'Sélectionner une catégorie'],
 
         ['en', 'nav.about', 'About Me'],
         ['en', 'nav.resume', 'Resume'],
@@ -235,19 +243,27 @@ async function initializeDatabase() {
         ['en', 'about.cta_view', 'View my projects'],
         ['en', 'about.working_on', 'What I am currently working on'],
         ['en', 'about.recommendations', 'Recommendations'],
+        ['en', 'about.clients', 'Clients'],
         ['en', 'resume.education', 'Education'],
         ['en', 'resume.experience', 'Experience'],
         ['en', 'resume.skills', 'My Skills'],
+        ['en', 'resume.cv', 'My Resume'],
         ['en', 'contact.title', 'Contact Form'],
         ['en', 'contact.name', 'Full Name'],
         ['en', 'contact.email', 'Email Address'],
         ['en', 'contact.message', 'Your Message'],
         ['en', 'contact.send', 'Send Message'],
+        ['en', 'contact.reassurance', 'Response within 24 working hours. Your message is confidential and never shared.'],
+        ['en', 'contact.name_placeholder', 'Your name'],
+        ['en', 'contact.email_placeholder', 'Email address'],
+        ['en', 'contact.message_placeholder', 'Your message here...'],
         ['en', 'portfolio.all', 'All'],
+        ['en', 'portfolio.select_category', 'Select a category'],
         ['en', 'blog.read_time', 'min read'],
         ['en', 'blog.share_title', 'Share this article'],
         ['en', 'blog.copy_link', 'Copy link'],
         ['en', 'sidebar.contacts_show', 'Show contacts'],
+        ['en', 'sidebar.contacts_hide', 'Hide contacts'],
         ['en', 'sidebar.email', 'Email'],
         ['en', 'sidebar.phone', 'Phone'],
         ['en', 'sidebar.birthday', 'Birthday'],
@@ -260,6 +276,33 @@ async function initializeDatabase() {
           [lang, key, val]
         );
       }
+    }
+
+    // ─── Migration incrémentale : ajouter les nouvelles clés i18n ───────────
+    // Utilise INSERT IGNORE → n'écrase pas les valeurs modifiées via l'admin
+    const i18nMigration = [
+      ['fr', 'sidebar.contacts_hide', 'Masquer les contacts'],
+      ['fr', 'about.clients', 'Clients'],
+      ['fr', 'resume.cv', 'Mon CV'],
+      ['fr', 'contact.reassurance', "Réponse sous 24h ouvrées. Ton message reste confidentiel et n'est jamais partagé."],
+      ['fr', 'contact.name_placeholder', 'Ton nom'],
+      ['fr', 'contact.email_placeholder', 'Adresse e-mail'],
+      ['fr', 'contact.message_placeholder', 'Ton message ici...'],
+      ['fr', 'portfolio.select_category', 'Sélectionner une catégorie'],
+      ['en', 'sidebar.contacts_hide', 'Hide contacts'],
+      ['en', 'about.clients', 'Clients'],
+      ['en', 'resume.cv', 'My Resume'],
+      ['en', 'contact.reassurance', 'Response within 24 working hours. Your message is confidential and never shared.'],
+      ['en', 'contact.name_placeholder', 'Your name'],
+      ['en', 'contact.email_placeholder', 'Email address'],
+      ['en', 'contact.message_placeholder', 'Your message here...'],
+      ['en', 'portfolio.select_category', 'Select a category'],
+    ];
+    for (const [lang, key, val] of i18nMigration) {
+      await connection.execute(
+        "INSERT IGNORE INTO translations (lang_code, translation_key, translation_value) VALUES (?, ?, ?)",
+        [lang, key, val]
+      );
     }
 
     connection.release();
