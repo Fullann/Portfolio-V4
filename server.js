@@ -126,6 +126,17 @@ async function startServer() {
       console.log('✅ Utilisateur admin vérifié');
     }
 
+    // Régénérer le HTML public depuis la DB au démarrage
+    // Garantit que les données de production (nom, contacts, projets...)
+    // sont toujours à jour même après un redéploiement FTP
+    try {
+      const { updateHtmlFile } = require('./services/htmlGenerator.service');
+      await updateHtmlFile();
+      console.log('✅ Fichier public/index.html régénéré depuis la DB');
+    } catch (htmlError) {
+      console.warn('⚠️ Impossible de régénérer le HTML au démarrage:', htmlError.message);
+    }
+
     app.listen(PORT, () => {
       console.log(`
 ╔════════════════════════════════════════════════╗
