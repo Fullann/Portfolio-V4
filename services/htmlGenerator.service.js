@@ -324,13 +324,22 @@ async function updateHtmlFile() {
 
     // Remplacer les informations personnelles
     if (formattedPersonalInfo) {
-      const personalInfoRegex = /(<!-- PERSONAL_INFO_START -->)([\s\S]*?)(<!-- PERSONAL_INFO_END -->)/;
-      if (personalInfoRegex.test(htmlContent)) {
-        const personalInfoHtml = `
-          <h1 class="name" title="${formattedPersonalInfo.name}">${formattedPersonalInfo.name}</h1>
-          <p class="title">${formattedPersonalInfo.title}</p>
-`;
-        htmlContent = htmlContent.replace(personalInfoRegex, `$1\n${personalInfoHtml}$3`);
+      // Remplacer le nom
+      const nameRegex = /(<!-- NAME_START -->)([\s\S]*?)(<!-- NAME_END -->)/;
+      if (nameRegex.test(htmlContent)) {
+        const nameHtml = `
+            <h1 class="name" title="${formattedPersonalInfo.name}" data-name>
+              ${formattedPersonalInfo.name}
+            </h1>`;
+        htmlContent = htmlContent.replace(nameRegex, `$1\n${nameHtml}\n$3`);
+      }
+
+      // Remplacer le titre
+      const titleRegex = /(<!-- TITLE_START -->)([\s\S]*?)(<!-- TITLE_END -->)/;
+      if (titleRegex.test(htmlContent)) {
+        const titleHtml = `
+            <p class="title" data-title>${formattedPersonalInfo.title}</p>`;
+        htmlContent = htmlContent.replace(titleRegex, `$1\n${titleHtml}\n$3`);
       }
 
       // Remplacer l'avatar
@@ -341,47 +350,64 @@ async function updateHtmlFile() {
       }
 
       // Remplacer les informations de contact
-      const contactInfoRegex = /(<!-- CONTACT_INFO_START -->)([\s\S]*?)(<!-- CONTACT_INFO_END -->)/;
-      if (contactInfoRegex.test(htmlContent)) {
-        const contactInfoHtml = `
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="mail-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Adresse Email</p>
-              <a href="mailto:${formattedPersonalInfo.email}" class="contact-link">${formattedPersonalInfo.email}</a>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="phone-portrait-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Numéro de téléphone</p>
-              <a href="tel:${formattedPersonalInfo.phone}" class="contact-link">${formattedPersonalInfo.phone}</a>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="calendar-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Date d'anniversaire</p>
-              <time datetime="${formattedPersonalInfo.birthday}">${formattedPersonalInfo.birthday}</time>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="location-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Location</p>
-              <address>${formattedPersonalInfo.location}</address>
-            </div>
-          </li>
-`;
-        htmlContent = htmlContent.replace(contactInfoRegex, `$1\n${contactInfoHtml}$3`);
+      const emailRegex = /(<!-- CONTACT_EMAIL_START -->)([\s\S]*?)(<!-- CONTACT_EMAIL_END -->)/;
+      if (emailRegex.test(htmlContent)) {
+        const emailHtml = `
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="mail-outline"></ion-icon>
+              </div>
+              <div class="contact-info">
+                <p class="contact-title" data-i18n="sidebar.email">Email</p>
+                <a href="mailto:${formattedPersonalInfo.email}" class="contact-link" data-contact-email>${formattedPersonalInfo.email}</a>
+              </div>
+            </li>`;
+        htmlContent = htmlContent.replace(emailRegex, `$1\n${emailHtml}\n$3`);
+      }
+
+      const phoneRegex = /(<!-- CONTACT_PHONE_START -->)([\s\S]*?)(<!-- CONTACT_PHONE_END -->)/;
+      if (phoneRegex.test(htmlContent)) {
+        const phoneHtml = `
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="phone-portrait-outline"></ion-icon>
+              </div>
+              <div class="contact-info">
+                <p class="contact-title" data-i18n="sidebar.phone">Téléphone</p>
+                <a href="tel:${formattedPersonalInfo.phone}" class="contact-link" data-contact-phone>${formattedPersonalInfo.phone}</a>
+              </div>
+            </li>`;
+        htmlContent = htmlContent.replace(phoneRegex, `$1\n${phoneHtml}\n$3`);
+      }
+
+      const birthdayRegex = /(<!-- CONTACT_BIRTHDAY_START -->)([\s\S]*?)(<!-- CONTACT_BIRTHDAY_END -->)/;
+      if (birthdayRegex.test(htmlContent)) {
+        const birthdayHtml = `
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="calendar-outline"></ion-icon>
+              </div>
+              <div class="contact-info">
+                <p class="contact-title" data-i18n="sidebar.birthday">Date de naissance</p>
+                <time datetime="${formattedPersonalInfo.birthday}" data-contact-birthday>${formattedPersonalInfo.birthday}</time>
+              </div>
+            </li>`;
+        htmlContent = htmlContent.replace(birthdayRegex, `$1\n${birthdayHtml}\n$3`);
+      }
+
+      const locationRegex = /(<!-- CONTACT_LOCATION_START -->)([\s\S]*?)(<!-- CONTACT_LOCATION_END -->)/;
+      if (locationRegex.test(htmlContent)) {
+        const locationHtml = `
+            <li class="contact-item">
+              <div class="icon-box">
+                <ion-icon name="location-outline"></ion-icon>
+              </div>
+              <div class="contact-info">
+                <p class="contact-title" data-i18n="sidebar.location">Localisation</p>
+                <address data-contact-location>${formattedPersonalInfo.location}</address>
+              </div>
+            </li>`;
+        htmlContent = htmlContent.replace(locationRegex, `$1\n${locationHtml}\n$3`);
       }
     }
 
