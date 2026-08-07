@@ -1,68 +1,49 @@
 'use strict';
 
 /**
- * CloudLinux LVE - Compatibilité WebAssembly
+ * CloudLinux LVE - Compatibilité WASM pour Node.js 20+
  *
- * Sur les hébergements CloudLinux (o2switch, PlanetHoster, etc.), la mémoire
- * WebAssembly est bloquée au niveau kernel. Ce script installe un shim minimal
- * avant que undici (le client HTTP interne de Node 20) ne tente de charger
- * son parser HTTP compilé en WASM (llhttp).
+ * Node 20+ utilise undici (client HTTP interne) pour fournir le global fetch().
+ * undici initialise son parser HTTP (llhttp) via WebAssembly au démarrage.
+ * Sur les hébergements CloudLinux (PlanetHoster, o2switch...), l'allocation
+ * mémoire WebAssembly est bloquée par les limites LVE du noyau.
  *
- * Avec --jitless, WebAssembly est retiré de V8. Ce shim le redeffinit en JS pur
- * afin que undici détecte proprement l'indisponibilité et bascule sur son
- * implémentation JS de secours (llhttp-wasm.js / llhttp.js).
+ * Stratégie :
+ *   1. Intercepter le rejet non géré venant de l'init WASM d'undici → ne pas crasher
+ *   2. Supprimer globalThis.fetch() → aucune librairie ne peut déclencher undici
+ *   3. Express, axios, mysql2 utilisent le module http natif de Node → pas d'impact
  */
 
-if (typeof WebAssembly === 'undefined') {
-  global.WebAssembly = {
-    compile: () =>
-      Promise.reject(
-        new Error('[compat] WebAssembly indisponible (mode --jitless / CloudLinux LVE)')
-      ),
-    compileStreaming: () =>
-      Promise.reject(
-        new Error('[compat] WebAssembly indisponible (mode --jitless / CloudLinux LVE)')
-      ),
-    instantiate: () =>
-      Promise.reject(
-        new Error('[compat] WebAssembly indisponible (mode --jitless / CloudLinux LVE)')
-      ),
-    instantiateStreaming: () =>
-      Promise.reject(
-        new Error('[compat] WebAssembly indisponible (mode --jitless / CloudLinux LVE)')
-      ),
-    validate: () => false,
-    Module: class Module {
-      constructor() {
-        throw new Error('[compat] WebAssembly.Module indisponible');
-      }
-    },
-    Instance: class Instance {
-      constructor() {
-        throw new Error('[compat] WebAssembly.Instance indisponible');
-      }
-    },
-    Memory: class Memory {
-      constructor() {
-        throw new Error('[compat] WebAssembly.Memory indisponible');
-      }
-    },
-    Table: class Table {
-      constructor() {
-        throw new Error('[compat] WebAssembly.Table indisponible');
-      }
-    },
-    Global: class Global {
-      constructor() {
-        throw new Error('[compat] WebAssembly.Global indisponible');
-      }
-    },
-    Tag: class Tag {
-      constructor() {
-        throw new Error('[compat] WebAssembly.Tag indisponible');
-      }
-    },
-  };
+// ─── 1. Supprimer le rejet WASM non géré ─────────────────────────────────────
+process.on('unhandledRejection', (reason) => {
+  const msg = (reason && reason.message) ? reason.message : String(reason || '');
 
-  console.log('[compat] Shim WebAssembly installé pour la compatibilité CloudLinux LVE');
+  const isWasmFailure =
+    (reason instanceof RangeError && msg.includes('Wasm')) ||
+    msg.includes('Cannot allocate Wasm memory') ||
+    msg.includes('[compat] WebAssembly');
+
+  if (isWasmFailure) {
+    process.stderr.write(
+      '[compat] Initialisation WASM supprimée (CloudLinux LVE) — ' +
+      "L'app utilise le module http natif, aucun impact fonctionnel.\n"
+    );
+    return; // ← NE PAS throw → le process continue normalement
+  }
+
+  // Tous les autres rejets non gérés → comportement par défaut (crash)
+  process.stderr.write(`[FATAL] Unhandled rejection: ${msg}\n`);
+  process.exit(1);
+});
+
+// ─── 2. Supprimer fetch() global pour éviter tout déclenchement d'undici ─────
+try {
+  delete globalThis.fetch;
+  delete globalThis.Headers;
+  delete globalThis.Request;
+  delete globalThis.Response;
+} catch (_) {
+  // Non critique — certains environnements ne permettent pas la suppression
 }
+
+process.stdout.write('[compat] Mode compatibilité CloudLinux LVE actif\n');
