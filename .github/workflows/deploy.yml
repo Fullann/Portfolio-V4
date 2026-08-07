@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.SFTP_USER }}
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
-          protocol: ftps
+          protocol: ftps-legacy
           security: loose
           local-dir: ./
           server-dir: /
