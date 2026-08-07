@@ -1473,6 +1473,7 @@ function showSection(sectionName) {
     resume: { title: "CV", desc: "Parcours" },
     clients: { title: "Clients", desc: "Témoignages" },
     settings: { title: "Paramètres", desc: "Configuration" },
+    i18n: { title: "Traductions", desc: "Multilingue" },
   };
 
   if (titles[sectionName]) {
