@@ -22,6 +22,7 @@ jobs:
           password: ${{ secrets.SFTP_PASSWORD }}
           port: ${{ secrets.SFTP_PORT }}
           protocol: ftps
+          security: loose
           local-dir: ./
           server-dir: /
           dangerous-clean-slate: false
