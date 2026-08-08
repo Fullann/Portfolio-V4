@@ -10,15 +10,7 @@ async function startServer() {
     await initializeDatabase();
     console.log('✅ Base de données initialisée');
     
-    try {
-      const authMiddleware = require('./middleware/auth');
-      if (authMiddleware?.createAdminUser) {
-        await authMiddleware.createAdminUser();
-        console.log('✅ Utilisateur admin vérifié');
-      }
-    } catch (e) {
-      console.warn('⚠️ Auth middleware non trouvé ou erreur lors de sa création:', e.message);
-    }
+
 
     // Régénérer le HTML public depuis la DB au démarrage
     // Garantit que les données de production (nom, contacts, projets...)

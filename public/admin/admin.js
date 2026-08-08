@@ -171,8 +171,6 @@ function attachAllEventListeners() {
     "testimonial-form": handleTestimonialSubmit,
     "social-form": handleSocialSubmit,
     "personal-info-form": handlePersonalInfoSubmit,
-    "account-update-form": handleAccountUpdate,
-    "password-change-form": handlePasswordChange,
     "site-settings-form": handleSiteSettingsSubmit,
     "i18n-translations-form": handleI18nFormSubmit,
   };
@@ -689,79 +687,6 @@ async function handlePersonalInfoSubmit(e) {
     if (response.ok) {
       showNotification("Profil mis à jour !", "success");
       await loadPersonalInfo();
-    } else {
-      const error = await response.json();
-      showNotification("" + error.error, "error");
-    }
-  } catch (error) {
-    if (error.message !== "Unauthorized") {
-      console.error("Erreur:", error);
-    }
-  }
-
-  return false;
-}
-
-async function handleAccountUpdate(e) {
-  e.preventDefault();
-  e.stopPropagation();
-
-  const newUsername = document.getElementById("new-username").value;
-
-  try {
-    const response = await fetchWithAuth("/api/admin/update-account", {
-      method: "PUT",
-      body: JSON.stringify({ username: newUsername }),
-    });
-
-    if (response.ok) {
-      showNotification("Nom d'utilisateur modifié !", "success");
-      await loadAccountInfo();
-    } else {
-      const error = await response.json();
-      showNotification("" + error.error, "error");
-    }
-  } catch (error) {
-    if (error.message !== "Unauthorized") {
-      console.error("Erreur:", error);
-    }
-  }
-
-  return false;
-}
-
-async function handlePasswordChange(e) {
-  e.preventDefault();
-  e.stopPropagation();
-
-  const currentPassword = document.getElementById("current-password").value;
-  const newPassword = document.getElementById("new-password").value;
-  const confirmPassword = document.getElementById("confirm-password").value;
-
-  if (newPassword !== confirmPassword) {
-    showNotification("Les mots de passe ne correspondent pas !", "error");
-    return false;
-  }
-
-  if (newPassword.length < 8) {
-    showNotification("Le mot de passe doit contenir au moins 8 caractères !", "error");
-    return false;
-  }
-
-  if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(newPassword)) {
-    showNotification("Le mot de passe doit contenir au moins une lettre et un chiffre !", "error");
-    return false;
-  }
-
-  try {
-    const response = await fetchWithAuth("/api/admin/change-password", {
-      method: "POST",
-      body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
-    });
-
-    if (response.ok) {
-      showNotification("Mot de passe changé avec succès !", "success");
-      document.getElementById("password-change-form").reset();
     } else {
       const error = await response.json();
       showNotification("" + error.error, "error");

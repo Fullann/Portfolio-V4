@@ -2,9 +2,6 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const { JWT_SECRET } = require('../middleware/auth');
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -63,88 +60,7 @@ exports.getAccountInfo = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.updateAccount = catchAsync(async (req, res, next) => {
-  const { newUsername } = req.body;
 
-  if (!newUsername || newUsername.trim().length === 0) {
-    return next(new AppError('Le nom d\'utilisateur ne peut pas être vide', 400));
-  }
-
-  // Vérifier si le nouveau nom existe déjà (sauf si c'est le même)
-  if (newUsername !== req.user.username) {
-    const existingUser = await dbOperations.admin.getByUsername(newUsername);
-    if (existingUser) {
-      return next(new AppError('Ce nom d\'utilisateur est déjà pris', 400));
-    }
-  }
-
-  // Mettre à jour le nom d'utilisateur en utilisant ta méthode update
-  await dbOperations.admin.update(req.user.id, { username: newUsername });
-
-  // Générer un nouveau token avec le nouveau username
-  const newToken = jwt.sign(
-    { username: newUsername, id: req.user.id },
-    JWT_SECRET,
-    { expiresIn: '24h' }
-  );
-
-  console.log(`✅ Nom d'utilisateur changé: ${req.user.username} → ${newUsername}`);
-
-  res.json({
-    success: true,
-    message: 'Nom d\'utilisateur mis à jour',
-    newToken
-  });
-});
-
-exports.changePassword = catchAsync(async (req, res, next) => {
-  const { currentPassword, newPassword, confirmPassword } = req.body;
-
-  // Vérifications
-  if (!currentPassword || !newPassword || !confirmPassword) {
-    return next(new AppError('Tous les champs sont requis', 400));
-  }
-
-  if (newPassword !== confirmPassword) {
-    return next(new AppError('Les nouveaux mots de passe ne correspondent pas', 400));
-  }
-
-  if (newPassword.length < 8) {
-    return next(new AppError('Le mot de passe doit contenir au moins 8 caractères', 400));
-  }
-
-  if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(newPassword)) {
-    return next(
-      new AppError('Le mot de passe doit contenir au moins une lettre et un chiffre', 400)
-    );
-  }
-
-  // Vérifier l'ancien mot de passe
-  const admin = await dbOperations.admin.getById(req.user.id);
-
-  if (!admin) {
-    return next(new AppError('Compte non trouvé', 404));
-  }
-
-  const isValidPassword = await bcrypt.compare(currentPassword, admin.password);
-
-  if (!isValidPassword) {
-    return next(new AppError('Mot de passe actuel incorrect', 401));
-  }
-
-  // Hasher et sauvegarder le nouveau mot de passe
-  const hashedPassword = await bcrypt.hash(newPassword, 12);
-
-  // Utiliser ta méthode update existante
-  await dbOperations.admin.update(req.user.id, { password: hashedPassword });
-
-  console.log(`✅ Mot de passe changé pour: ${req.user.username}`);
-
-  res.json({
-    success: true,
-    message: 'Mot de passe changé avec succès'
-  });
-});
 
 exports.getOptimizationStats = catchAsync(async (req, res, next) => {
   const imagesDir = path.join(__dirname, '..', 'public', 'assets', 'images');

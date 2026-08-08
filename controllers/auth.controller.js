@@ -1,29 +1,10 @@
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const { dbOperations } = require('../config/database');
 const { JWT_SECRET } = require('../middleware/auth');
 const { escapeHtml } = require('../utils/sanitize');
-
-exports.login = catchAsync(async (req, res, next) => {
-  // Optionnel: fallback vers login classique
-  const { username, password } = req.body;
-  const admin = await dbOperations.admin.getByUsername(username);
-
-  if (admin && (await bcrypt.compare(password, admin.password))) {
-    const token = jwt.sign(
-      { username: admin.username, id: admin.id },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
-    res.json({ token, message: 'Connexion réussie' });
-  } else {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return next(new AppError('Identifiants invalides', 401));
-  }
-});
 
 exports.nextcloudLogin = catchAsync(async (req, res, next) => {
   const { NEXTCLOUD_URL, NEXTCLOUD_CLIENT_ID } = process.env;

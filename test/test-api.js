@@ -10,8 +10,7 @@ const http = require('http');
 
 // Configuration
 const API_URL = 'http://localhost:3000';
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'adminpassword';
+
 
 // Couleurs pour la console
 const colors = {
