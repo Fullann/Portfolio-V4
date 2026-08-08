@@ -5,7 +5,6 @@ const { loginLimiter, emailLimiter } = require('../middleware/rateLimiter');
 const { validate, loginSchema, emailSchema } = require('../validation/schemas');
 const { verifyHcaptcha } = require('../middleware/hcaptcha');
 
-router.post('/login', loginLimiter, validate(loginSchema), authController.login);
 
 router.get('/nextcloud/login', authController.nextcloudLogin);
 router.get('/nextcloud/callback', authController.nextcloudCallback);
