@@ -56,7 +56,7 @@ exports.createBlog = catchAsync(async (req, res, next) => {
     slug
   });
 
-  if (translations) {
+  if (translations && translations !== 'undefined' && translations !== 'null') {
     const parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
     await dbOperations.blogs.updateTranslations(newBlog.id, parsedTranslations);
   }
@@ -89,7 +89,7 @@ exports.updateBlog = catchAsync(async (req, res, next) => {
     return next(new AppError('Blog non trouvé', 404));
   }
 
-  if (translations) {
+  if (translations && translations !== 'undefined' && translations !== 'null') {
     const parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
     await dbOperations.blogs.updateTranslations(id, parsedTranslations);
   }

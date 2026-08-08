@@ -36,7 +36,7 @@ exports.createPortfolioProject = catchAsync(async (req, res, next) => {
     isVisible: isVisible !== undefined ? (isVisible === '1' || isVisible === 1 || isVisible === 'true' || isVisible === true ? 1 : 0) : 1
   });
 
-  if (translations) {
+  if (translations && translations !== 'undefined' && translations !== 'null') {
     const parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
     await dbOperations.portfolioProjects.updateTranslations(newProject.id, parsedTranslations);
   }
@@ -67,7 +67,7 @@ exports.updatePortfolioProject = catchAsync(async (req, res, next) => {
     return next(new AppError('Projet portfolio non trouvé', 404));
   }
 
-  if (translations) {
+  if (translations && translations !== 'undefined' && translations !== 'null') {
     const parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
     await dbOperations.portfolioProjects.updateTranslations(id, parsedTranslations);
   }
