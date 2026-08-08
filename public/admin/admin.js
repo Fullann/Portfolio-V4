@@ -39,7 +39,7 @@ async function fetchWithAuth(url, options = {}) {
     return response;
   } catch (error) {
     if (error.message !== "Unauthorized") {
-      console.error("❌ Erreur:", error);
+      console.error("Erreur:", error);
       showNotification("Erreur de connexion", "error");
     }
     throw error;
@@ -76,13 +76,13 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("login-section").classList.add("hidden");
           document.getElementById("admin-panel").classList.remove("hidden");
           await initializeDashboard();
-          showNotification("✅ Connexion réussie !", "success");
+          showNotification("Connexion réussie !", "success");
         } else {
-          showNotification("❌ " + data.error, "error");
+          showNotification("" + data.error, "error");
         }
       } catch (error) {
         console.error("Erreur:", error);
-        showNotification("❌ Erreur de connexion", "error");
+        showNotification("Erreur de connexion", "error");
       }
 
       return false;
@@ -244,7 +244,7 @@ async function handleCategorySubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Catégorie ${currentEditingId ? "modifiée" : "ajoutée"} !`,
+        `Catégorie ${currentEditingId ? "modifiée" : "ajoutée"} !`,
         "success",
       );
       closeModal("category-modal");
@@ -252,7 +252,7 @@ async function handleCategorySubmit(e) {
       await loadCategoryOptions();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -314,7 +314,7 @@ async function handlePortfolioSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Projet ${currentEditingId ? "modifié" : "ajouté"} !`,
+        `Projet ${currentEditingId ? "modifié" : "ajouté"} !`,
         "success",
       );
       closeModal("portfolio-modal");
@@ -322,7 +322,7 @@ async function handlePortfolioSubmit(e) {
       await loadDashboardStats();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -361,14 +361,14 @@ async function handleProjectSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Projet ${currentEditingId ? "modifié" : "ajouté"} !`,
+        `Projet ${currentEditingId ? "modifié" : "ajouté"} !`,
         "success",
       );
       closeModal("project-modal");
       await loadProjects();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -408,7 +408,7 @@ async function handleBlogSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Article ${currentEditingId ? "modifié" : "publié"} !`,
+        `Article ${currentEditingId ? "modifié" : "publié"} !`,
         "success",
       );
       closeModal("blog-modal");
@@ -416,7 +416,7 @@ async function handleBlogSubmit(e) {
       await loadDashboardStats();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -450,14 +450,14 @@ async function handleExperienceSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Expérience ${currentEditingId ? "modifiée" : "ajoutée"} !`,
+        `Expérience ${currentEditingId ? "modifiée" : "ajoutée"} !`,
         "success",
       );
       closeModal("experience-modal");
       await loadExperience();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -491,14 +491,14 @@ async function handleEducationSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Formation ${currentEditingId ? "modifiée" : "ajoutée"} !`,
+        `Formation ${currentEditingId ? "modifiée" : "ajoutée"} !`,
         "success",
       );
       closeModal("education-modal");
       await loadEducation();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -531,7 +531,7 @@ async function handleSkillSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Compétence ${currentEditingId ? "modifiée" : "ajoutée"} !`,
+        `Compétence ${currentEditingId ? "modifiée" : "ajoutée"} !`,
         "success",
       );
       closeModal("skill-modal");
@@ -539,7 +539,7 @@ async function handleSkillSubmit(e) {
       await loadDashboardStats();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -575,7 +575,7 @@ async function handleClientSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Client ${currentEditingId ? "modifié" : "ajouté"} !`,
+        `Client ${currentEditingId ? "modifié" : "ajouté"} !`,
         "success",
       );
       closeModal("client-modal");
@@ -583,7 +583,7 @@ async function handleClientSubmit(e) {
       await loadDashboardStats();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -615,14 +615,14 @@ async function handleTestimonialSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Témoignage ${currentEditingId ? "modifié" : "ajouté"} !`,
+        `Témoignage ${currentEditingId ? "modifié" : "ajouté"} !`,
         "success",
       );
       closeModal("testimonial-modal");
       await loadTestimonials();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -656,14 +656,14 @@ async function handleSocialSubmit(e) {
 
     if (response.ok) {
       showNotification(
-        `✅ Lien social ${currentEditingId ? "modifié" : "ajouté"} !`,
+        `Lien social ${currentEditingId ? "modifié" : "ajouté"} !`,
         "success",
       );
       closeModal("social-modal");
       await loadSocialLinks();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -706,11 +706,11 @@ async function handlePersonalInfoSubmit(e) {
     });
 
     if (response.ok) {
-      showNotification("✅ Profil mis à jour !", "success");
+      showNotification("Profil mis à jour !", "success");
       await loadPersonalInfo();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -734,11 +734,11 @@ async function handleAccountUpdate(e) {
     });
 
     if (response.ok) {
-      showNotification("✅ Nom d'utilisateur modifié !", "success");
+      showNotification("Nom d'utilisateur modifié !", "success");
       await loadAccountInfo();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -758,17 +758,17 @@ async function handlePasswordChange(e) {
   const confirmPassword = document.getElementById("confirm-password").value;
 
   if (newPassword !== confirmPassword) {
-    showNotification("❌ Les mots de passe ne correspondent pas !", "error");
+    showNotification("Les mots de passe ne correspondent pas !", "error");
     return false;
   }
 
   if (newPassword.length < 8) {
-    showNotification("❌ Le mot de passe doit contenir au moins 8 caractères !", "error");
+    showNotification("Le mot de passe doit contenir au moins 8 caractères !", "error");
     return false;
   }
 
   if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(newPassword)) {
-    showNotification("❌ Le mot de passe doit contenir au moins une lettre et un chiffre !", "error");
+    showNotification("Le mot de passe doit contenir au moins une lettre et un chiffre !", "error");
     return false;
   }
 
@@ -779,11 +779,11 @@ async function handlePasswordChange(e) {
     });
 
     if (response.ok) {
-      showNotification("✅ Mot de passe changé avec succès !", "success");
+      showNotification("Mot de passe changé avec succès !", "success");
       document.getElementById("password-change-form").reset();
     } else {
       const error = await response.json();
-      showNotification("❌ " + error.error, "error");
+      showNotification("" + error.error, "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -818,7 +818,7 @@ async function initializeDashboard() {
       loadI18nSettings(),
     ]);
   } catch (error) {
-    console.error("❌ Erreur init:", error);
+    console.error("Erreur init:", error);
   }
 }
 
@@ -835,6 +835,40 @@ async function loadDashboardStats() {
     document.getElementById("stat-blogs").textContent = blogs.length;
     document.getElementById("stat-clients").textContent = clients.length;
     document.getElementById("stat-skills").textContent = skills.length;
+
+    // Render Recent Activity
+    const recentActivityContainer = document.getElementById("recent-activity");
+    if (recentActivityContainer) {
+      const recentItems = [];
+      
+      // Get 3 most recent projects (assuming they are ordered or we take the first 3 if they come sorted by date DESC)
+      // If not sorted, we should ideally sort them by a date field, but we'll take the first 3 for now
+      portfolio.slice(0, 3).forEach(p => {
+        recentItems.push({ type: 'projet', title: p.title, icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10', color: 'text-primary', bg: 'bg-primary/10' });
+      });
+
+      // Get 3 most recent blogs
+      blogs.slice(0, 3).forEach(b => {
+        recentItems.push({ type: 'article', title: b.title, icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', color: 'text-blue-500', bg: 'bg-blue-500/10' });
+      });
+
+      if (recentItems.length === 0) {
+        recentActivityContainer.innerHTML = '<p class="text-gray-500 text-center py-8 text-sm">Aucune activité récente détectée dans le système.</p>';
+      } else {
+        recentActivityContainer.innerHTML = recentItems.map(item => `
+          <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-800 bg-dark-900/50 hover:bg-dark-800 transition">
+            <div class="p-2 rounded-lg ${item.bg}">
+              <svg class="w-5 h-5 ${item.color}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="${item.icon}"></path></svg>
+            </div>
+            <div>
+              <p class="text-sm font-medium text-gray-300">Nouveau ${item.type} ajouté</p>
+              <p class="text-xs text-gray-500 mt-0.5 truncate w-48 lg:w-64">${item.title}</p>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
   } catch (error) {
     console.error("Erreur stats:", error);
   }
@@ -1458,14 +1492,14 @@ async function handleSiteSettingsSubmit(e) {
     });
 
     if (response.ok) {
-      showNotification("✅ Paramètres enregistrés avec succès !", "success");
+      showNotification("Paramètres enregistrés avec succès !", "success");
     } else {
       const errData = await response.json();
-      showNotification(`❌ Erreur: ${errData.error || 'Impossible de sauvegarder'}`, "error");
+      showNotification(`Erreur: ${errData.error || 'Impossible de sauvegarder'}`, "error");
     }
   } catch (error) {
     console.error("Erreur enregistrement paramètres:", error);
-    showNotification("❌ Erreur lors de l'enregistrement", "error");
+    showNotification("Erreur lors de l'enregistrement", "error");
   }
 }
 
@@ -1895,7 +1929,7 @@ async function deleteCategory(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Catégorie supprimée !", "success");
+      showNotification("Catégorie supprimée !", "success");
       await loadCategories();
       await loadCategoryOptions();
     }
@@ -1915,7 +1949,7 @@ async function deletePortfolioProject(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Projet supprimé !", "success");
+      showNotification("Projet supprimé !", "success");
       await loadPortfolioProjects();
       await loadDashboardStats();
     }
@@ -1935,7 +1969,7 @@ async function deleteProject(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Projet supprimé !", "success");
+      showNotification("Projet supprimé !", "success");
       await loadProjects();
     }
   } catch (error) {
@@ -1954,7 +1988,7 @@ async function deleteBlog(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Article supprimé !", "success");
+      showNotification("Article supprimé !", "success");
       await loadBlogs();
       await loadDashboardStats();
     }
@@ -1974,7 +2008,7 @@ async function deleteExperience(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Expérience supprimée !", "success");
+      showNotification("Expérience supprimée !", "success");
       await loadExperience();
     }
   } catch (error) {
@@ -1993,7 +2027,7 @@ async function deleteEducation(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Formation supprimée !", "success");
+      showNotification("Formation supprimée !", "success");
       await loadEducation();
     }
   } catch (error) {
@@ -2012,7 +2046,7 @@ async function deleteSkill(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Compétence supprimée !", "success");
+      showNotification("Compétence supprimée !", "success");
       await loadSkills();
       await loadDashboardStats();
     }
@@ -2032,7 +2066,7 @@ async function deleteClient(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Client supprimé !", "success");
+      showNotification("Client supprimé !", "success");
       await loadClients();
       await loadDashboardStats();
     }
@@ -2052,7 +2086,7 @@ async function deleteTestimonial(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Témoignage supprimé !", "success");
+      showNotification("Témoignage supprimé !", "success");
       await loadTestimonials();
     }
   } catch (error) {
@@ -2071,7 +2105,7 @@ async function deleteSocial(id) {
     });
 
     if (response.ok) {
-      showNotification("✅ Lien supprimé !", "success");
+      showNotification("Lien supprimé !", "success");
       await loadSocialLinks();
     }
   } catch (error) {
@@ -2276,15 +2310,15 @@ async function handleI18nFormSubmit(e) {
     });
 
     if (res.ok) {
-      showNotification(`✅ Traductions (${currentI18nLang.toUpperCase()}) sauvegardées !`, "success");
+      showNotification(`Traductions (${currentI18nLang.toUpperCase()}) sauvegardées !`, "success");
       await loadI18nSettings();
     } else {
       const err = await res.json();
-      showNotification("❌ " + (err.error || "Erreur de sauvegarde"), "error");
+      showNotification("" + (err.error || "Erreur de sauvegarde"), "error");
     }
   } catch (error) {
     console.error("Erreur enregistrement i18n:", error);
-    showNotification("❌ Erreur de sauvegarde des traductions", "error");
+    showNotification("Erreur de sauvegarde des traductions", "error");
   }
 }
 
