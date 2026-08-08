@@ -12,6 +12,20 @@ const i18nModel = {
   },
 
   getTranslations: async (langCode) => {
+    // Exclure les clés se terminant par _content (ex: blogs) pour la performance du frontend public
+    const [rows] = await pool.execute(
+      "SELECT translation_key, translation_value FROM translations WHERE lang_code = ? AND translation_key NOT LIKE '%_content'", 
+      [langCode]
+    );
+    const dictionary = {};
+    rows.forEach(r => {
+      dictionary[r.translation_key] = r.translation_value;
+    });
+    return dictionary;
+  },
+  
+  // Nouvelle méthode pour récupérer TOUTES les traductions (pour l'admin)
+  getAllTranslationsForAdmin: async (langCode) => {
     const [rows] = await pool.execute("SELECT translation_key, translation_value FROM translations WHERE lang_code = ?", [langCode]);
     const dictionary = {};
     rows.forEach(r => {

@@ -164,7 +164,18 @@ function applyTranslations() {
     }
   });
 
-  // 4. Mettre à jour l'attribut lang du document
+  // 4. Update blog links with ?lang parameter
+  document.querySelectorAll('a[href^="/blog/"]').forEach((el) => {
+    try {
+      const url = new URL(el.href);
+      url.searchParams.set("lang", currentLang);
+      el.href = url.pathname + url.search;
+    } catch (e) {
+      console.error(e);
+    }
+  });
+
+  // 5. Mettre à jour l'attribut lang du document
   document.documentElement.lang = currentLang;
 }
 

@@ -1,6 +1,7 @@
 const { marked } = require('marked');
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
+const { escapeHtml } = require('../utils/sanitize');
 
 let lastUpdate = Date.now();
 
@@ -11,6 +12,17 @@ exports.getAllBlogs = async (req, res) => {
   } catch (error) {
     console.error('Erreur:', error);
     res.status(500).json({ error: 'Erreur lors de la récupération des blogs' });
+  }
+};
+
+exports.getBlogTranslations = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const translations = await dbOperations.blogs.getTranslations(id);
+    res.json(translations);
+  } catch (error) {
+    console.error('Erreur:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des traductions du blog' });
   }
 };
 
@@ -37,7 +49,7 @@ exports.getBlogBySlug = async (req, res) => {
 
 exports.createBlog = async (req, res) => {
   try {
-    const { title, category, excerpt, content, author } = req.body;
+    const { title, category, excerpt, content, author, translations } = req.body;
     const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
     const slug = title
@@ -58,6 +70,11 @@ exports.createBlog = async (req, res) => {
       slug
     });
 
+    if (translations) {
+      const parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
+      await dbOperations.blogs.updateTranslations(newBlog.id, parsedTranslations);
+    }
+
     await updateHtmlFile();
     res.json(newBlog);
   } catch (error) {
@@ -69,7 +86,7 @@ exports.createBlog = async (req, res) => {
 exports.updateBlog = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, category, excerpt, content, author } = req.body;
+    const { title, category, excerpt, content, author, translations } = req.body;
 
     lastUpdate = Date.now();
 
@@ -89,6 +106,11 @@ exports.updateBlog = async (req, res) => {
     const updatedBlog = await dbOperations.blogs.update(id, updateData);
     if (!updatedBlog) {
       return res.status(404).json({ error: 'Blog non trouvé' });
+    }
+
+    if (translations) {
+      const parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
+      await dbOperations.blogs.updateTranslations(id, parsedTranslations);
     }
 
     await updateHtmlFile();
@@ -116,6 +138,7 @@ exports.deleteBlog = async (req, res) => {
 exports.renderBlogPage = async (req, res) => {
   try {
     const { slug } = req.params;
+    const { lang } = req.query; // get language from query string
     const blog = await dbOperations.blogs.getBySlug(slug);
 
     if (!blog) {
@@ -138,14 +161,31 @@ exports.renderBlogPage = async (req, res) => {
       `);
     }
 
+    // Apply translations if language is specified and not 'fr' (default)
+    if (lang && lang !== 'fr') {
+      const translations = await dbOperations.blogs.getTranslations(blog.id);
+      if (translations[lang]) {
+        blog.title = translations[lang].title || blog.title;
+        blog.excerpt = translations[lang].excerpt || blog.excerpt;
+        blog.content = translations[lang].content || blog.content;
+      }
+    }
+
     const siteSettings = await dbOperations.settings.getAll();
     const baseUrl = (siteSettings.base_url || 'http://localhost:3000').replace(/\/$/, '');
-    const siteName = siteSettings.site_name || 'Portfolio';
+    const siteName = escapeHtml(siteSettings.site_name || 'Portfolio');
     const contentHtml = marked(blog.content || '');
 
     let blogImageUrl = blog.image ? (blog.image.startsWith('http') ? blog.image : `${baseUrl}/${blog.image.replace(/^\.\//, '')}`) : `${baseUrl}/assets/images/logo.svg`;
-    const fullArticleUrl = `${baseUrl}/blog/${blog.slug}`;
-    const pageDescription = blog.excerpt || blog.title;
+    const fullArticleUrl = `${baseUrl}/blog/${encodeURI(blog.slug)}`;
+    const pageDescription = escapeHtml(blog.excerpt || blog.title);
+
+    // Escape all user-controlled fields for safe HTML interpolation
+    const safeTitle = escapeHtml(blog.title);
+    const safeCategory = escapeHtml(blog.category);
+    const safeAuthor = escapeHtml(blog.author || 'Admin');
+    const safeDate = escapeHtml(blog.date);
+    const safeImage = escapeHtml(blog.image);
 
     const wordCount = (blog.content || '').replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length;
     const readingTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
@@ -157,21 +197,21 @@ exports.renderBlogPage = async (req, res) => {
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${blog.title} | ${siteName}</title>
+  <title>${safeTitle} | ${siteName}</title>
   <meta name="description" content="${pageDescription}">
   <link rel="canonical" href="${fullArticleUrl}">
 
   <!-- Open Graph / LinkedIn / Facebook / WhatsApp -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="${siteName}">
-  <meta property="og:title" content="${blog.title}">
+  <meta property="og:title" content="${safeTitle}">
   <meta property="og:description" content="${pageDescription}">
   <meta property="og:url" content="${fullArticleUrl}">
   <meta property="og:image" content="${blogImageUrl}">
 
   <!-- Twitter Cards -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${blog.title}">
+  <meta name="twitter:title" content="${safeTitle}">
   <meta name="twitter:description" content="${pageDescription}">
   <meta name="twitter:image" content="${blogImageUrl}">
 
@@ -338,16 +378,16 @@ exports.renderBlogPage = async (req, res) => {
 
     <article class="blog-article-card">
       <header class="article-header">
-        ${blog.category ? `<span class="article-category">${blog.category}</span>` : ''}
-        <h1 class="article-title">${blog.title}</h1>
+        ${safeCategory ? `<span class="article-category">${safeCategory}</span>` : ''}
+        <h1 class="article-title">${safeTitle}</h1>
         <div class="article-meta">
           <div class="article-meta-item">
             <ion-icon name="person-outline"></ion-icon>
-            <span>${blog.author || 'Admin'}</span>
+            <span>${safeAuthor}</span>
           </div>
           <div class="article-meta-item">
             <ion-icon name="calendar-outline"></ion-icon>
-            <time datetime="${blog.date}">${blog.date}</time>
+            <time datetime="${safeDate}">${safeDate}</time>
           </div>
           <div class="article-meta-item">
             <ion-icon name="time-outline"></ion-icon>
@@ -356,7 +396,7 @@ exports.renderBlogPage = async (req, res) => {
         </div>
       </header>
 
-      ${blog.image ? `<img src="${blog.image}" alt="${blog.title}" class="article-hero-image">` : ''}
+      ${safeImage ? `<img src="${safeImage}" alt="${safeTitle}" class="article-hero-image">` : ''}
 
       <div class="article-body">
         ${contentHtml}

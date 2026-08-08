@@ -188,10 +188,16 @@ async function initializeDatabase() {
         id INT AUTO_INCREMENT PRIMARY KEY,
         lang_code VARCHAR(10) NOT NULL,
         translation_key VARCHAR(100) NOT NULL,
-        translation_value TEXT NOT NULL,
+        translation_value LONGTEXT NOT NULL,
         UNIQUE KEY lang_key_unique (lang_code, translation_key)
       )
     `);
+
+    try {
+      await connection.execute("ALTER TABLE translations MODIFY COLUMN translation_value LONGTEXT NOT NULL");
+    } catch (e) {
+      // Ignorer l'erreur
+    }
 
     // Seed default languages if empty
     const [langRows] = await connection.execute("SELECT COUNT(*) as count FROM languages");

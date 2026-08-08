@@ -8,6 +8,7 @@ const { optimizeUploadedImage } = require('../middleware/imageOptimizer');
 
 router.get('/', blogsController.getAllBlogs);
 router.get('/:slug', blogsController.getBlogBySlug);
+router.get('/:id/translations', blogsController.getBlogTranslations);
 
 router.post('/',
   authenticateToken,

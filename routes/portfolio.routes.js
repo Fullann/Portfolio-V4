@@ -6,6 +6,7 @@ const upload = require('../config/multer');
 const { optimizeUploadedImage } = require('../middleware/imageOptimizer');
 
 router.get('/', portfolioController.getAllPortfolioProjects);
+router.get('/:id/translations', portfolioController.getProjectTranslations);
 
 router.post('/',
   authenticateToken,
@@ -21,7 +22,7 @@ router.put('/:id',
 );
 
 router.post('/:id/toggle-current-work', authenticateToken, portfolioController.toggleCurrentWork);
-router.post('/:id/toggle-visibility', authenticateToken, portfolioController.toggleVisibility);
+router.patch('/:id/toggle-visibility', authenticateToken, portfolioController.toggleVisibility);
 
 router.delete('/:id',
   authenticateToken,

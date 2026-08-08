@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { dbOperations } = require('../config/database');
 const { JWT_SECRET } = require('../middleware/auth');
+const { escapeHtml } = require('../utils/sanitize');
 
 exports.login = async (req, res) => {
   try {
@@ -36,13 +37,13 @@ exports.sendEmail = async (req, res) => {
     const mailOptions = {
       from: email,
       to: adminEmail,
-      subject: `Nouveau message de ${fullname}`,
+      subject: `Nouveau message de ${escapeHtml(fullname)}`,
       html: `
         <h2>Nouveau message depuis le portfolio</h2>
-        <p><strong>Nom:</strong> ${fullname}</p>
-        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Nom:</strong> ${escapeHtml(fullname)}</p>
+        <p><strong>Email:</strong> ${escapeHtml(email)}</p>
         <p><strong>Message:</strong></p>
-        <p>${message}</p>
+        <p>${escapeHtml(message)}</p>
       `
     };
 

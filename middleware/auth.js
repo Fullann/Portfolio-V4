@@ -2,7 +2,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { dbOperations } = require('../config/database');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'votre-secret-jwt-tres-securise';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error("FATAL ERROR: JWT_SECRET is not defined in environment variables.");
+  process.exit(1);
+}
 
 // Middleware d'authentification
 const authenticateToken = (req, res, next) => {

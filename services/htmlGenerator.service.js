@@ -2,6 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { dbOperations } = require('../config/database');
 const { formatPersonalInfo, formatPortfolioProject } = require('../utils/formatters');
+const { escapeHtml } = require('../utils/sanitize');
 
 async function updateHtmlFile() {
   try {
@@ -47,8 +48,8 @@ async function updateHtmlFile() {
     );
 
     // Mettre à jour le SEO, Open Graph & Twitter Cards
-    const siteName = siteSettings.site_name || `${formattedPersonalInfo.name} Portfolio`;
-    const siteDesc = siteSettings.site_description || `Portfolio de ${formattedPersonalInfo.name} : projets web, expériences, compétences et contact.`;
+    const siteName = escapeHtml(siteSettings.site_name || `${formattedPersonalInfo.name} Portfolio`);
+    const siteDesc = escapeHtml(siteSettings.site_description || `Portfolio de ${formattedPersonalInfo.name} : projets web, expériences, compétences et contact.`);
     const baseUrl = (siteSettings.base_url || 'http://localhost:3000').replace(/\/$/, '');
     let avatarUrl = formattedPersonalInfo.avatar || '/assets/images/my-avatar.png';
     if (!avatarUrl.startsWith('http')) {
@@ -56,15 +57,15 @@ async function updateHtmlFile() {
     }
 
     htmlContent = htmlContent
-      .replace(/<title>.*?<\/title>/i, `<title>${siteName} | ${formattedPersonalInfo.title || 'Portfolio'}</title>`)
+      .replace(/<title>.*?<\/title>/i, `<title>${siteName} | ${escapeHtml(formattedPersonalInfo.title || 'Portfolio')}</title>`)
       .replace(/<meta\s+name="description"\s+content=".*?"\s*\/>/i, `<meta name="description" content="${siteDesc}" />`)
       .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/>/i, `<link rel="canonical" href="${baseUrl}/" />`)
       .replace(/<meta\s+property="og:site_name"\s+content=".*?"\s*\/>/i, `<meta property="og:site_name" content="${siteName}" />`)
-      .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/>/i, `<meta property="og:title" content="${formattedPersonalInfo.name} | ${formattedPersonalInfo.title}" />`)
+      .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/>/i, `<meta property="og:title" content="${escapeHtml(formattedPersonalInfo.name)} | ${escapeHtml(formattedPersonalInfo.title)}" />`)
       .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/>/i, `<meta property="og:description" content="${siteDesc}" />`)
       .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/>/i, `<meta property="og:url" content="${baseUrl}/" />`)
       .replace(/<meta\s+property="og:image"\s+content=".*?"\s*\/>/i, `<meta property="og:image" content="${avatarUrl}" />`)
-      .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/>/i, `<meta name="twitter:title" content="${formattedPersonalInfo.name} | ${formattedPersonalInfo.title}" />`)
+      .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/>/i, `<meta name="twitter:title" content="${escapeHtml(formattedPersonalInfo.name)} | ${escapeHtml(formattedPersonalInfo.title)}" />`)
       .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/>/i, `<meta name="twitter:description" content="${siteDesc}" />`)
       .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/>/i, `<meta name="twitter:image" content="${avatarUrl}" />`);
 
@@ -74,22 +75,22 @@ async function updateHtmlFile() {
 
     const projectsHtml = heroProjects
       .map(project => `
-      <li class="project-item active" data-filter-item data-category="${project.filterCategory || project.category}">
+      <li class="project-item active" data-filter-item data-category="${escapeHtml(project.filterCategory || project.category)}">
         <a href="#" data-project-item>
           <figure class="project-img">
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="${project.image || '/assets/images/project-1.jpg'}" alt="${project.title}" loading="lazy" data-project-image>
+            <img src="${escapeHtml(project.image || '/assets/images/project-1.jpg')}" alt="${escapeHtml(project.title)}" loading="lazy" data-project-image>
           </figure>
-          <h3 class="project-title" data-project-title>${project.title}</h3>
-          <p class="project-category" data-project-category>${project.category}</p>
+          <h3 class="project-title" data-project-title>${escapeHtml(project.title)}</h3>
+          <p class="project-category" data-project-category>${escapeHtml(project.category)}</p>
           
           <!-- Données cachées pour la modal -->
           <div style="display: none;">
-            <span data-project-description>${project.description || ''}</span>
-            <span data-project-repo-link>${project.repoLink || ''}</span>
-            <span data-project-live-link>${project.liveLink || ''}</span>
+            <span data-project-description>${escapeHtml(project.description || '')}</span>
+            <span data-project-repo-link>${escapeHtml(project.repoLink || '')}</span>
+            <span data-project-live-link>${escapeHtml(project.liveLink || '')}</span>
           </div>
         </a>
       </li>
@@ -102,11 +103,11 @@ async function updateHtmlFile() {
         <li class="testimonials-item">
           <div class="content-card" data-testimonials-item>
             <figure class="testimonials-avatar-box">
-              <img src="${testimonial.avatar}" alt="${testimonial.name}" width="60" data-testimonials-avatar>
+              <img src="${escapeHtml(testimonial.avatar)}" alt="${escapeHtml(testimonial.name)}" width="60" data-testimonials-avatar>
             </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>${testimonial.name}</h4>
+            <h4 class="h4 testimonials-item-title" data-testimonials-title>${escapeHtml(testimonial.name)}</h4>
             <div class="testimonials-text" data-testimonials-text>
-              <p>${testimonial.text}</p>
+              <p>${escapeHtml(testimonial.text)}</p>
             </div>
           </div>
         </li>
@@ -116,22 +117,22 @@ async function updateHtmlFile() {
     // Générer le HTML pour les projets portfolio
     const portfolioProjectsHtml = formattedPortfolioProjects
       .map(project => `
-      <li class="project-item" data-filter-item data-category="${project.filterCategory || project.category.toLowerCase()}">
+      <li class="project-item" data-filter-item data-category="${escapeHtml(project.filterCategory || project.category.toLowerCase())}">
         <a href="#" data-project-item>
           <figure class="project-img">
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="${project.image}" alt="${project.title}" loading="lazy" data-project-image>
+            <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}" loading="lazy" data-project-image>
           </figure>
-          <h3 class="project-title" data-project-title>${project.title}</h3>
-          <p class="project-category" data-project-category>${project.category}</p>
+          <h3 class="project-title" data-project-title data-i18n="project_${project.id}_title">${escapeHtml(project.title)}</h3>
+          <p class="project-category" data-project-category>${escapeHtml(project.category)}</p>
           
           <!-- Données pour la modal -->
           <div style="display: none;">
-            <span data-project-description>${project.description}</span>
-            <span data-project-repo-link>${project.repoLink || ''}</span>
-            <span data-project-live-link>${project.liveLink || ''}</span>
+            <span data-project-description data-i18n="project_${project.id}_description">${escapeHtml(project.description)}</span>
+            <span data-project-repo-link>${escapeHtml(project.repoLink || '')}</span>
+            <span data-project-live-link>${escapeHtml(project.liveLink || '')}</span>
           </div>
         </a>
       </li>
@@ -142,8 +143,8 @@ async function updateHtmlFile() {
     const clientsHtml = clients
       .map(client => `
         <li class="clients-item">
-          <a href="${client.website || '#'}" ${client.website ? 'target="_blank" rel="noopener noreferrer"' : ''}>
-            <img src="${client.logo}" alt="${client.name}" class="client-logo" loading="lazy">
+          <a href="${escapeHtml(client.website || '#')}" ${client.website ? 'target="_blank" rel="noopener noreferrer"' : ''}>
+            <img src="${escapeHtml(client.logo)}" alt="${escapeHtml(client.name)}" class="client-logo" loading="lazy">
           </a>
         </li>
 `)
@@ -153,7 +154,7 @@ async function updateHtmlFile() {
     const categoryFiltersHtml = categories
       .map(category => `
         <li class="filter-item">
-          <button data-filter-btn>${category.display_name}</button>
+          <button data-filter-btn>${escapeHtml(category.display_name)}</button>
         </li>
 `)
       .join('\n');
@@ -162,7 +163,7 @@ async function updateHtmlFile() {
     const categorySelectHtml = categories
       .map(category => `
         <li class="select-item">
-                    <button data-select-item>${category.display_name}</button>
+                    <button data-select-item>${escapeHtml(category.display_name)}</button>
                 </li>
 `)
       .join('\n');
@@ -178,20 +179,20 @@ async function updateHtmlFile() {
     const blogsHtml = blogs
       .map(blog => `
       <li class="blog-post-item">
-        <a href="/blog/${blog.slug}">
+        <a href="/blog/${encodeURI(blog.slug)}">
           <figure class="blog-banner-box">
-            <img src="${blog.image}" alt="${blog.title}" loading="lazy">
+            <img src="${escapeHtml(blog.image)}" alt="${escapeHtml(blog.title)}" loading="lazy">
           </figure>
           <div class="blog-content">
             <div class="blog-meta">
-              <p class="blog-category">${blog.category}</p>
+              <p class="blog-category">${escapeHtml(blog.category)}</p>
               <span class="dot"></span>
-              <time datetime="${blog.date}">${blog.date}</time>
+              <time datetime="${escapeHtml(blog.date)}">${escapeHtml(blog.date)}</time>
               <span class="dot"></span>
               <span>${calculateReadingTime(blog.content || blog.excerpt)}</span>
             </div>
-            <h3 class="h3 blog-item-title">${blog.title}</h3>
-            <p class="blog-text">${blog.excerpt}</p>
+            <h3 class="h3 blog-item-title" data-i18n="blog_${blog.id}_title">${escapeHtml(blog.title)}</h3>
+            <p class="blog-text" data-i18n="blog_${blog.id}_excerpt">${escapeHtml(blog.excerpt)}</p>
           </div>
         </a>
       </li>
@@ -202,8 +203,8 @@ async function updateHtmlFile() {
     const socialLinksHtml = socialLinks
       .map(link => `
         <li class="social-item">
-          <a href="${link.url}" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="${link.icon}"></ion-icon>
+          <a href="${escapeHtml(link.url)}" class="social-link" target="_blank" rel="noopener noreferrer">
+            <ion-icon name="${escapeHtml(link.icon)}"></ion-icon>
           </a>
         </li>
 `)

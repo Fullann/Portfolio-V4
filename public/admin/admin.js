@@ -295,6 +295,11 @@ async function handlePortfolioSubmit(e) {
 
   const imageFile = document.getElementById("portfolio-image").files[0];
   if (imageFile) formData.append("image", imageFile);
+  
+  if (typeof saveCurrentModalTranslations === 'function') {
+    saveCurrentModalTranslations('portfolio');
+    formData.append("translations", JSON.stringify(currentPortfolioTranslations));
+  }
 
   try {
     const url = currentEditingId
@@ -387,6 +392,11 @@ async function handleBlogSubmit(e) {
 
   const imageFile = document.getElementById("blog-image").files[0];
   if (imageFile) formData.append("image", imageFile);
+
+  if (typeof saveCurrentModalTranslations === 'function') {
+    saveCurrentModalTranslations('blog');
+    formData.append("translations", JSON.stringify(currentBlogTranslations));
+  }
 
   try {
     const url = currentEditingId
@@ -2129,12 +2139,14 @@ async function moveEducationDown(id) {
 
 let currentI18nLang = 'fr';
 let currentI18nTranslations = {};
+window.activeLanguages = [];
 
 async function loadI18nSettings() {
   try {
     const resLangs = await fetchWithAuth("/api/i18n/languages/all");
     if (!resLangs.ok) return;
     const languages = await resLangs.json();
+    window.activeLanguages = languages.filter(l => l.is_active);
 
     const selectorsContainer = document.getElementById("i18n-lang-selectors");
     if (selectorsContainer) {
@@ -2275,3 +2287,139 @@ async function handleI18nFormSubmit(e) {
     showNotification("❌ Erreur de sauvegarde des traductions", "error");
   }
 }
+
+// ============================================
+// 🌐 GESTION DES ONGLETS DE TRADUCTIONS (MODALS)
+// ============================================
+
+let currentPortfolioTranslations = {};
+let currentBlogTranslations = {};
+let activePortfolioLang = 'fr';
+let activeBlogLang = 'fr';
+
+function renderModalLangTabs(modalType) {
+  const containerId = modalType === 'blog' ? 'blog-lang-tabs' : 'portfolio-lang-tabs';
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = window.activeLanguages.map(l => \`
+    <button type="button" onclick="switchModalLang('\${modalType}', '\${l.code}')"
+      class="px-3 py-1 text-sm font-semibold rounded-full transition \${
+        (modalType === 'blog' ? activeBlogLang : activePortfolioLang) === l.code 
+          ? 'bg-indigo-600 text-white' 
+          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+      }">
+      \${l.flag} \${l.name}
+    </button>
+  \`).join('');
+  
+  const badgeId = modalType === 'blog' ? 'blog-title-lang-badge' : 'portfolio-title-lang-badge';
+  const badge = document.getElementById(badgeId);
+  if (badge) {
+    badge.textContent = (modalType === 'blog' ? activeBlogLang : activePortfolioLang);
+  }
+}
+
+function saveCurrentModalTranslations(modalType) {
+  const lang = modalType === 'blog' ? activeBlogLang : activePortfolioLang;
+  const transObj = modalType === 'blog' ? currentBlogTranslations : currentPortfolioTranslations;
+  
+  if (!transObj[lang]) transObj[lang] = {};
+  
+  if (modalType === 'blog') {
+    transObj[lang].title = document.getElementById("blog-title").value;
+    transObj[lang].excerpt = document.getElementById("blog-excerpt").value;
+    transObj[lang].content = document.getElementById("blog-content").value;
+  } else {
+    transObj[lang].title = document.getElementById("portfolio-title").value;
+    transObj[lang].description = document.getElementById("portfolio-description").value;
+  }
+}
+
+function loadModalTranslationsToInputs(modalType) {
+  const lang = modalType === 'blog' ? activeBlogLang : activePortfolioLang;
+  const transObj = modalType === 'blog' ? currentBlogTranslations : currentPortfolioTranslations;
+  
+  const t = transObj[lang] || {};
+  
+  if (modalType === 'blog') {
+    document.getElementById("blog-title").value = t.title || '';
+    document.getElementById("blog-excerpt").value = t.excerpt || '';
+    document.getElementById("blog-content").value = t.content || '';
+  } else {
+    document.getElementById("portfolio-title").value = t.title || '';
+    document.getElementById("portfolio-description").value = t.description || '';
+  }
+}
+
+window.switchModalLang = function(modalType, langCode) {
+  saveCurrentModalTranslations(modalType);
+  if (modalType === 'blog') {
+    activeBlogLang = langCode;
+  } else {
+    activePortfolioLang = langCode;
+  }
+  loadModalTranslationsToInputs(modalType);
+  renderModalLangTabs(modalType);
+}
+
+// Hook into the open methods
+const originalOpenPortfolioModal = openPortfolioModal;
+openPortfolioModal = function() {
+  currentPortfolioTranslations = {};
+  activePortfolioLang = 'fr';
+  renderModalLangTabs('portfolio');
+  originalOpenPortfolioModal();
+};
+
+const originalOpenBlogModal = openBlogModal;
+openBlogModal = function() {
+  currentBlogTranslations = {};
+  activeBlogLang = 'fr';
+  renderModalLangTabs('blog');
+  originalOpenBlogModal();
+};
+
+// Hook into the edit methods to fetch translations
+const originalEditPortfolioProject = editPortfolioProject;
+editPortfolioProject = async function(id) {
+  await originalEditPortfolioProject(id);
+  // Fetch translations
+  try {
+    const res = await fetch(\`/api/portfolio-projects/\${id}/translations\`);
+    if (res.ok) {
+      currentPortfolioTranslations = await res.json();
+    }
+  } catch (e) { console.error(e); }
+  
+  // Save current default inputs to 'fr'
+  currentPortfolioTranslations['fr'] = {
+    title: document.getElementById("portfolio-title").value,
+    description: document.getElementById("portfolio-description").value
+  };
+  
+  activePortfolioLang = 'fr';
+  renderModalLangTabs('portfolio');
+};
+
+const originalEditBlog = editBlog;
+editBlog = async function(id) {
+  await originalEditBlog(id);
+  // Fetch translations
+  try {
+    const res = await fetch(\`/api/blogs/\${id}/translations\`);
+    if (res.ok) {
+      currentBlogTranslations = await res.json();
+    }
+  } catch (e) { console.error(e); }
+  
+  // Save current default inputs to 'fr'
+  currentBlogTranslations['fr'] = {
+    title: document.getElementById("blog-title").value,
+    excerpt: document.getElementById("blog-excerpt").value,
+    content: document.getElementById("blog-content").value
+  };
+  
+  activeBlogLang = 'fr';
+  renderModalLangTabs('blog');
+};

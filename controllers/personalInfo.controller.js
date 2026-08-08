@@ -48,7 +48,16 @@ exports.downloadCV = async (req, res) => {
     const personalInfo = await dbOperations.personalInfo.get();
     
     if (personalInfo && personalInfo.cv_file) {
-      const filePath = path.join(__dirname, '..', 'public', personalInfo.cv_file);
+      const docsDir = path.resolve(__dirname, '..', 'public', 'assets', 'documents');
+      // On retire tout préfixe pour ne garder que le nom du fichier (sécurité supplémentaire)
+      const fileName = path.basename(personalInfo.cv_file);
+      const filePath = path.join(docsDir, fileName);
+      
+      // Vérification que le fichier résolu est bien dans le dossier autorisé
+      if (!filePath.startsWith(docsDir)) {
+        return res.status(403).json({ error: 'Accès interdit' });
+      }
+
       res.download(filePath, 'CV.pdf');
     } else {
       res.status(404).json({ error: 'CV non trouvé' });

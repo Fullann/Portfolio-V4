@@ -69,6 +69,34 @@ const portfolioProjectModel = {
     );
     return result;
   },
+  getTranslations: async (projectId) => {
+    const [rows] = await pool.execute(
+      "SELECT lang_code, translation_key, translation_value FROM translations WHERE translation_key LIKE ?",
+      [`project_${projectId}_%`]
+    );
+    
+    const translations = {};
+    rows.forEach(r => {
+      const field = r.translation_key.split('_').pop(); // title, description
+      if (!translations[r.lang_code]) translations[r.lang_code] = {};
+      translations[r.lang_code][field] = r.translation_value;
+    });
+    return translations;
+  },
+  updateTranslations: async (projectId, translationsObj) => {
+    for (const [lang, fields] of Object.entries(translationsObj)) {
+      for (const [field, value] of Object.entries(fields)) {
+        if (!value) continue;
+        const key = `project_${projectId}_${field}`;
+        await pool.execute(
+          `INSERT INTO translations (lang_code, translation_key, translation_value)
+           VALUES (?, ?, ?)
+           ON DUPLICATE KEY UPDATE translation_value = VALUES(translation_value)`,
+          [lang, key, value]
+        );
+      }
+    }
+  },
   updateCategoryReferences: async (oldName, newName, newDisplayName) => {
     const [result] = await pool.execute(
       `UPDATE portfolio_projects 
