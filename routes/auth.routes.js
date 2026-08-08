@@ -7,6 +7,8 @@ const { verifyHcaptcha } = require('../middleware/hcaptcha');
 
 router.post('/login', loginLimiter, validate(loginSchema), authController.login);
 
+router.get('/nextcloud/login', authController.nextcloudLogin);
+router.get('/nextcloud/callback', authController.nextcloudCallback);
 router.post('/send-email', emailLimiter, validate(emailSchema), verifyHcaptcha, authController.sendEmail);
 
 module.exports = router;

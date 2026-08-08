@@ -3,7 +3,7 @@ const { dbOperations } = require('../config/database');
 function formatPersonalInfo(dbData) {
   if (!dbData) return null;
 
-  let aboutText = [];
+  let aboutText;
   try {
     aboutText = JSON.parse(dbData.about_text || '[]');
   } catch (error) {

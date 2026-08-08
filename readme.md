@@ -42,7 +42,7 @@ Portfolio personnel moderne avec interface d'administration complète, construit
 
 ## 🏗️ Architecture
 
-```
+```text
 Portfolio V4
 │
 ├── Frontend (Vanilla JS + HTML/CSS)
@@ -50,9 +50,11 @@ Portfolio V4
 │   └── Interface admin (admin/index.html)
 │
 ├── Backend (Node.js + Express)
+│   ├── app.js                 # Configuration Express globale et routes
+│   ├── server.js              # Point d'entrée (démarrage serveur et BDD)
 │   ├── API REST
 │   ├── Authentication JWT
-│   └── Middlewares de sécurité
+│   └── Gestion d'erreurs (AppError & catchAsync)
 │
 └── Base de données (MySQL)
     ├── 12 tables
@@ -125,6 +127,12 @@ JWT_SECRET=ton_secret_jwt_super_securise_ici
 
 # Google reCAPTCHA (optionnel)
 RECAPTCHA_SECRET_KEY=ta_cle_secrete_recaptcha
+
+# Authentification Nextcloud (OAuth2)
+NEXTCLOUD_URL=https://ton-nextcloud.com
+NEXTCLOUD_CLIENT_ID=ton_client_id
+NEXTCLOUD_CLIENT_SECRET=ton_client_secret
+NEXTCLOUD_ADMIN_USER=ton_pseudo_nextcloud
 ```
 
 ### 2. Configuration de la base de données
@@ -691,6 +699,18 @@ multer().single('image'), imageOptimizer, controller.upload
 
 ---
 
+### 🚨 errorHandler.js & AppError.js
+
+**Rôle** : Gestion centralisée des erreurs API
+
+**Fonctionnalités** :
+- `AppError` : Classe d'erreur personnalisée permettant de définir un code HTTP.
+- Capture automatiquement les erreurs asynchrones via `catchAsync.js`.
+- Renvoie des réponses JSON structurées de manière uniforme.
+- Masque les détails techniques (`stack`) en production pour des raisons de sécurité.
+
+---
+
 ## 💾 Base de données
 
 ### Structure
@@ -717,6 +737,18 @@ Voir le fichier `mysql-db.js` pour le schéma détaillé avec :
 - Contraintes
 - Index
 - Relations
+
+---
+
+## 🤖 Intégration Continue (CI/CD)
+
+Le projet utilise **GitHub Actions** pour garantir la qualité du code à chaque modification.
+
+**Workflow configuré (`.github/workflows/ci.yml`)** :
+- Se déclenche à chaque `push` ou `pull request` sur les branches principales.
+- Installe les dépendances Node.js de manière isolée (`npm ci`).
+- Exécute **ESLint v9** (`npm run lint`) pour s'assurer que le code de l'API suit les bonnes pratiques.
+- Empêche les fusions en cas d'erreurs de syntaxe ou de style.
 
 ---
 

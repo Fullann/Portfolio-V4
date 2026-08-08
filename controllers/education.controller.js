@@ -1,100 +1,67 @@
+const AppError = require("../utils/AppError");
+const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 let lastUpdate = Date.now();
 
-exports.getAllEducation = async (req, res) => {
-  try {
-    const education = await dbOperations.education.getAll();
-    res.json(education);
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur lors de la récupération de l\'éducation' });
+exports.getAllEducation = catchAsync(async (req, res, next) => {
+  const education = await dbOperations.education.getAll();
+  res.json(education);
+});
+
+exports.createEducation = catchAsync(async (req, res, next) => {
+  const { institution, period, description } = req.body;
+  lastUpdate = Date.now();
+
+  const newEducation = await dbOperations.education.create({ institution, period, description });
+
+  await updateHtmlFile();
+  res.json(newEducation);
+});
+
+exports.updateEducation = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { institution, period, description } = req.body;
+  lastUpdate = Date.now();
+
+  const updatedEducation = await dbOperations.education.update(id, { institution, period, description });
+
+  if (!updatedEducation) {
+    return next(new AppError('Éducation non trouvée', 404));
   }
-};
 
-exports.createEducation = async (req, res) => {
-  try {
-    const { institution, period, description } = req.body;
-    lastUpdate = Date.now();
+  await updateHtmlFile();
+  res.json(updatedEducation);
+});
 
-    const newEducation = await dbOperations.education.create({ institution, period, description });
+exports.deleteEducation = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  lastUpdate = Date.now();
 
-    await updateHtmlFile();
-    res.json(newEducation);
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur lors de la création de l\'éducation' });
-  }
-};
+  await dbOperations.education.delete(id);
+  await updateHtmlFile();
+  res.json({ success: true });
+});
 
-exports.updateEducation = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { institution, period, description } = req.body;
-    lastUpdate = Date.now();
+exports.moveUp = catchAsync(async (req, res, next) => {
+  await dbOperations.education.moveUp(req.params.id);
+  res.json({ success: true, message: 'Ordre mis à jour' });
+});
 
-    const updatedEducation = await dbOperations.education.update(id, { institution, period, description });
-
-    if (!updatedEducation) {
-      return res.status(404).json({ error: 'Éducation non trouvée' });
-    }
-
-    await updateHtmlFile();
-    res.json(updatedEducation);
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur lors de la mise à jour de l\'éducation' });
-  }
-};
-
-exports.deleteEducation = async (req, res) => {
-  try {
-    const { id } = req.params;
-    lastUpdate = Date.now();
-
-    await dbOperations.education.delete(id);
-    await updateHtmlFile();
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur lors de la suppression de l\'éducation' });
-  }
-};
-
-exports.moveUp = async (req, res) => {
-  try {
-    await dbOperations.education.moveUp(req.params.id);
-    res.json({ success: true, message: 'Ordre mis à jour' });
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
-
-exports.moveDown = async (req, res) => {
-  try {
-    await dbOperations.education.moveDown(req.params.id);
-    res.json({ success: true, message: 'Ordre mis à jour' });
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
+exports.moveDown = catchAsync(async (req, res, next) => {
+  await dbOperations.education.moveDown(req.params.id);
+  res.json({ success: true, message: 'Ordre mis à jour' });
+});
 
 
-exports.bulkReorder = async (req, res) => {
-  try {
-    const { order } = req.body;
-    if (!Array.isArray(order)) return res.status(400).json({ error: 'Format invalide' });
-    
-    await dbOperations.education.bulkReorder(order);
-    const { updateHtmlFile } = require('../services/htmlGenerator.service');
-    await updateHtmlFile();
-    
-    res.json({ success: true, message: 'Ordre mis à jour' });
-  } catch (error) {
-    console.error('Erreur:', error);
-    res.status(500).json({ error: 'Erreur serveur lors de la réorganisation' });
-  }
-};
+exports.bulkReorder = catchAsync(async (req, res, next) => {
+  const { order } = req.body;
+  if (!Array.isArray(order)) return next(new AppError('Format invalide', 400));
+
+  await dbOperations.education.bulkReorder(order);
+  const { updateHtmlFile } = require('../services/htmlGenerator.service');
+  await updateHtmlFile();
+
+  res.json({ success: true, message: 'Ordre mis à jour' });
+});

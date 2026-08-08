@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node --require ./compat.cjs --max-old-space-size=256 server.js",
     "dev": "node --watch server.js",
-    "optimize-images": "node scripts/optimize-images.js"
+    "optimize-images": "node scripts/optimize-images.js",
+    "lint": "eslint ."
   },
   "keywords": [
     "portfolio",
@@ -35,6 +36,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "globals": "^17.9.0",
     "nodemon": "^3.0.2"
   },
   "engines": {

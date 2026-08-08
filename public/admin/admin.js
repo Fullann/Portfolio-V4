@@ -51,42 +51,23 @@ async function fetchWithAuth(url, options = {}) {
 // ============================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Login form
-  const loginForm = document.getElementById("login-form");
-  if (loginForm) {
-    loginForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const username = document.getElementById("username").value;
-      const password = document.getElementById("password").value;
-
-      try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          token = data.token;
-          localStorage.setItem("adminToken", token);
-          document.getElementById("login-section").classList.add("hidden");
-          document.getElementById("admin-panel").classList.remove("hidden");
-          await initializeDashboard();
-          showNotification("Connexion réussie !", "success");
-        } else {
-          showNotification("" + data.error, "error");
-        }
-      } catch (error) {
-        console.error("Erreur:", error);
-        showNotification("Erreur de connexion", "error");
-      }
-
-      return false;
-    });
+  // Gestion du retour OAuth2 Nextcloud
+  const urlParams = new URLSearchParams(window.location.search);
+  const tokenFromUrl = urlParams.get("token");
+  const errorFromUrl = urlParams.get("error");
+  
+  if (tokenFromUrl) {
+    token = tokenFromUrl;
+    localStorage.setItem("adminToken", token);
+    window.history.replaceState({}, document.title, "/admin");
+    showNotification("Connexion réussie !", "success");
+  } else if (errorFromUrl) {
+    const errorMsg = document.getElementById("oauth-error-msg");
+    if (errorMsg) {
+      errorMsg.textContent = "Erreur de connexion Nextcloud : " + errorFromUrl;
+      errorMsg.classList.remove("hidden");
+    }
+    window.history.replaceState({}, document.title, "/admin");
   }
 
 function isTokenExpired(tokenStr) {
