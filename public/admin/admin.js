@@ -1394,7 +1394,7 @@ async function handleSiteSettingsSubmit(e) {
 async function togglePortfolioVisibility(id, isVisible) {
   try {
     const response = await fetchWithAuth(`/api/portfolio-projects/${id}/toggle-visibility`, {
-      method: "POST",
+      method: "PATCH",
       body: JSON.stringify({ isVisible }),
     });
 
