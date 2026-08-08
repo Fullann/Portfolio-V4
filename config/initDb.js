@@ -43,16 +43,21 @@ async function initializeDatabase() {
       )
     `);
 
-    try {
-      await connection.execute("ALTER TABLE portfolio_projects ADD COLUMN is_current_work INT DEFAULT 0");
-    } catch (e) {
-      // Ignorer si la colonne existe déjà
-    }
+    // Migrations pour les anciens projets (avant le rework)
+    const portfolioColumns = [
+      "ADD COLUMN repo_link TEXT",
+      "ADD COLUMN live_link TEXT",
+      "ADD COLUMN filter_category VARCHAR(255)",
+      "ADD COLUMN is_current_work INT DEFAULT 0",
+      "ADD COLUMN is_visible INT DEFAULT 1"
+    ];
 
-    try {
-      await connection.execute("ALTER TABLE portfolio_projects ADD COLUMN is_visible INT DEFAULT 1");
-    } catch (e) {
-      // Ignorer si la colonne existe déjà
+    for (const col of portfolioColumns) {
+      try {
+        await connection.execute(`ALTER TABLE portfolio_projects ${col}`);
+      } catch (e) {
+        // Ignorer si la colonne existe déjà
+      }
     }
 
     await connection.execute(`
