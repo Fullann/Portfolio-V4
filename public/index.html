@@ -82,21 +82,19 @@
           <div class="info-content">
             <!-- NAME_START -->
 
-            <h1 class="name" title="Richard hanrick" data-name>
-              Richard hanrick
+            <h1 class="name" title="Test User UPDATED" data-name>
+              Test User UPDATED
             </h1>
-
-            <!-- NAME_END -->
+<!-- NAME_END -->
 
             <!-- TITLE_START -->
 
-            <p class="title" data-title>Web developer</p>
-
-            <!-- TITLE_END -->
+            <p class="title" data-title>Test Developer</p>
+<!-- TITLE_END -->
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
-            <span>Afficher les contacts</span>
+            <span data-i18n="sidebar.contacts_show">Afficher les contacts</span>
 
             <ion-icon name="chevron-down"></ion-icon>
           </button>
@@ -112,20 +110,12 @@
               <div class="icon-box">
                 <ion-icon name="mail-outline"></ion-icon>
               </div>
-
               <div class="contact-info">
-                <p class="contact-title">Email</p>
-
-                <a
-                  href="mailto:richard@example.com"
-                  class="contact-link"
-                  data-contact-email
-                  >richard@example.com</a
-                >
+                <p class="contact-title" data-i18n="sidebar.email">Email</p>
+                <a href="mailto:test@example.com" class="contact-link" data-contact-email>test@example.com</a>
               </div>
             </li>
-
-            <!-- CONTACT_EMAIL_END -->
+<!-- CONTACT_EMAIL_END -->
 
             <!-- CONTACT_PHONE_START -->
 
@@ -133,20 +123,12 @@
               <div class="icon-box">
                 <ion-icon name="phone-portrait-outline"></ion-icon>
               </div>
-
               <div class="contact-info">
-                <p class="contact-title">Téléphone</p>
-
-                <a
-                  href="tel:+12133522795"
-                  class="contact-link"
-                  data-contact-phone
-                  >+1 (213) 352-2795</a
-                >
+                <p class="contact-title" data-i18n="sidebar.phone">Téléphone</p>
+                <a href="tel:+1234567890" class="contact-link" data-contact-phone>+1234567890</a>
               </div>
             </li>
-
-            <!-- CONTACT_PHONE_END -->
+<!-- CONTACT_PHONE_END -->
 
             <!-- CONTACT_BIRTHDAY_START -->
 
@@ -154,17 +136,12 @@
               <div class="icon-box">
                 <ion-icon name="calendar-outline"></ion-icon>
               </div>
-
               <div class="contact-info">
-                <p class="contact-title">Date de naissance</p>
-
-                <time datetime="1982-06-23" data-contact-birthday
-                  >23 Juin, 1982</time
-                >
+                <p class="contact-title" data-i18n="sidebar.birthday">Date de naissance</p>
+                <time datetime="1990-01-01" data-contact-birthday>1990-01-01</time>
               </div>
             </li>
-
-            <!-- CONTACT_BIRTHDAY_END -->
+<!-- CONTACT_BIRTHDAY_END -->
 
             <!-- CONTACT_LOCATION_START -->
 
@@ -172,37 +149,18 @@
               <div class="icon-box">
                 <ion-icon name="location-outline"></ion-icon>
               </div>
-
               <div class="contact-info">
-                <p class="contact-title">Localisation</p>
-
-                <address data-contact-location>
-                  Sacramento, California, USA
-                </address>
+                <p class="contact-title" data-i18n="sidebar.location">Localisation</p>
+                <address data-contact-location>Test City</address>
               </div>
             </li>
-
-            <!-- CONTACT_LOCATION_END -->
+<!-- CONTACT_LOCATION_END -->
           </ul>
 
           <div class="separator"></div>
 
           <ul class="social-list">
             <!-- SOCIAL_LINKS_START -->
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
 
         <li class="social-item">
           <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
@@ -298,19 +256,19 @@
         <nav class="navbar">
           <ul class="navbar-list">
             <li class="navbar-item">
-              <button class="navbar-link active" data-nav-link data-i18n="nav.about">À propos</button>
+              <button class="navbar-link active" data-nav-link data-nav-target="à propos" data-i18n="nav.about">À propos</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.resume">Parcours</button>
+              <button class="navbar-link" data-nav-link data-nav-target="parcours" data-i18n="nav.resume">Parcours</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.portfolio">Portfolio</button>
+              <button class="navbar-link" data-nav-link data-nav-target="portfolio" data-i18n="nav.portfolio">Portfolio</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.blog">Blog</button>
+              <button class="navbar-link" data-nav-link data-nav-target="blog" data-i18n="nav.blog">Blog</button>
             </li>
             <li class="navbar-item">
-              <button class="navbar-link" data-nav-link data-i18n="nav.contact">Contact</button>
+              <button class="navbar-link" data-nav-link data-nav-target="contact" data-i18n="nav.contact">Contact</button>
             </li>
           </ul>
         </nav>
@@ -328,14 +286,14 @@
             <!-- ABOUT_TEXT_START -->
 <p>Test about text updated</p>
 <!-- ABOUT_TEXT_END -->
-            <p class="availability-badge" data-reveal>
+            <p class="availability-badge" data-reveal data-i18n="about.availability">
               Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
             </p>
             <div class="cta-group" data-reveal>
-              <button class="cta-primary" type="button" data-contact-cta>
+              <button class="cta-primary" type="button" data-contact-cta data-i18n="about.cta_discuss">
                 Discutons de ton projet
               </button>
-              <button class="cta-secondary" type="button" data-portfolio-cta>
+              <button class="cta-secondary" type="button" data-portfolio-cta data-i18n="about.cta_view">
                 Voir mes projets
               </button>
             </div>
@@ -346,7 +304,7 @@
         -->
 
           <section class="service">
-            <h3 class="h3 service-title">Sur quoi je travaille actuellement</h3>
+            <h3 class="h3 service-title" data-i18n="about.working_on">Sur quoi je travaille actuellement</h3>
             <ul class="service-list">
               <!-- PROJECTS_START -->
 
@@ -379,7 +337,7 @@
         -->
 
           <section class="testimonials">
-            <h3 class="h3 testimonials-title">Recommandations</h3>
+            <h3 class="h3 testimonials-title" data-i18n="about.recommendations">Recommandations</h3>
             <ul class="testimonials-list has-scrollbar">
               <!-- TESTIMONIALS_START -->
 
@@ -622,105 +580,105 @@
 
           <!-- clients -->
           <section class="clients">
-            <h3 class="h3 clients-title">Clients</h3>
+            <h3 class="h3 clients-title" data-i18n="about.clients">Clients</h3>
 
             <ul class="clients-list has-scrollbar">
               <!-- CLIENTS_START -->
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
 
         <li class="clients-item">
           <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="null" alt="Test Client" class="client-logo" loading="lazy">
+            <img src="" alt="Test Client" class="client-logo" loading="lazy">
           </a>
         </li>
 
@@ -735,7 +693,7 @@
 
         <article class="resume" data-page="parcours">
           <header>
-            <h2 class="h2 article-title">Parcours</h2>
+            <h2 class="h2 article-title" data-i18n="nav.resume">Parcours</h2>
           </header>
 
           <section class="timeline">
@@ -748,13 +706,6 @@
 
             <ol class="timeline-list">
               <!-- EDUCATION_START -->
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
 
         <li class="timeline-item">
           <h4 class="h4 timeline-item-title">Test University</h4>
@@ -980,7 +931,7 @@
               <div class="icon-box">
                 <ion-icon name="document-text-outline"></ion-icon>
               </div>
-              <h3 class="h3">Mon CV</h3>
+              <h3 class="h3" data-i18n="resume.cv">Mon CV</h3>
             </div>
             <div>
               <!-- CV_SECTION_START -->
@@ -1251,7 +1202,7 @@
 
             <div class="filter-select-box">
               <button class="filter-select" data-select>
-                <div class="select-value" data-selecct-value>
+                <div class="select-value" data-selecct-value data-i18n="portfolio.select_category">
                   Sélectionner une catégorie
                 </div>
                 <div class="select-icon">
@@ -1306,14 +1257,14 @@
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+            <img src="" alt="asd" loading="lazy" data-project-image>
           </figure>
-          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <h3 class="project-title" data-project-title data-i18n="project_14_title">asd</h3>
           <p class="project-category" data-project-category>Test Category 1</p>
           
           <!-- Données pour la modal -->
           <div style="display: none;">
-            <span data-project-description>Description du projet de test</span>
+            <span data-project-description data-i18n="project_14_description">Description du projet de test</span>
             <span data-project-repo-link>https://github.com/test/project1</span>
             <span data-project-live-link>https://project1.test.com</span>
           </div>
@@ -1327,14 +1278,14 @@
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="null" alt="asd" loading="lazy" data-project-image>
+            <img src="" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
           </figure>
-          <h3 class="project-title" data-project-title>asd</h3>
+          <h3 class="project-title" data-project-title data-i18n="project_13_title">Test Portfolio Project 1</h3>
           <p class="project-category" data-project-category>Test Category 1</p>
           
           <!-- Données pour la modal -->
           <div style="display: none;">
-            <span data-project-description>Description du projet de test</span>
+            <span data-project-description data-i18n="project_13_description">Description du projet de test</span>
             <span data-project-repo-link>https://github.com/test/project1</span>
             <span data-project-live-link>https://project1.test.com</span>
           </div>
@@ -1348,35 +1299,14 @@
             <div class="project-item-icon-box">
               <ion-icon name="eye-outline"></ion-icon>
             </div>
-            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+            <img src="" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
           </figure>
-          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
+          <h3 class="project-title" data-project-title data-i18n="project_1_title">Test Portfolio Project 1</h3>
           <p class="project-category" data-project-category>Test Category 1</p>
           
           <!-- Données pour la modal -->
           <div style="display: none;">
-            <span data-project-description>Description du projet de test</span>
-            <span data-project-repo-link>https://github.com/test/project1</span>
-            <span data-project-live-link>https://project1.test.com</span>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="project-item" data-filter-item data-category="test-category-1">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="null" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title>Test Portfolio Project 1</h3>
-          <p class="project-category" data-project-category>Test Category 1</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description>Description du projet de test</span>
+            <span data-project-description data-i18n="project_1_description">Description du projet de test</span>
             <span data-project-repo-link>https://github.com/test/project1</span>
             <span data-project-live-link>https://project1.test.com</span>
           </div>
@@ -1386,59 +1316,6 @@
 <!-- PORTFOLIO_PROJECTS_END -->
             </ul>
 
-            <!-- Modal pour les projets portfolio -->
-            <div class="project-modal-container" data-project-modal-container>
-              <div class="project-overlay" data-project-overlay></div>
-
-              <section class="project-modal">
-                <button
-                  class="project-modal-close-btn"
-                  data-project-modal-close-btn
-                >
-                  <ion-icon name="close-outline"></ion-icon>
-                </button>
-
-                <div class="project-modal-content">
-                  <!-- Image principale -->
-                  <div class="project-modal-img-wrapper">
-                    <img
-                      src=""
-                      alt=""
-                      data-project-modal-img
-                      class="project-modal-image"
-                    />
-                  </div>
-
-                  <!-- Informations du projet -->
-                  <div class="project-modal-info">
-                    <h3 class="project-modal-title" data-project-modal-title>
-                      Projet
-                    </h3>
-                    <p
-                      class="project-modal-category"
-                      data-project-modal-category
-                    >
-                      Catégorie
-                    </p>
-
-                    <div
-                      class="project-modal-description"
-                      data-project-modal-description
-                    >
-                      <p>Sélectionne un projet pour voir sa description détaillée.</p>
-                    </div>
-
-                    <!-- Liens d'action -->
-                    <div
-                      class="project-modal-actions"
-                      data-project-modal-actions
-                    >
-                      <!-- Les liens seront ajoutés dynamiquement -->
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </div>
           </section>
         </article>
 
@@ -1454,25 +1331,6 @@
           <section class="blog-posts">
             <ul class="blog-posts-list">
               <!-- BLOGS_START -->
-
-      <li class="blog-post-item">
-        <a href="/blog/test-blog-article-1">
-          <figure class="blog-banner-box">
-            <img src="null" alt="Test Blog Article 1" loading="lazy">
-          </figure>
-          <div class="blog-content">
-            <div class="blog-meta">
-              <p class="blog-category">Tech</p>
-              <span class="dot"></span>
-              <time datetime="2026-08-06">2026-08-06</time>
-              <span class="dot"></span>
-              <span>1 min de lecture</span>
-            </div>
-            <h3 class="h3 blog-item-title">Test Blog Article 1</h3>
-            <p class="blog-text">Extrait de l'article de test</p>
-          </div>
-        </a>
-      </li>
 
 <!-- BLOGS_END -->
             </ul>
@@ -1506,7 +1364,7 @@
 
           <section class="contact-form">
             <h3 class="h3 form-title" data-i18n="contact.title">Formulaire de Contact</h3>
-            <p class="contact-reassurance">
+            <p class="contact-reassurance" data-i18n="contact.reassurance">
               Réponse sous 24h ouvrées. Ton message reste confidentiel et n'est jamais partagé.
             </p>
 
@@ -1517,6 +1375,7 @@
                   name="fullname"
                   class="form-input"
                   placeholder="Ton nom"
+                  data-i18n-placeholder="contact.name_placeholder"
                   required
                   data-form-input
                 />
@@ -1526,6 +1385,7 @@
                   name="email"
                   class="form-input"
                   placeholder="Adresse e-mail"
+                  data-i18n-placeholder="contact.email_placeholder"
                   required
                   data-form-input
                 />
@@ -1535,6 +1395,7 @@
                 name="message"
                 class="form-input"
                 placeholder="Ton message ici..."
+                data-i18n-placeholder="contact.message_placeholder"
                 required
                 data-form-input
               ></textarea>
@@ -1548,6 +1409,61 @@
             </form>
           </section>
         </article>
+
+        <!-- Modal pour les projets (déplacée ici pour être globale) -->
+        <div class="project-modal-container" data-project-modal-container>
+          <div class="project-overlay" data-project-overlay></div>
+
+          <section class="project-modal">
+            <button
+              class="project-modal-close-btn"
+              data-project-modal-close-btn
+            >
+              <ion-icon name="close-outline"></ion-icon>
+            </button>
+
+            <div class="project-modal-content">
+              <!-- Image principale -->
+              <div class="project-modal-img-wrapper">
+                <img
+                  src=""
+                  alt=""
+                  data-project-modal-img
+                  class="project-modal-image"
+                />
+              </div>
+
+              <!-- Informations du projet -->
+              <div class="project-modal-info">
+                <h3 class="project-modal-title" data-project-modal-title>
+                  Projet
+                </h3>
+                <p
+                  class="project-modal-category"
+                  data-project-modal-category
+                >
+                  Catégorie
+                </p>
+
+                <div
+                  class="project-modal-description"
+                  data-project-modal-description
+                >
+                  <p>Sélectionne un projet pour voir sa description détaillée.</p>
+                </div>
+
+                <!-- Liens d'action -->
+                <div
+                  class="project-modal-actions"
+                  data-project-modal-actions
+                >
+                  <!-- Les liens seront ajoutés dynamiquement -->
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
       </div>
     </main>
     <!--

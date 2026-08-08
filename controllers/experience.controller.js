@@ -81,3 +81,19 @@ exports.moveDown = async (req, res) => {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+
+exports.bulkReorder = async (req, res) => {
+  try {
+    const { order } = req.body;
+    if (!Array.isArray(order)) return res.status(400).json({ error: 'Format invalide' });
+    
+    await dbOperations.experience.bulkReorder(order);
+    const { updateHtmlFile } = require('../services/htmlGenerator.service');
+    await updateHtmlFile();
+    
+    res.json({ success: true, message: 'Ordre mis à jour' });
+  } catch (error) {
+    console.error('Erreur:', error);
+    res.status(500).json({ error: 'Erreur serveur lors de la réorganisation' });
+  }
+};

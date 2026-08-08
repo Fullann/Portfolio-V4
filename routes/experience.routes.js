@@ -5,6 +5,7 @@ const { authenticateToken } = require('../middleware/auth');
 
 router.get('/', experienceController.getAllExperience);
 router.post('/', authenticateToken, experienceController.createExperience);
+router.put('/reorder', authenticateToken, experienceController.bulkReorder);
 router.put('/:id', authenticateToken, experienceController.updateExperience);
 router.delete('/:id', authenticateToken, experienceController.deleteExperience);
 router.post('/:id/move-up', authenticateToken, experienceController.moveUp);

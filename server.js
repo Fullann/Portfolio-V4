@@ -20,11 +20,12 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://js.hcaptcha.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://js.hcaptcha.com", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
+      scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.hcaptcha.com"],
+      connectSrc: ["'self'", "https://api.hcaptcha.com", "https://unpkg.com"],
       frameSrc: ["https://newassets.hcaptcha.com", "https://*.hcaptcha.com"],
     }
   },

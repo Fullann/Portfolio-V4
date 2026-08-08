@@ -5,6 +5,7 @@ const { authenticateToken } = require('../middleware/auth');
 
 router.get('/', educationController.getAllEducation);
 router.post('/', authenticateToken, educationController.createEducation);
+router.put('/reorder', authenticateToken, educationController.bulkReorder);
 router.put('/:id', authenticateToken, educationController.updateEducation);
 router.delete('/:id', authenticateToken, educationController.deleteEducation);
 router.post('/:id/move-up', authenticateToken, educationController.moveUp);

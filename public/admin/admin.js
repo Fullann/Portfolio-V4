@@ -853,7 +853,7 @@ async function loadDashboardStats() {
       });
 
       if (recentItems.length === 0) {
-        recentActivityContainer.innerHTML = '<p class="text-gray-500 text-center py-8 text-sm">Aucune activité récente détectée dans le système.</p>';
+        recentActivityContainer.innerHTML = '<p class="text-gray-400 text-center py-8 text-sm">Aucune activité récente détectée dans le système.</p>';
       } else {
         recentActivityContainer.innerHTML = recentItems.map(item => `
           <div class="flex items-center gap-4 p-3 rounded-lg border border-gray-800 bg-dark-900/50 hover:bg-dark-800 transition">
@@ -862,7 +862,7 @@ async function loadDashboardStats() {
             </div>
             <div>
               <p class="text-sm font-medium text-gray-300">Nouveau ${item.type} ajouté</p>
-              <p class="text-xs text-gray-500 mt-0.5 truncate w-48 lg:w-64">${item.title}</p>
+              <p class="text-xs text-gray-400 mt-0.5 truncate w-48 lg:w-64">${item.title}</p>
             </div>
           </div>
         `).join('');
@@ -932,26 +932,24 @@ async function loadSocialLinks() {
 
     if (socialLinks.length === 0) {
       list.innerHTML =
-        '<p class="text-gray-500 text-center py-8 col-span-full">Aucun lien social</p>';
+        '<p class="text-gray-400 text-center py-8 col-span-full">Aucun lien social</p>';
       return;
     }
 
-    list.innerHTML = socialLinks
-      .map(
-        (social) => `
-      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-indigo-300 transition">
+    list.innerHTML = socialLinks.map((social) => `
+      <div id="social-item-${social.id}" class="flex items-center justify-between p-4 bg-dark-900 border border-gray-800 rounded-lg border border-gray-700 hover:border-indigo-300 transition">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-            <ion-icon name="${social.icon}" class="text-2xl text-indigo-600"></ion-icon>
+          <div class="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+            <ion-icon name="${social.icon}" class="text-2xl text-primary"></ion-icon>
           </div>
           <div>
-            <p class="font-semibold text-gray-800">${social.name}</p>
-            <p class="text-xs text-gray-500 truncate max-w-[200px]">${social.url}</p>
+            <p class="font-semibold text-white">${social.name}</p>
+            <p class="text-xs text-gray-400 truncate max-w-[200px]">${social.url}</p>
           </div>
         </div>
         <div class="flex gap-2">
-          <button onclick="editSocial(${social.id})" type="button" class="p-2 hover:bg-white rounded-lg transition">✏️</button>
-          <button onclick="deleteSocial(${social.id})" type="button" class="p-2 hover:bg-red-50 rounded-lg transition">🗑️</button>
+          <button onclick="editSocial(${social.id})" type="button" class="p-2 hover:glass-card border border-gray-800 rounded-lg transition">Modifier</button>
+          <button onclick="deleteSocial(${social.id})" type="button" class="p-2 hover:bg-red-900/30 text-red-500 rounded-lg transition">Supprimer</button>
         </div>
       </div>
     `,
@@ -972,21 +970,19 @@ async function loadCategories() {
 
     if (categories.length === 0) {
       list.innerHTML =
-        '<p class="text-gray-500 text-center py-4">Aucune catégorie</p>';
+        '<p class="text-gray-400 text-center py-4">Aucune catégorie</p>';
       return;
     }
 
-    list.innerHTML = categories
-      .map(
-        (category) => `
-      <div class="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-200">
+    list.innerHTML = categories.map((category) => `
+      <div id="category-item-${category.id}" class="flex items-center justify-between p-2 bg-dark-900 border border-gray-800 rounded-lg border border-gray-700">
         <div>
-          <p class="font-semibold text-gray-800 text-sm">${category.display_name || "Sans nom"}</p>
-          <p class="text-xs text-gray-500">${category.name || ""}</p>
+          <p class="font-semibold text-white text-sm">${category.display_name || "Sans nom"}</p>
+          <p class="text-xs text-gray-400">${category.name || ""}</p>
         </div>
         <div class="flex gap-1">
-          <button onclick="editCategory(${category.id})" type="button" class="p-1 hover:bg-green-100 rounded transition text-xs">✏️</button>
-          <button onclick="deleteCategory(${category.id})" type="button" class="p-1 hover:bg-red-100 rounded transition text-xs">🗑️</button>
+          <button onclick="editCategory(${category.id})" type="button" class="p-1 hover:bg-primary/20 text-primary rounded transition text-xs">Modifier</button>
+          <button onclick="deleteCategory(${category.id})" type="button" class="p-1 hover:bg-red-900/30 text-red-500 rounded transition text-xs">Supprimer</button>
         </div>
       </div>
     `,
@@ -1028,14 +1024,12 @@ async function loadPortfolioProjects() {
 
     if (projects.length === 0) {
       list.innerHTML =
-        '<div class="col-span-full text-center py-16"><p class="text-gray-500">Aucun projet portfolio</p></div>';
+        '<div class="col-span-full text-center py-16"><p class="text-gray-400">Aucun projet portfolio</p></div>';
       return;
     }
 
-    list.innerHTML = projects
-      .map(
-        (project) => `
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition group flex flex-col justify-between">
+    list.innerHTML = projects.map((project) => `
+      <div id="portfolio-item-${project.id}" class="glass-card border border-gray-800 rounded-xl  border border-gray-700 overflow-hidden hover:shadow-lg transition group flex flex-col justify-between">
         <div>
           ${
             project.image
@@ -1054,9 +1048,9 @@ async function loadPortfolioProjects() {
           }
           <div class="p-4">
             <div class="flex items-center justify-between gap-2 mb-2">
-              <h3 class="font-bold text-gray-800 text-base line-clamp-1">${project.title}</h3>
+              <h3 class="font-bold text-white text-base line-clamp-1">${project.title}</h3>
             </div>
-            <p class="text-sm text-gray-600 mb-3 line-clamp-2">${project.description || "Pas de description"}</p>
+            <p class="text-sm text-gray-400 mb-3 line-clamp-2">${project.description || "Pas de description"}</p>
             <div class="flex items-center justify-between gap-2 mb-3">
               <span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs rounded-full font-medium">${project.category || "Non catégorisé"}</span>
               <div class="flex gap-2">
@@ -1065,8 +1059,8 @@ async function loadPortfolioProjects() {
                   onclick="togglePortfolioVisibility(${project.id}, ${project.isVisible ? 0 : 1})"
                   class="px-2 py-1 rounded-lg text-xs font-semibold transition flex items-center justify-center ${
                     project.isVisible
-                      ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
-                      : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
+                      ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-primary/20 text-primary'
+                      : 'bg-red-50 text-red-500 border border-red-200 hover:bg-red-900/30 text-red-500'
                   }"
                   title="${project.isVisible ? 'Masquer du site' : 'Afficher sur le site'}"
                 >
@@ -1078,7 +1072,7 @@ async function loadPortfolioProjects() {
                   class="px-2.5 py-1 rounded-lg text-xs font-semibold transition flex items-center gap-1 ${
                     project.isCurrentWork
                       ? 'bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100'
-                      : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                      : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                   }"
                   title="Afficher dans 'Sur quoi je travaille actuellement'"
                 >
@@ -1092,9 +1086,9 @@ async function loadPortfolioProjects() {
             </div>
           </div>
         </div>
-        <div class="flex gap-2 p-4 pt-0 border-t border-gray-100 mt-2">
-          <button onclick="editPortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 bg-gray-50 hover:bg-indigo-50 text-indigo-700 rounded-lg text-xs font-semibold transition">Modifier</button>
-          <button onclick="deletePortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 bg-gray-50 hover:bg-red-50 text-red-600 rounded-lg text-xs font-semibold transition">Supprimer</button>
+        <div class="flex gap-2 p-4 pt-0 border-t border-gray-700 mt-2">
+          <button onclick="editPortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 bg-dark-900 border border-gray-800 hover:bg-indigo-50 text-indigo-700 rounded-lg text-xs font-semibold transition">Modifier</button>
+          <button onclick="deletePortfolioProject(${project.id})" type="button" class="flex-1 px-3 py-2 bg-dark-900 border border-gray-800 hover:bg-red-900/30 text-red-500 text-red-500 rounded-lg text-xs font-semibold transition">Supprimer</button>
         </div>
       </div>
     `,
@@ -1115,14 +1109,12 @@ async function loadProjects() {
 
     if (projects.length === 0) {
       list.innerHTML =
-        '<div class="col-span-full text-center py-16"><p class="text-gray-500">Aucun projet</p></div>';
+        '<div class="col-span-full text-center py-16"><p class="text-gray-400">Aucun projet</p></div>';
       return;
     }
 
-    list.innerHTML = projects
-      .map(
-        (project) => `
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition">
+    list.innerHTML = projects.map((project) => `
+      <div id="portfolio-item-${project.id}" class="glass-card border border-gray-800 rounded-xl  border border-gray-700 overflow-hidden hover:shadow-lg transition">
         ${
           project.image
             ? `
@@ -1133,12 +1125,12 @@ async function loadProjects() {
             : ""
         }
         <div class="p-4">
-          <h3 class="font-bold text-gray-800 mb-1">${project.title}</h3>
-          <p class="text-sm text-indigo-600 mb-2">${project.category}</p>
-          <p class="text-sm text-gray-600 mb-3">${project.description}</p>
+          <h3 class="font-bold text-white mb-1">${project.title}</h3>
+          <p class="text-sm text-primary mb-2">${project.category}</p>
+          <p class="text-sm text-gray-400 mb-3">${project.description}</p>
           <div class="flex gap-2">
-            <button onclick="editProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">✏️ Modifier</button>
-            <button onclick="deleteProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-red-50 text-red-700 rounded-lg text-sm font-semibold transition">🗑️ Supprimer</button>
+            <button onclick="editProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">Modifier</button>
+            <button onclick="deleteProject(${project.id})" type="button" class="flex-1 px-3 py-2 hover:bg-red-900/30 text-red-500 text-red-500 rounded-lg text-sm font-semibold transition">Supprimer</button>
           </div>
         </div>
       </div>
@@ -1177,14 +1169,12 @@ async function loadBlogs() {
 
     if (blogs.length === 0) {
       list.innerHTML =
-        '<div class="text-center py-16"><p class="text-gray-500">Aucun article</p></div>';
+        '<div class="text-center py-16"><p class="text-gray-400">Aucun article</p></div>';
       return;
     }
 
-    list.innerHTML = blogs
-      .map(
-        (blog) => `
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition">
+    list.innerHTML = blogs.map((blog) => `
+      <div id="blog-item-${blog.id}" class="glass-card border border-gray-800 rounded-xl  border border-gray-700 p-6 hover:shadow-lg transition">
         <div class="flex gap-4">
           ${
             blog.image
@@ -1196,13 +1186,13 @@ async function loadBlogs() {
               : ""
           }
           <div class="flex-1">
-            <h3 class="font-bold text-gray-800 text-lg mb-2">${blog.title}</h3>
-            <p class="text-sm text-indigo-600 mb-2">${blog.category} • ${blog.author || "Admin"}</p>
-            <p class="text-sm text-gray-600 mb-3 line-clamp-2">${blog.excerpt}</p>
+            <h3 class="font-bold text-white text-lg mb-2">${blog.title}</h3>
+            <p class="text-sm text-primary mb-2">${blog.category} • ${blog.author || "Admin"}</p>
+            <p class="text-sm text-gray-400 mb-3 line-clamp-2">${blog.excerpt}</p>
             <div class="flex gap-2">
-              <a href="/blog/${blog.slug}" target="_blank" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-semibold transition">👁️ Voir</a>
-              <button onclick="editBlog(${blog.id})" type="button" class="px-4 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">✏️ Modifier</button>
-              <button onclick="deleteBlog(${blog.id})" type="button" class="px-4 py-2 hover:bg-red-50 text-red-700 rounded-lg text-sm font-semibold transition">🗑️ Supprimer</button>
+              <a href="/blog/${blog.slug}" target="_blank" class="px-4 py-2 hover:bg-dark-700 text-gray-300 hover:text-white rounded-lg text-xs transition">Voir en ligne</a>
+              <button onclick="editBlog(${blog.id})" type="button" class="px-4 py-2 hover:bg-green-50 text-green-700 rounded-lg text-sm font-semibold transition">Modifier</button>
+              <button onclick="deleteBlog(${blog.id})" type="button" class="px-4 py-2 hover:bg-red-900/30 text-red-500 text-red-500 rounded-lg text-sm font-semibold transition">Supprimer</button>
             </div>
           </div>
         </div>
@@ -1225,31 +1215,30 @@ async function loadExperience() {
 
     if (experience.length === 0) {
       list.innerHTML =
-        '<p class="text-gray-500 text-center py-8">Aucune expérience</p>';
+        '<p class="text-gray-400 text-center py-8">Aucune expérience</p>';
       return;
     }
 
-    list.innerHTML = experience
-      .map(
-        (exp, index) => `
-      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+    list.innerHTML = experience.map((exp, index) => `
+      <div id="exp-item-${exp.id}" class="p-4 bg-dark-900 border border-gray-800 rounded-lg border border-gray-700">
         <div class="flex justify-between items-start mb-2">
-          <h4 class="font-bold text-gray-800">${exp.position}</h4>
+          <h4 class="font-bold text-white">${exp.position}</h4>
           <div class="flex gap-1">
-            ${index > 0 ? `<button onclick="moveExperienceUp(${exp.id})" type="button" class="p-1 hover:bg-blue-100 rounded transition">⬆️</button>` : ""}
-            ${index < experience.length - 1 ? `<button onclick="moveExperienceDown(${exp.id})" type="button" class="p-1 hover:bg-blue-100 rounded transition">⬇️</button>` : ""}
+            <div class="drag-handle cursor-move p-2 text-gray-500 hover:text-white">☰</div>
           </div>
         </div>
-        <p class="text-sm text-indigo-600 mb-2">${exp.period}</p>
-        <p class="text-sm text-gray-600">${exp.description}</p>
+        <p class="text-sm text-primary mb-2">${exp.period}</p>
+        <p class="text-sm text-gray-400">${exp.description}</p>
         <div class="flex gap-2 mt-3">
-          <button onclick="editExperience(${exp.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
-          <button onclick="deleteExperience(${exp.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+          <button onclick="editExperience(${exp.id})" type="button" class="text-xs px-3 py-1 hover:bg-primary/20 text-primary text-green-700 rounded transition">Modifier</button>
+          <button onclick="deleteExperience(${exp.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-900/30 text-red-500 text-red-500 rounded transition">Supprimer</button>
         </div>
       </div>
     `,
       )
       .join("");
+    
+    initSortable("experience-list", "/api/experience/reorder");
   } catch (error) {
     console.error("Erreur:", error);
   }
@@ -1265,31 +1254,30 @@ async function loadEducation() {
 
     if (education.length === 0) {
       list.innerHTML =
-        '<p class="text-gray-500 text-center py-8">Aucune formation</p>';
+        '<p class="text-gray-400 text-center py-8">Aucune formation</p>';
       return;
     }
 
-    list.innerHTML = education
-      .map(
-        (edu, index) => `
-      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+    list.innerHTML = education.map((edu, index) => `
+      <div id="edu-item-${edu.id}" class="p-4 bg-dark-900 border border-gray-800 rounded-lg border border-gray-700">
         <div class="flex justify-between items-start mb-2">
-          <h4 class="font-bold text-gray-800">${edu.institution}</h4>
+          <h4 class="font-bold text-white">${edu.institution}</h4>
           <div class="flex gap-1">
-            ${index > 0 ? `<button onclick="moveEducationUp(${edu.id})" type="button" class="p-1 hover:bg-purple-100 rounded transition">⬆️</button>` : ""}
-            ${index < education.length - 1 ? `<button onclick="moveEducationDown(${edu.id})" type="button" class="p-1 hover:bg-purple-100 rounded transition">⬇️</button>` : ""}
+            <div class="drag-handle cursor-move p-2 text-gray-500 hover:text-white">☰</div>
           </div>
         </div>
         <p class="text-sm text-purple-600 mb-2">${edu.period}</p>
-        <p class="text-sm text-gray-600">${edu.description}</p>
+        <p class="text-sm text-gray-400">${edu.description}</p>
         <div class="flex gap-2 mt-3">
-          <button onclick="editEducation(${edu.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
-          <button onclick="deleteEducation(${edu.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+          <button onclick="editEducation(${edu.id})" type="button" class="text-xs px-3 py-1 hover:bg-primary/20 text-primary text-green-700 rounded transition">Modifier</button>
+          <button onclick="deleteEducation(${edu.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-900/30 text-red-500 text-red-500 rounded transition">Supprimer</button>
         </div>
       </div>
     `,
       )
       .join("");
+      
+    initSortable("education-list", "/api/education/reorder");
   } catch (error) {
     console.error("Erreur:", error);
   }
@@ -1305,24 +1293,22 @@ async function loadSkills() {
 
     if (skills.length === 0) {
       list.innerHTML =
-        '<p class="text-gray-500 text-center py-8 col-span-full">Aucune compétence</p>';
+        '<p class="text-gray-400 text-center py-8 col-span-full">Aucune compétence</p>';
       return;
     }
 
-    list.innerHTML = skills
-      .map(
-        (skill) => `
-      <div class="p-4 bg-gray-50 rounded-lg border border-gray-200">
+    list.innerHTML = skills.map((skill) => `
+      <div id="skill-item-${skill.id}" class="p-4 bg-dark-900 border border-gray-800 rounded-lg border border-gray-700">
         <div class="flex justify-between items-center mb-2">
-          <h4 class="font-bold text-gray-800">${skill.name}</h4>
+          <h4 class="font-bold text-white">${skill.name}</h4>
           <span class="text-sm font-semibold text-amber-600">${skill.percentage}%</span>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
           <div class="bg-gradient-to-r from-amber-500 to-orange-600 h-2 rounded-full transition-all duration-500" style="width: ${skill.percentage}%"></div>
         </div>
         <div class="flex gap-2">
-          <button onclick="editSkill(${skill.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
-          <button onclick="deleteSkill(${skill.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+          <button onclick="editSkill(${skill.id})" type="button" class="text-xs px-3 py-1 hover:bg-primary/20 text-primary text-green-700 rounded transition">Modifier</button>
+          <button onclick="deleteSkill(${skill.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-900/30 text-red-500 text-red-500 rounded transition">Supprimer</button>
         </div>
       </div>
     `,
@@ -1343,32 +1329,30 @@ async function loadClients() {
 
     if (clients.length === 0) {
       list.innerHTML =
-        '<p class="text-gray-500 text-center py-8">Aucun client</p>';
+        '<p class="text-gray-400 text-center py-8">Aucun client</p>';
       return;
     }
 
-    list.innerHTML = clients
-      .map(
-        (client) => `
-      <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+    list.innerHTML = clients.map((client) => `
+      <div id="client-item-${client.id}" class="flex items-center justify-between p-3 bg-dark-900 border border-gray-800 rounded-lg border border-gray-700">
         <div class="flex items-center gap-3">
           ${
             client.logo
               ? `
-            <div class="w-12 h-12 rounded-lg overflow-hidden bg-white">
+            <div class="w-12 h-12 rounded-lg overflow-hidden glass-card border border-gray-800">
               <img src="${client.logo}" alt="${client.name}" class="w-full h-full object-contain"/>
             </div>
           `
               : ""
           }
           <div>
-            <p class="font-semibold text-gray-800">${client.name}</p>
-            ${client.website ? `<a href="${client.website}" target="_blank" class="text-xs text-indigo-600 hover:underline">${client.website}</a>` : ""}
+            <p class="font-semibold text-white">${client.name}</p>
+            ${client.website ? `<a href="${client.website}" target="_blank" class="text-xs text-primary hover:underline">${client.website}</a>` : ""}
           </div>
         </div>
         <div class="flex gap-2">
-          <button onclick="editClient(${client.id})" type="button" class="p-2 hover:bg-green-100 rounded-lg transition">✏️</button>
-          <button onclick="deleteClient(${client.id})" type="button" class="p-2 hover:bg-red-100 rounded-lg transition">🗑️</button>
+          <button onclick="editClient(${client.id})" type="button" class="p-2 hover:bg-primary/20 text-primary rounded-lg transition">Modifier</button>
+          <button onclick="deleteClient(${client.id})" type="button" class="p-2 hover:bg-red-900/30 text-red-500 rounded-lg transition">Supprimer</button>
         </div>
       </div>
     `,
@@ -1389,19 +1373,17 @@ async function loadTestimonials() {
 
     if (testimonials.length === 0) {
       list.innerHTML =
-        '<p class="text-gray-500 text-center py-8">Aucun témoignage</p>';
+        '<p class="text-gray-400 text-center py-8">Aucun témoignage</p>';
       return;
     }
 
-    list.innerHTML = testimonials
-      .map(
-        (testimonial) => `
-      <div class="p-3 bg-gray-50 rounded-lg border border-gray-200">
+    list.innerHTML = testimonials.map((testimonial) => `
+      <div id="testimonial-item-${testimonial.id}" class="p-3 bg-dark-900 border border-gray-800 rounded-lg border border-gray-700">
         <div class="flex items-start gap-3 mb-2">
           ${
             testimonial.avatar
               ? `
-            <div class="w-10 h-10 rounded-full overflow-hidden bg-white flex-shrink-0">
+            <div class="w-10 h-10 rounded-full overflow-hidden glass-card border border-gray-800 flex-shrink-0">
               <img src="${testimonial.avatar}" alt="${testimonial.name}" class="w-full h-full object-cover"/>
             </div>
           `
@@ -1412,13 +1394,13 @@ async function loadTestimonials() {
           `
           }
           <div class="flex-1">
-            <p class="font-semibold text-gray-800">${testimonial.name}</p>
-            <p class="text-sm text-gray-600 mt-1">${testimonial.text}</p>
+            <p class="font-semibold text-white">${testimonial.name}</p>
+            <p class="text-sm text-gray-400 mt-1">${testimonial.text}</p>
           </div>
         </div>
         <div class="flex gap-2 mt-2">
-          <button onclick="editTestimonial(${testimonial.id})" type="button" class="text-xs px-3 py-1 hover:bg-green-100 text-green-700 rounded transition">✏️ Modifier</button>
-          <button onclick="deleteTestimonial(${testimonial.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-100 text-red-700 rounded transition">🗑️ Supprimer</button>
+          <button onclick="editTestimonial(${testimonial.id})" type="button" class="text-xs px-3 py-1 hover:bg-primary/20 text-primary text-green-700 rounded transition">Modifier</button>
+          <button onclick="deleteTestimonial(${testimonial.id})" type="button" class="text-xs px-3 py-1 hover:bg-red-900/30 text-red-500 text-red-500 rounded transition">Supprimer</button>
         </div>
       </div>
     `,
@@ -2192,7 +2174,7 @@ async function loadI18nSettings() {
           onclick="selectI18nLang('${l.code}')"
           class="px-3 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-1.5 ${
             l.code === currentI18nLang
-              ? "bg-indigo-600 text-white shadow-sm"
+              ? "bg-indigo-600 text-white "
               : "bg-gray-100 hover:bg-gray-200 text-gray-700"
           }"
         >
@@ -2269,8 +2251,8 @@ function renderI18nTranslationFields() {
   let html = "";
   for (const [catName, keys] of Object.entries(keyCategories)) {
     html += `
-      <div class="col-span-full border-b border-gray-200 pb-2 pt-4 first:pt-0">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-600">${catName}</h4>
+      <div class="col-span-full border-b border-gray-700 pb-2 pt-4 first:pt-0">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-primary">${catName}</h4>
       </div>
     `;
     for (const [key, label] of Object.entries(keys)) {
@@ -2282,7 +2264,7 @@ function renderI18nTranslationFields() {
             type="text"
             data-i18n-key="${key}"
             value="${val}"
-            class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:border-indigo-500 outline-none transition"
+            class="w-full px-3 py-2 border border-gray-700 rounded-lg text-sm focus:border-indigo-500 outline-none transition"
           />
         </div>
       `;
@@ -2336,16 +2318,26 @@ function renderModalLangTabs(modalType) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  container.innerHTML = window.activeLanguages.map(l => \`
-    <button type="button" onclick="switchModalLang('\${modalType}', '\${l.code}')"
-      class="px-3 py-1 text-sm font-semibold rounded-full transition \${
-        (modalType === 'blog' ? activeBlogLang : activePortfolioLang) === l.code 
-          ? 'bg-indigo-600 text-white' 
-          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+  const activeLangCode = modalType === 'blog' ? activeBlogLang : activePortfolioLang;
+  const activeLangObj = window.activeLanguages.find(l => l.code === activeLangCode);
+  const activeLangName = activeLangObj ? activeLangObj.name : activeLangCode.toUpperCase();
+
+  let html = `<div class="w-full text-xs text-gray-400 mb-2">Traduction en cours : <strong class="text-white">${activeLangName}</strong></div><div class="flex gap-2">`;
+  html += window.activeLanguages.map(l => `
+    <button type="button" onclick="switchModalLang('${modalType}', '${l.code}')"
+      class="px-3 py-1 text-sm font-semibold rounded-full transition ${
+        activeLangCode === l.code 
+          ? 'bg-primary text-white' 
+          : 'bg-dark-800 text-gray-400 hover:bg-dark-700'
       }">
-      \${l.flag} \${l.name}
+      ${l.flag} ${l.name}
     </button>
-  \`).join('');
+  `).join('');
+  html += `</div>`;
+  container.innerHTML = html;
+  
+  // Update classes of the container if needed (remove flex gap-2 since it's now inside)
+  container.classList.remove('flex', 'gap-2');
   
   const badgeId = modalType === 'blog' ? 'blog-title-lang-badge' : 'portfolio-title-lang-badge';
   const badge = document.getElementById(badgeId);
@@ -2420,7 +2412,7 @@ editPortfolioProject = async function(id) {
   await originalEditPortfolioProject(id);
   // Fetch translations
   try {
-    const res = await fetch(\`/api/portfolio-projects/\${id}/translations\`);
+    const res = await fetch(`/api/portfolio-projects/${id}/translations`);
     if (res.ok) {
       currentPortfolioTranslations = await res.json();
     }
@@ -2441,7 +2433,7 @@ editBlog = async function(id) {
   await originalEditBlog(id);
   // Fetch translations
   try {
-    const res = await fetch(\`/api/blogs/\${id}/translations\`);
+    const res = await fetch(`/api/blogs/${id}/translations`);
     if (res.ok) {
       currentBlogTranslations = await res.json();
     }
@@ -2457,3 +2449,111 @@ editBlog = async function(id) {
   activeBlogLang = 'fr';
   renderModalLangTabs('blog');
 };
+
+
+let softDeleteTimers = {};
+
+function handleSoftDelete(elementId, deleteApiCallback, itemName = "Élément") {
+  const el = document.getElementById(elementId);
+  if (el) el.classList.add('hidden'); // Soft delete visual
+  
+  // Show interactive toast
+  const toastContainer = document.getElementById("toast-container");
+  if (!toastContainer) return;
+
+  const toastId = 'toast-' + Date.now();
+  const toast = document.createElement("div");
+  toast.id = toastId;
+  toast.className = `flex items-center gap-3 px-6 py-4 rounded-xl shadow-lg transform transition-all duration-300 translate-x-full bg-dark-800 text-white border border-gray-700`;
+  
+  toast.innerHTML = `
+    <div class="flex-1">
+      <p class="font-semibold">${itemName} supprimé.</p>
+      <p class="text-sm text-gray-400">Annuler la suppression ? (<span id="${toastId}-timer">5</span>s)</p>
+    </div>
+    <button onclick="undoSoftDelete('${toastId}', '${elementId}')" class="px-3 py-1 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition">
+      Annuler
+    </button>
+  `;
+  
+  toastContainer.appendChild(toast);
+  setTimeout(() => toast.classList.remove("translate-x-full"), 10);
+
+  let timeLeft = 5;
+  const interval = setInterval(() => {
+    timeLeft--;
+    const timerEl = document.getElementById(`${toastId}-timer`);
+    if (timerEl) timerEl.textContent = timeLeft;
+  }, 1000);
+
+  softDeleteTimers[toastId] = setTimeout(async () => {
+    clearInterval(interval);
+    closeToast(toastId);
+    try {
+      await deleteApiCallback();
+    } catch (err) {
+      if (el) el.classList.remove('hidden'); // Revert if api fails
+      showNotification("Erreur lors de la suppression finale", "error");
+    }
+  }, 5000);
+}
+
+function undoSoftDelete(toastId, elementId) {
+  if (softDeleteTimers[toastId]) {
+    clearTimeout(softDeleteTimers[toastId]);
+    delete softDeleteTimers[toastId];
+  }
+  const el = document.getElementById(elementId);
+  if (el) el.classList.remove('hidden');
+  closeToast(toastId);
+}
+
+function closeToast(toastId) {
+  const toast = document.getElementById(toastId);
+  if (toast) {
+    toast.classList.add("translate-x-full");
+    setTimeout(() => toast.remove(), 300);
+  }
+}
+
+
+function initSortable(listId, endpoint) {
+  const el = document.getElementById(listId);
+  if (!el || typeof Sortable === 'undefined') return;
+
+  const existingSortable = Sortable.get(el);
+  if (existingSortable) {
+    existingSortable.destroy();
+  }
+  
+  new Sortable(el, {
+    handle: '.drag-handle',
+    animation: 150,
+    ghostClass: 'opacity-50',
+    onEnd: async function () {
+      const items = el.children;
+      const newOrder = [];
+      for (let i = 0; i < items.length; i++) {
+        // ID is in format "exp-item-123" or "edu-item-456"
+        const idParts = items[i].id.split('-');
+        if (idParts.length === 3) {
+          newOrder.push(parseInt(idParts[2]));
+        }
+      }
+      
+      try {
+        const response = await fetchWithAuth(endpoint, {
+          method: 'PUT',
+          body: JSON.stringify({ order: newOrder })
+        });
+        if (response.ok) {
+          showNotification('Ordre mis à jour', 'success');
+        } else {
+          throw new Error('Failed');
+        }
+      } catch (err) {
+        showNotification('Erreur de synchronisation', 'error');
+      }
+    }
+  });
+}

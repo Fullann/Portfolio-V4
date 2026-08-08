@@ -86,7 +86,22 @@ const experienceModel = {
         );
       }
     }
-    return experienceModel.getAll();
+  },
+  bulkReorder: async (orderedIds) => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      for (let i = 0; i < orderedIds.length; i++) {
+        await connection.execute("UPDATE experience SET display_order = ? WHERE id = ?", [i, orderedIds[i]]);
+      }
+      await connection.commit();
+      return true;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
   },
   deleteAll: async () => {
     const [result] = await pool.execute("DELETE FROM experience");
