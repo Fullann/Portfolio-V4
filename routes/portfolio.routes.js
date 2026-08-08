@@ -18,6 +18,7 @@ router.post('/',
 router.put('/:id',
   authenticateToken,
   upload.single('image'),
+  optimizeUploadedImage,
   portfolioController.updatePortfolioProject
 );
 

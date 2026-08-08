@@ -23,7 +23,7 @@ const sendErrorProd = (err, req, res) => {
   console.error('Erreur Critique (Prod):', err);
   return res.status(500).json({
     status: 'error',
-    message: 'Une erreur interne du serveur est survenue'
+    message: err.message || 'Une erreur interne du serveur est survenue'
   });
 };
 
