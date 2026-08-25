@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { authenticateToken } = require('../middleware/auth');
 const adminController = require('../controllers/admin.controller');
+const auditLogger = require('../middleware/auditLogger');
+
+// Appliquer l'audit logger à toutes les routes API
+router.use(auditLogger);
 
 // Import de tous les routers
 const authRoutes = require('./auth.routes');

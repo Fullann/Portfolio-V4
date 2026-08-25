@@ -4,31 +4,34 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fullann Portfolio</title>
+    <title><%= siteName %> | <%= formattedPersonalInfo.title || 'Portfolio' %></title>
     <meta
       name="description"
-      content="Portfolio de Nathan Fullann : projets web, expériences, compétences et contact."
+      content="<%= siteDesc %>"
     />
-    <link rel="canonical" href="https://fullann.ch/" />
+    <link rel="canonical" href="<%= baseUrl %>/" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Fullann Portfolio" />
-    <meta property="og:title" content="Nathan Füllemann | Développeur web" />
+    <meta property="og:site_name" content="<%= siteName %>" />
+    <meta property="og:title" content="<%= formattedPersonalInfo.name %> | <%= formattedPersonalInfo.title || 'Portfolio' %>" />
     <meta
       property="og:description"
-      content="Découvrez les projets, le parcours et les services web de Nathan Füllemann."
+      content="<%= siteDesc %>"
     />
-    <meta property="og:url" content="https://fullann.ch/" />
-    <meta property="og:image" content="https://fullann.ch/assets/images/logo.svg" />
+    <meta property="og:url" content="<%= baseUrl %>/" />
+    <meta property="og:image" content="<%= avatarUrl %>" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Nathan Füllemann | Développeur web" />
+    <meta name="twitter:title" content="<%= formattedPersonalInfo.name %> | <%= formattedPersonalInfo.title || 'Portfolio' %>" />
     <meta
       name="twitter:description"
-      content="Portfolio de développement web : projets, expertise et contact."
+      content="<%= siteDesc %>"
     />
     <meta
       name="twitter:image"
-      content="https://fullann.ch/assets/images/logo.svg"
+      content="<%= avatarUrl %>"
     />
+    
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="<%= siteName %> - Flux RSS" href="/rss.xml" />
 
     <!--
     - favicon
@@ -38,7 +41,7 @@
       href="/assets/images/icon.ico"
       type="image/x-icon"
     />
-<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <!--
     - custom css link
   -->
@@ -87,38 +90,25 @@
 
       <aside class="sidebar" data-sidebar>
         <div class="sidebar-info">
-          <!-- AVATAR_START -->
-
           <figure class="avatar-box">
             <img
-              src="./assets/images/my-avatar.png"
-              alt="Avatar"
+              src="<%= formattedPersonalInfo.avatar || './assets/images/my-avatar.png' %>"
+              alt="<%= formattedPersonalInfo.name %>"
               width="80"
               data-avatar-img
             />
           </figure>
 
-          <!-- AVATAR_END -->
-
           <div class="info-content">
-            <!-- NAME_START -->
-
-            <h1 class="name" title="Richard hanrick" data-name>
-              Richard hanrick
+            <h1 class="name" title="<%= formattedPersonalInfo.name %>" data-name>
+              <%= formattedPersonalInfo.name %>
             </h1>
 
-            <!-- NAME_END -->
-
-            <!-- TITLE_START -->
-
-            <p class="title" data-title>Web developer</p>
-
-            <!-- TITLE_END -->
+            <p class="title" data-title><%= formattedPersonalInfo.title %></p>
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
             <span data-i18n="sidebar.contacts_show">Afficher les contacts</span>
-
             <ion-icon name="chevron-down"></ion-icon>
           </button>
         </div>
@@ -127,8 +117,7 @@
           <div class="separator"></div>
 
           <ul class="contacts-list">
-            <!-- CONTACT_EMAIL_START -->
-
+            <% if (formattedPersonalInfo.email) { %>
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="mail-outline"></ion-icon>
@@ -138,18 +127,16 @@
                 <p class="contact-title" data-i18n="sidebar.email">Email</p>
 
                 <a
-                  href="mailto:richard@example.com"
+                  href="mailto:<%= formattedPersonalInfo.email %>"
                   class="contact-link"
                   data-contact-email
-                  >richard@example.com</a
+                  ><%= formattedPersonalInfo.email %></a
                 >
               </div>
             </li>
+            <% } %>
 
-            <!-- CONTACT_EMAIL_END -->
-
-            <!-- CONTACT_PHONE_START -->
-
+            <% if (formattedPersonalInfo.phone) { %>
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="phone-portrait-outline"></ion-icon>
@@ -159,18 +146,16 @@
                 <p class="contact-title" data-i18n="sidebar.phone">Téléphone</p>
 
                 <a
-                  href="tel:+12133522795"
+                  href="tel:<%= formattedPersonalInfo.phone %>"
                   class="contact-link"
                   data-contact-phone
-                  >+1 (213) 352-2795</a
+                  ><%= formattedPersonalInfo.phone %></a
                 >
               </div>
             </li>
+            <% } %>
 
-            <!-- CONTACT_PHONE_END -->
-
-            <!-- CONTACT_BIRTHDAY_START -->
-
+            <% if (formattedPersonalInfo.birthday) { %>
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="calendar-outline"></ion-icon>
@@ -179,16 +164,14 @@
               <div class="contact-info">
                 <p class="contact-title" data-i18n="sidebar.birthday">Date de naissance</p>
 
-                <time datetime="1982-06-23" data-contact-birthday
-                  >23 Juin, 1982</time
+                <time datetime="<%= formattedPersonalInfo.birthday %>" data-contact-birthday
+                  ><%= formattedPersonalInfo.birthday %></time
                 >
               </div>
             </li>
+            <% } %>
 
-            <!-- CONTACT_BIRTHDAY_END -->
-
-            <!-- CONTACT_LOCATION_START -->
-
+            <% if (formattedPersonalInfo.location) { %>
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="location-outline"></ion-icon>
@@ -198,20 +181,23 @@
                 <p class="contact-title" data-i18n="sidebar.location">Localisation</p>
 
                 <address data-contact-location>
-                  Sacramento, California, USA
+                  <%= formattedPersonalInfo.location %>
                 </address>
               </div>
             </li>
-
-            <!-- CONTACT_LOCATION_END -->
+            <% } %>
           </ul>
 
           <div class="separator"></div>
 
           <ul class="social-list">
-            <!-- SOCIAL_LINKS_START -->
-
-            <!-- SOCIAL_LINKS_END -->
+            <% for (let link of socialLinks) { %>
+            <li class="social-item">
+              <a href="<%= link.url %>" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="<%= link.icon %>"></ion-icon>
+              </a>
+            </li>
+            <% } %>
           </ul>
         </div>
       </aside>
@@ -256,8 +242,11 @@
           </header>
 
           <section class="about-text">
-            <!-- ABOUT_TEXT_START -->
-            <!-- ABOUT_TEXT_END -->
+            <% if (formattedPersonalInfo.aboutText) { %>
+              <% for (let paragraph of formattedPersonalInfo.aboutText) { %>
+                <p><%= paragraph %></p>
+              <% } %>
+            <% } %>
             <p class="availability-badge" data-reveal data-i18n="about.availability">
               Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
             </p>
@@ -278,9 +267,27 @@
           <section class="service">
             <h3 class="h3 service-title" data-i18n="about.working_on">Sur quoi je travaille actuellement</h3>
             <ul class="service-list">
-              <!-- PROJECTS_START -->
-
-              <!-- PROJECTS_END -->
+              <% for (let project of heroProjects) { %>
+              <li class="project-item active" data-filter-item data-category="<%= project.filterCategory || project.category %>">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="<%= project.image || '/assets/images/project-1.jpg' %>" alt="<%= project.title %>" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title><%= project.title %></h3>
+                  <p class="project-category" data-project-category><%= project.category %></p>
+                  
+                  <!-- Données cachées pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description><%= project.description || '' %></span>
+                    <span data-project-repo-link><%= project.repoLink || '' %></span>
+                    <span data-project-live-link><%= project.liveLink || '' %></span>
+                  </div>
+                </a>
+              </li>
+              <% } %>
             </ul>
           </section>
 
@@ -291,9 +298,19 @@
           <section class="testimonials">
             <h3 class="h3 testimonials-title" data-i18n="about.recommendations">Recommandations</h3>
             <ul class="testimonials-list has-scrollbar">
-              <!-- TESTIMONIALS_START -->
-
-              <!-- TESTIMONIALS_END -->
+              <% for (let testimonial of testimonials) { %>
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="<%= testimonial.avatar %>" alt="<%= testimonial.name %>" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title><%= testimonial.name %></h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p><%= testimonial.text %></p>
+                  </div>
+                </div>
+              </li>
+              <% } %>
             </ul>
           </section>
 
@@ -311,7 +328,7 @@
 
               <div class="modal-img-wrapper">
                 <figure class="modal-avatar-box">
-                  <img src="./assets/madebyfullann.svg" alt="avatar box
+                  <img src="./assets/madebyfullann.svg" alt="avatar box"
                   width="80" data-modal-img />
                 </figure>
 
@@ -341,9 +358,13 @@
             <h3 class="h3 clients-title" data-i18n="about.clients">Clients</h3>
 
             <ul class="clients-list has-scrollbar">
-              <!-- CLIENTS_START -->
-
-              <!-- CLIENTS_END -->
+              <% for (let client of clients) { %>
+              <li class="clients-item">
+                <a href="<%= client.website || '#' %>" <%- client.website ? 'target="_blank" rel="noopener noreferrer"' : '' %>>
+                  <img src="<%= client.logo %>" alt="<%= client.name %>" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              <% } %>
             </ul>
           </section>
         </article>
@@ -366,9 +387,13 @@
             </div>
 
             <ol class="timeline-list">
-              <!-- EDUCATION_START -->
-
-              <!-- EDUCATION_END -->
+              <% for (let edu of education) { %>
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title"><%= edu.institution %></h4>
+                <span><%= edu.period %></span>
+                <p class="timeline-text"><%= edu.description %></p>
+              </li>
+              <% } %>
             </ol>
           </section>
 
@@ -381,9 +406,13 @@
             </div>
 
             <ol class="timeline-list">
-              <!-- EXPERIENCE_START -->
-
-              <!-- EXPERIENCE_END -->
+              <% for (let exp of experience) { %>
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title"><%= exp.position %></h4>
+                <span><%= exp.period %></span>
+                <p class="timeline-text"><%= exp.description %></p>
+              </li>
+              <% } %>
             </ol>
           </section>
           <section class="timeline">
@@ -394,22 +423,53 @@
               <h3 class="h3" data-i18n="resume.cv">Mon CV</h3>
             </div>
             <div>
-              <!-- CV_SECTION_START -->
-
+              <% if (formattedPersonalInfo.cvFile) { %>
+              <div class="cv-container">
+                  <div class="cv-preview">
+                      <div class="cv-info">
+                          <ion-icon name="document-text-outline"></ion-icon>
+                          <div class="cv-details">
+                              <h4>Télécharger mon CV</h4>
+                              <p>Consultez mon parcours complet au format PDF</p>
+                          </div>
+                      </div>
+                      <div class="cv-actions">
+                          <a href="/download-cv" class="cv-download-btn" target="_blank">
+                              <ion-icon name="download-outline"></ion-icon>
+                              <span>Télécharger PDF</span>
+                          </a>
+                          <button onclick="viewCVInline()" class="cv-view-btn">
+                              <ion-icon name="eye-outline"></ion-icon>
+                              <span>Aperçu</span>
+                          </button>
+                      </div>
+                  </div>
+                  <div id="cv-viewer" class="cv-viewer" style="display: none;">
+                      <iframe src="<%= formattedPersonalInfo.cvFile %>" width="100%" height="600px"></iframe>
+                  </div>
+              </div>
+              <% } else { %>
               <div class="cv-container">
                 <p class="cv-not-available">CV non disponible pour le moment</p>
               </div>
-
-              <!-- CV_SECTION_END -->
+              <% } %>
             </div>
           </section>
           <section class="skill">
             <h3 class="h3 skills-title" data-i18n="resume.skills">Mes compétences</h3>
 
             <ul class="skills-list content-card">
-              <!-- SKILLS_START -->
-
-              <!-- SKILLS_END -->
+              <% for (let skill of skills) { %>
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5"><%= skill.name %></h5>
+                  <data value="<%= skill.percentage %>"><%= skill.percentage %>%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: <%= skill.percentage %>%"></div>
+                </div>
+              </li>
+              <% } %>
             </ul>
           </section>
         </article>
@@ -429,9 +489,11 @@
               <li class="filter-item">
                 <button class="active" data-filter-btn data-i18n="portfolio.all">Tous</button>
               </li>
-              <!-- CATEGORY_FILTERS_START -->
-
-              <!-- CATEGORY_FILTERS_END -->
+              <% for (let category of categories) { %>
+              <li class="filter-item">
+                <button data-filter-btn><%= category.display_name %></button>
+              </li>
+              <% } %>
             </ul>
 
             <div class="filter-select-box">
@@ -447,17 +509,45 @@
                 <li class="select-item">
                   <button data-select-item data-i18n="portfolio.all">Tous</button>
                 </li>
-                <!-- CATEGORY_SELECT_START -->
-
-                <!-- CATEGORY_SELECT_END -->
+                <% for (let category of categories) { %>
+                <li class="select-item">
+                  <button data-select-item><%= category.display_name %></button>
+                </li>
+                <% } %>
               </ul>
             </div>
 
-            <ul class="project-list">
-              <!-- PORTFOLIO_PROJECTS_START -->
-
-              <!-- PORTFOLIO_PROJECTS_END -->
+            <ul class="project-list" id="portfolio-project-list">
+              <% for (let project of formattedPortfolioProjects) { %>
+              <li class="project-item" data-filter-item data-category="<%= project.filterCategory || project.category.toLowerCase() %>">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="<%= project.image %>" alt="<%= project.title %>" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title data-i18n="project_<%= project.id %>_title"><%= project.title %></h3>
+                  <p class="project-category" data-project-category><%= project.category %></p>
+                  
+                  <!-- Données pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description data-i18n="project_<%= project.id %>_description"><%= project.description %></span>
+                    <span data-project-repo-link><%= project.repoLink || '' %></span>
+                    <span data-project-live-link><%= project.liveLink || '' %></span>
+                  </div>
+                </a>
+              </li>
+              <% } %>
             </ul>
+
+            <!-- Pagination controls -->
+            <div class="pagination-container" id="portfolio-pagination" style="display: none; text-align: center; margin-top: 30px;">
+              <button class="form-btn" id="portfolio-load-more" style="margin: 0 auto; display: inline-flex;">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                <span data-i18n="portfolio.load_more">Voir plus de projets</span>
+              </button>
+            </div>
 
           </section>
         </article>
@@ -472,11 +562,45 @@
           </header>
 
           <section class="blog-posts">
-            <ul class="blog-posts-list">
-              <!-- BLOGS_START -->
-
-              <!-- BLOGS_END -->
+            <ul class="blog-posts-list" id="blog-posts-list">
+              <% 
+              const calculateReadingTime = (text) => {
+                if (!text) return '1 min de lecture';
+                const words = text.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length;
+                const minutes = Math.max(1, Math.ceil(words / 200));
+                return `${minutes} min de lecture`;
+              };
+              for (let blog of blogs) { 
+              %>
+              <li class="blog-post-item" data-blog-item>
+                <a href="/blog/<%= encodeURI(blog.slug) %>">
+                  <figure class="blog-banner-box">
+                    <img src="<%= blog.image %>" alt="<%= blog.title %>" loading="lazy">
+                  </figure>
+                  <div class="blog-content">
+                    <div class="blog-meta">
+                      <p class="blog-category"><%= blog.category %></p>
+                      <span class="dot"></span>
+                      <time datetime="<%= blog.date %>"><%= blog.date %></time>
+                      <span class="dot"></span>
+                      <span><%= calculateReadingTime(blog.content || blog.excerpt) %></span>
+                    </div>
+                    <h3 class="h3 blog-item-title" data-i18n="blog_<%= blog.id %>_title"><%= blog.title %></h3>
+                    <p class="blog-text" data-i18n="blog_<%= blog.id %>_excerpt"><%= blog.excerpt %></p>
+                  </div>
+                </a>
+              </li>
+              <% } %>
             </ul>
+
+            <!-- Pagination controls -->
+            <div class="pagination-container" id="blog-pagination" style="display: none; text-align: center; margin-top: 30px;">
+              <button class="form-btn" id="blog-load-more" style="margin: 0 auto; display: inline-flex;">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                <span data-i18n="blog.load_more">Charger plus d'articles</span>
+              </button>
+            </div>
+          </section>>
           </section>
         </article>
 
@@ -490,9 +614,16 @@
 
           <section class="mapbox" data-mapbox>
             <figure>
-              <!-- MAP_START -->
-
-              <!-- MAP_END -->
+              <% if (formattedPersonalInfo.location) { %>
+              <iframe
+                  src="https://maps.google.com/maps?q=<%= encodeURIComponent(formattedPersonalInfo.location) %>&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                  width="400"
+                  height="300"
+                  loading="lazy"
+                  style="border:0;"
+                  allowfullscreen="">
+              </iframe>
+              <% } %>
             </figure>
           </section>
 

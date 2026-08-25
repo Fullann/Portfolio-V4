@@ -3,7 +3,6 @@ const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
-let lastUpdate = Date.now();
 
 exports.getAllTestimonials = catchAsync(async (req, res, next) => {
   const testimonials = await dbOperations.testimonials.getAll();
@@ -16,7 +15,6 @@ exports.createTestimonial = catchAsync(async (req, res, next) => {
     ? `/assets/images/${req.file.filename}` 
     : '/assets/images/avatar-default.png';
 
-  lastUpdate = Date.now();
 
   const newTestimonial = await dbOperations.testimonials.create({
     name,
@@ -33,7 +31,6 @@ exports.updateTestimonial = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { name, text, date } = req.body;
 
-  lastUpdate = Date.now();
 
   const updateData = { name, text, date };
   if (req.file) {
@@ -51,7 +48,6 @@ exports.updateTestimonial = catchAsync(async (req, res, next) => {
 
 exports.deleteTestimonial = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  lastUpdate = Date.now();
 
   await dbOperations.testimonials.delete(id);
   await updateHtmlFile();

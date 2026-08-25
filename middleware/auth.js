@@ -8,9 +8,16 @@ if (!JWT_SECRET) {
 }
 
 // Middleware d'authentification
+// Accepte le JWT depuis :
+//   1. Le cookie HttpOnly `admin_token` (flux OAuth2 Nextcloud)
+//   2. L'entête Authorization: Bearer <token> (appels API admin.js)
 const authenticateToken = (req, res, next) => {
+  // Priorité au cookie HttpOnly (plus sécurisé)
+  const tokenFromCookie = req.cookies && req.cookies['admin_token'];
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const tokenFromHeader = authHeader && authHeader.split(' ')[1];
+
+  const token = tokenFromCookie || tokenFromHeader;
 
   if (!token) {
     return res.sendStatus(401);

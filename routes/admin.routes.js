@@ -7,5 +7,6 @@ const { authenticateToken } = require('../middleware/auth');
 router.get('/last-update', adminController.getLastUpdate);
 router.delete('/delete/all', authenticateToken, adminController.resetAllData);
 router.get('/account-info', authenticateToken, adminController.getAccountInfo);
+router.get('/backup', authenticateToken, require('../controllers/backup.controller').exportDatabase);
 
 module.exports = router;

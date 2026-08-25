@@ -914,3 +914,116 @@ document.addEventListener("keydown", function (e) {
     }
   }
 });
+
+// ============================================
+// PAGINATION DYNAMIQUE (PORTFOLIO & BLOG)
+// ============================================
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Config
+  const ITEMS_PER_PAGE = 6;
+  
+  // Fonction de pagination générique
+  function initPagination(listId, itemSelector, btnId, paginationContainerId) {
+    const list = document.getElementById(listId);
+    const btn = document.getElementById(btnId);
+    const container = document.getElementById(paginationContainerId);
+    
+    if (!list || !btn || !container) return;
+    
+    // Obtenir tous les éléments visibles (selon les filtres actuels pour le portfolio)
+    let visibleItems = Array.from(list.querySelectorAll(itemSelector)).filter(
+      item => window.getComputedStyle(item).display !== "none" && !item.classList.contains("filtered-out")
+    );
+    
+    // Si moins d'éléments que la limite, cacher le bouton
+    if (visibleItems.length <= ITEMS_PER_PAGE) {
+      container.style.display = "none";
+      return;
+    }
+    
+    let currentPage = 1;
+    
+    // Fonction d'affichage basée sur la page
+    const updateDisplay = () => {
+      const maxIndex = currentPage * ITEMS_PER_PAGE;
+      
+      visibleItems.forEach((item, index) => {
+        if (index < maxIndex) {
+          item.style.display = "block";
+          // Déclencher une légère animation
+          setTimeout(() => item.classList.add("revealed"), 50);
+        } else {
+          item.style.display = "none";
+        }
+      });
+      
+      if (maxIndex >= visibleItems.length) {
+        container.style.display = "none";
+      } else {
+        container.style.display = "block";
+      }
+    };
+    
+    // Initialiser
+    updateDisplay();
+    
+    // Bouton Voir Plus
+    btn.addEventListener("click", () => {
+      currentPage++;
+      updateDisplay();
+    });
+  }
+
+  // Initialisation Blog
+  initPagination("blog-posts-list", "[data-blog-item]", "blog-load-more", "blog-pagination");
+  
+  // Initialisation Portfolio
+  // Le portfolio est plus complexe car filtrable. 
+  // On doit l'intégrer au système de filtre existant.
+  
+  const originalFilterFunc = filterFunc; // On devrait hooker filterFunc mais ce n'est pas possible directement si elle est globale const.
+  // On va surcharger le clic sur les boutons de filtre à la place.
+  
+  const filterBtns = document.querySelectorAll("[data-filter-btn]");
+  const selectItems = document.querySelectorAll("[data-select-item]");
+  
+  const applyPortfolioPagination = () => {
+    // 1. Cacher tout par défaut (pour reset)
+    const allItems = document.querySelectorAll("#portfolio-project-list [data-filter-item]");
+    
+    // 2. Marquer les éléments filtrés
+    const activeFilterBtn = document.querySelector("[data-filter-btn].active");
+    const selectedValue = activeFilterBtn ? activeFilterBtn.innerText.toLowerCase().trim() : "all";
+    
+    allItems.forEach(item => {
+      item.classList.remove("filtered-out");
+      if (selectedValue !== "all" && selectedValue !== "tout" && selectedValue !== "tous") {
+        if (!item.dataset.category || item.dataset.category.toLowerCase() !== selectedValue) {
+          item.classList.add("filtered-out");
+          item.style.display = "none";
+        }
+      }
+    });
+    
+    // 3. Appliquer la pagination sur ceux qui ne sont pas filtered-out
+    initPagination("portfolio-project-list", "[data-filter-item]:not(.filtered-out)", "portfolio-load-more", "portfolio-pagination");
+  };
+  
+  // Exécuter une première fois
+  setTimeout(applyPortfolioPagination, 150);
+  
+  // Hooker sur les filtres
+  filterBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      setTimeout(applyPortfolioPagination, 50);
+    });
+  });
+  
+  selectItems.forEach(item => {
+    item.addEventListener("click", () => {
+      setTimeout(applyPortfolioPagination, 50);
+    });
+  });
+});
+

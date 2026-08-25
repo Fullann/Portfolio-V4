@@ -4,8 +4,6 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const { formatPersonalInfo } = require('../utils/formatters');
 
-let lastUpdate = Date.now();
-
 exports.getPersonalInfo = catchAsync(async (req, res, next) => {
   const personalInfo = await dbOperations.personalInfo.get();
   res.json(formatPersonalInfo(personalInfo));
@@ -13,8 +11,6 @@ exports.getPersonalInfo = catchAsync(async (req, res, next) => {
 
 exports.updatePersonalInfo = catchAsync(async (req, res, next) => {
   const { name, title, email, phone, birthday, location, aboutText } = req.body;
-
-  lastUpdate = Date.now();
 
   const updateData = { name, title, email, phone, birthday, location };
 

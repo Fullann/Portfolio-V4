@@ -3,15 +3,20 @@ const path = require('path');
 const cors = require('cors');
 const compression = require('compression');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 
 const { generalLimiter } = require('./middleware/rateLimiter');
 const AppError = require('./utils/AppError');
 const errorHandler = require('./middleware/errorHandler');
+const checkMaintenanceMode = require('./middleware/maintenance');
 
 const app = express();
 
 // Trust proxy (nécessaire derrière un reverse proxy pour les rate limiters)
 app.set('trust proxy', 1);
+
+// Middleware Maintenance
+app.use(checkMaintenanceMode);
 
 // Middleware globaux de sécurité et performance
 app.use(helmet({
@@ -23,11 +28,21 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'", "https://api.hcaptcha.com", "https://unpkg.com"],
+      connectSrc: [
+        "'self'", 
+        "https://api.hcaptcha.com", 
+        "https://unpkg.com",
+        "https://cdn.tailwindcss.com",
+        "https://js.hcaptcha.com",
+        "https://fonts.googleapis.com",
+        "https://fonts.gstatic.com",
+        "https://cdn.jsdelivr.net"
+      ],
       frameSrc: ["https://newassets.hcaptcha.com", "https://*.hcaptcha.com"],
     }
   },
   crossOriginEmbedderPolicy: false, // nécessaire pour les images externes
+  crossOriginResourcePolicy: false, // Permet le chargement depuis les CDN externes comme Tailwind
 }));
 
 app.use(cors({
@@ -38,24 +53,27 @@ app.use(cors({
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(compression());
+app.use(cookieParser());
 
-// Servir les fichiers statiques
-app.use(express.static('public'));
-app.use('/admin', express.static('admin'));
-app.use('/assets/documents', express.static('public/assets/documents'));
-
-// Headers de cache
-app.use('/assets', express.static(path.join(__dirname, 'public/assets'), {
-  maxAge: '30d',
+// Servir les fichiers statiques depuis public/ avec headers de cache
+// Note : un seul express.static couvre tout (assets, images, css, js…)
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: '1d',
   etag: true,
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
-      res.setHeader('Cache-Control', 'public, max-age=2592000');
+      res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30j
     }
-    if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.webp')) {
-      res.setHeader('Cache-Control', 'public, max-age=7776000');
+    if (filePath.endsWith('.jpg') || filePath.endsWith('.png') ||
+        filePath.endsWith('.webp') || filePath.endsWith('.svg')) {
+      res.setHeader('Cache-Control', 'public, max-age=7776000'); // 90j
     }
   }
+}));
+
+// Documents téléchargeables (force le download sans cache agressif)
+app.use('/assets/documents', express.static(path.join(__dirname, 'public/assets/documents'), {
+  maxAge: '0'
 }));
 
 // Rate limiting global sur l'API
@@ -74,6 +92,8 @@ try {
   const seoRoutes = require('./routes/seo.routes');
   app.get('/sitemap.xml', seoRoutes.sitemap);
   app.get('/robots.txt', seoRoutes.robots);
+  app.get('/rss.xml', seoRoutes.rss);
+  app.get('/og-image', seoRoutes.ogImage);
   console.log('✅ Routes SEO chargées');
 } catch (e) {
   console.warn('⚠️ Routes SEO non trouvées');
@@ -112,9 +132,26 @@ try {
   console.warn('⚠️ Controller personalInfo non trouvé');
 }
 
-// Gestion des erreurs 404 avec AppError
+// Gestion des 404 :
+// - Les ressources statiques manquantes (assets, sw.js…) retournent 404 silencieusement
+// - Seules les vraies routes inconnues déclenchent AppError (loggée en dev)
 app.use('*', (req, res, next) => {
-  next(new AppError(`Route non trouvée: ${req.originalUrl}`, 404));
+  const url = req.originalUrl;
+  const isStaticAsset = url.startsWith('/assets/') ||
+    url.startsWith('/admin/') ||
+    url === '/sw.js' ||
+    url === '/favicon.ico' ||
+    url === '/robots.txt' ||
+    url === '/sitemap.xml' ||
+    url === '/rss.xml' ||
+    url === '/madebyfullann.svg' ||
+    url.startsWith('/.well-known/');
+
+  if (isStaticAsset) {
+    return res.status(404).send('Not found');
+  }
+
+  next(new AppError(`Route non trouvée: ${url}`, 404));
 });
 
 // Gestion des erreurs globales

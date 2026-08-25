@@ -3,7 +3,6 @@ const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
-let lastUpdate = Date.now();
 
 exports.getAllCategories = catchAsync(async (req, res, next) => {
   const categories = await dbOperations.categories.getAll();
@@ -18,7 +17,6 @@ exports.createCategory = catchAsync(async (req, res, next) => {
     return next(new AppError('Cette catégorie existe déjà', 400));
   }
 
-  lastUpdate = Date.now();
 
   const newCategory = await dbOperations.categories.create({
     name: name.toLowerCase().replace(/\s+/g, ' ').trim(),
@@ -33,7 +31,6 @@ exports.updateCategory = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { name, displayName } = req.body;
 
-  lastUpdate = Date.now();
 
   const category = await dbOperations.categories.getById(id);
   if (!category) {
@@ -75,7 +72,6 @@ exports.deleteCategory = catchAsync(async (req, res, next) => {
     ));
   }
 
-  lastUpdate = Date.now();
   await dbOperations.categories.delete(id);
   await updateHtmlFile();
   res.json({ success: true });

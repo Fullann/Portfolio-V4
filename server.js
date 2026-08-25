@@ -10,8 +10,8 @@ async function startServer() {
     await initializeDatabase();
     console.log('✅ Base de données initialisée');
     try {
-      const { updateHtmlFile } = require('./services/htmlGenerator.service');
-      await updateHtmlFile();
+      const { updateHtmlFileImmediate } = require('./services/htmlGenerator.service');
+      await updateHtmlFileImmediate();
       console.log('✅ Fichier public/index.html régénéré depuis la DB');
     } catch (htmlError) {
       console.warn('⚠️ Impossible de régénérer le HTML au démarrage:', htmlError.message);

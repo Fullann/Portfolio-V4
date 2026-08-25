@@ -5,12 +5,10 @@ const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const path = require('path');
 const fs = require('fs').promises;
 
-let lastUpdate = Date.now();
-
 exports.getLastUpdate = catchAsync(async (req, res, next) => {
-  res.json({ 
+  res.json({
     updated: false,
-    lastUpdate: lastUpdate 
+    lastUpdate: Date.now()
   });
 });
 
@@ -27,8 +25,6 @@ exports.resetAllData = catchAsync(async (req, res, next) => {
   (await dbOperations.experience.deleteAll?.()) || Promise.resolve();
   (await dbOperations.education.deleteAll?.()) || Promise.resolve();
   (await dbOperations.socialLinks.deleteAll?.()) || Promise.resolve();
-
-  lastUpdate = Date.now();
 
   // Mettre à jour le HTML si possible
   try {

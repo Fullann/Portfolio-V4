@@ -171,6 +171,18 @@ async function initializeDatabase() {
     `);
 
     await connection.execute(`
+      CREATE TABLE IF NOT EXISTS audit_logs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT,
+        action VARCHAR(255) NOT NULL,
+        target VARCHAR(255),
+        details TEXT,
+        ip_address VARCHAR(45),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await connection.execute(`
       CREATE TABLE IF NOT EXISTS settings (
         setting_key VARCHAR(255) PRIMARY KEY,
         setting_value TEXT,
@@ -397,11 +409,15 @@ async function insertDefaultData() {
         ["base_url", "http://localhost:3000"],
         ["admin_email", ""],
         ["hcaptcha_sitekey", ""],
-        ["hcaptcha_secret", ""]
+        ["hcaptcha_secret", ""],
+        ["maintenance_mode", "false"]
       ];
       for (const [key, value] of defaultSettings) {
         await pool.execute(`INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)`, [key, value]);
       }
+    } else {
+      // Incremental migration for missing settings
+      await pool.execute(`INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)`, ["maintenance_mode", "false"]);
     }
   } catch (error) {
     console.error("❌ Erreur lors de l'insertion des données par défaut:", error);

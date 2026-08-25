@@ -51,17 +51,11 @@ async function fetchWithAuth(url, options = {}) {
 // ============================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Gestion du retour OAuth2 Nextcloud
+  // Gestion du retour OAuth2 Nextcloud (token dans cookie HttpOnly, on gère uniquement les erreurs)
   const urlParams = new URLSearchParams(window.location.search);
-  const tokenFromUrl = urlParams.get("token");
   const errorFromUrl = urlParams.get("error");
-  
-  if (tokenFromUrl) {
-    token = tokenFromUrl;
-    localStorage.setItem("adminToken", token);
-    window.history.replaceState({}, document.title, "/admin");
-    showNotification("Connexion réussie !", "success");
-  } else if (errorFromUrl) {
+
+  if (errorFromUrl) {
     const errorMsg = document.getElementById("oauth-error-msg");
     if (errorMsg) {
       errorMsg.textContent = "Erreur de connexion Nextcloud : " + errorFromUrl;

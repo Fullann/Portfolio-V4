@@ -17,6 +17,7 @@ const skillModel = require('../models/skill.model');
 const adminUserModel = require('../models/adminUser.model');
 const settingModel = require('../models/setting.model');
 const i18nModel = require('../models/i18n.model');
+const auditLogModel = require('../models/auditLog.model');
 
 // Définir la méthode globale deleteAll
 const deleteAll = async () => {
@@ -74,6 +75,7 @@ const dbOperations = {
   admin: adminUserModel,
   settings: settingModel,
   i18n: i18nModel,
+  auditLogs: auditLogModel,
   deleteAll
 };
 

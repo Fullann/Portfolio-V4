@@ -5,18 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mon Portfolio | Test Developer</title>
-    <meta name="description" content="Portfolio personnel" />
+    <meta
+      name="description"
+      content="Portfolio personnel"
+    />
     <link rel="canonical" href="http://localhost:3000/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Mon Portfolio" />
     <meta property="og:title" content="Test User UPDATED | Test Developer" />
-    <meta property="og:description" content="Portfolio personnel" />
+    <meta
+      property="og:description"
+      content="Portfolio personnel"
+    />
     <meta property="og:url" content="http://localhost:3000/" />
     <meta property="og:image" content="http://localhost:3000/assets/images/my-avatar.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Test User UPDATED | Test Developer" />
-    <meta name="twitter:description" content="Portfolio personnel" />
-    <meta name="twitter:image" content="http://localhost:3000/assets/images/my-avatar.png" />
+    <meta
+      name="twitter:description"
+      content="Portfolio personnel"
+    />
+    <meta
+      name="twitter:image"
+      content="http://localhost:3000/assets/images/my-avatar.png"
+    />
+    
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="Mon Portfolio - Flux RSS" href="/rss.xml" />
 
     <!--
     - favicon
@@ -26,7 +41,7 @@
       href="/assets/images/icon.ico"
       type="image/x-icon"
     />
-<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
     <!--
     - custom css link
   -->
@@ -75,27 +90,25 @@
 
       <aside class="sidebar" data-sidebar>
         <div class="sidebar-info">
-          <!-- AVATAR_START -->
-<img src="./assets/images/my-avatar.png" alt="Test User UPDATED" width="80">
-<!-- AVATAR_END -->
+          <figure class="avatar-box">
+            <img
+              src="./assets/images/my-avatar.png"
+              alt="Test User UPDATED"
+              width="80"
+              data-avatar-img
+            />
+          </figure>
 
           <div class="info-content">
-            <!-- NAME_START -->
-
             <h1 class="name" title="Test User UPDATED" data-name>
               Test User UPDATED
             </h1>
-<!-- NAME_END -->
-
-            <!-- TITLE_START -->
 
             <p class="title" data-title>Test Developer</p>
-<!-- TITLE_END -->
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
             <span data-i18n="sidebar.contacts_show">Afficher les contacts</span>
-
             <ion-icon name="chevron-down"></ion-icon>
           </button>
         </div>
@@ -104,141 +117,147 @@
           <div class="separator"></div>
 
           <ul class="contacts-list">
-            <!-- CONTACT_EMAIL_START -->
-
+            
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="mail-outline"></ion-icon>
               </div>
+
               <div class="contact-info">
                 <p class="contact-title" data-i18n="sidebar.email">Email</p>
-                <a href="mailto:test@example.com" class="contact-link" data-contact-email>test@example.com</a>
+
+                <a
+                  href="mailto:test@example.com"
+                  class="contact-link"
+                  data-contact-email
+                  >test@example.com</a
+                >
               </div>
             </li>
-<!-- CONTACT_EMAIL_END -->
+            
 
-            <!-- CONTACT_PHONE_START -->
-
+            
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="phone-portrait-outline"></ion-icon>
               </div>
+
               <div class="contact-info">
                 <p class="contact-title" data-i18n="sidebar.phone">Téléphone</p>
-                <a href="tel:+1234567890" class="contact-link" data-contact-phone>+1234567890</a>
+
+                <a
+                  href="tel:+1234567890"
+                  class="contact-link"
+                  data-contact-phone
+                  >+1234567890</a
+                >
               </div>
             </li>
-<!-- CONTACT_PHONE_END -->
+            
 
-            <!-- CONTACT_BIRTHDAY_START -->
-
+            
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="calendar-outline"></ion-icon>
               </div>
+
               <div class="contact-info">
                 <p class="contact-title" data-i18n="sidebar.birthday">Date de naissance</p>
-                <time datetime="1990-01-01" data-contact-birthday>1990-01-01</time>
+
+                <time datetime="1990-01-01" data-contact-birthday
+                  >1990-01-01</time
+                >
               </div>
             </li>
-<!-- CONTACT_BIRTHDAY_END -->
+            
 
-            <!-- CONTACT_LOCATION_START -->
-
+            
             <li class="contact-item">
               <div class="icon-box">
                 <ion-icon name="location-outline"></ion-icon>
               </div>
+
               <div class="contact-info">
                 <p class="contact-title" data-i18n="sidebar.location">Localisation</p>
-                <address data-contact-location>Test City</address>
+
+                <address data-contact-location>
+                  Test City
+                </address>
               </div>
             </li>
-<!-- CONTACT_LOCATION_END -->
+            
           </ul>
 
           <div class="separator"></div>
 
           <ul class="social-list">
-            <!-- SOCIAL_LINKS_START -->
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-
-        <li class="social-item">
-          <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="logo-test"></ion-icon>
-          </a>
-        </li>
-
-<!-- SOCIAL_LINKS_END -->
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
+            <li class="social-item">
+              <a href="https://test.social.com/profile" class="social-link" target="_blank" rel="noopener noreferrer">
+                <ion-icon name="logo-test"></ion-icon>
+              </a>
+            </li>
+            
           </ul>
         </div>
       </aside>
@@ -283,9 +302,11 @@
           </header>
 
           <section class="about-text">
-            <!-- ABOUT_TEXT_START -->
-<p>Test about text updated</p>
-<!-- ABOUT_TEXT_END -->
+            
+              
+                <p>Test about text updated</p>
+              
+            
             <p class="availability-badge" data-reveal data-i18n="about.availability">
               Disponible pour des mandats web freelance (sites vitrines, applications et maintenance).
             </p>
@@ -306,29 +327,27 @@
           <section class="service">
             <h3 class="h3 service-title" data-i18n="about.working_on">Sur quoi je travaille actuellement</h3>
             <ul class="service-list">
-              <!-- PROJECTS_START -->
-
-      <li class="project-item active" data-filter-item data-category="test-category-1">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="/assets/images/project-1.jpg" alt="asd" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title>asd</h3>
-          <p class="project-category" data-project-category>Test Category 1</p>
-          
-          <!-- Données cachées pour la modal -->
-          <div style="display: none;">
-            <span data-project-description>Description du projet de test</span>
-            <span data-project-repo-link>https://github.com/test/project1</span>
-            <span data-project-live-link>https://project1.test.com</span>
-          </div>
-        </a>
-      </li>
-    
-<!-- PROJECTS_END -->
+              
+              <li class="project-item active" data-filter-item data-category="test-category-1">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="/assets/images/project-1.jpg" alt="asd" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title>asd</h3>
+                  <p class="project-category" data-project-category>Test Category 1</p>
+                  
+                  <!-- Données cachées pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description>Description du projet de test</span>
+                    <span data-project-repo-link>https://github.com/test/project1</span>
+                    <span data-project-live-link>https://project1.test.com</span>
+                  </div>
+                </a>
+              </li>
+              
             </ul>
           </section>
 
@@ -339,203 +358,187 @@
           <section class="testimonials">
             <h3 class="h3 testimonials-title" data-i18n="about.recommendations">Recommandations</h3>
             <ul class="testimonials-list has-scrollbar">
-              <!-- TESTIMONIALS_START -->
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Excellent travail ! Très professionnel.</p>
-            </div>
-          </div>
-        </li>
-
-
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="./assets/images/avatar-1.png" alt="Daniel Lewis" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>Daniel Lewis</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>Richard was hired to create a corporate identity. We were very pleased with the work done.</p>
-            </div>
-          </div>
-        </li>
-
-<!-- TESTIMONIALS_END -->
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="/assets/images/avatar-default.png" alt="Test Person" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Test Person</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Excellent travail ! Très professionnel.</p>
+                  </div>
+                </div>
+              </li>
+              
+              <li class="testimonials-item">
+                <div class="content-card" data-testimonials-item>
+                  <figure class="testimonials-avatar-box">
+                    <img src="./assets/images/avatar-1.png" alt="Daniel Lewis" width="60" data-testimonials-avatar>
+                  </figure>
+                  <h4 class="h4 testimonials-item-title" data-testimonials-title>Daniel Lewis</h4>
+                  <div class="testimonials-text" data-testimonials-text>
+                    <p>Richard was hired to create a corporate identity. We were very pleased with the work done.</p>
+                  </div>
+                </div>
+              </li>
+              
             </ul>
           </section>
 
@@ -553,7 +556,7 @@
 
               <div class="modal-img-wrapper">
                 <figure class="modal-avatar-box">
-                  <img src="./assets/madebyfullann.svg" alt="avatar box
+                  <img src="./assets/madebyfullann.svg" alt="avatar box"
                   width="80" data-modal-img />
                 </figure>
 
@@ -583,106 +586,91 @@
             <h3 class="h3 clients-title" data-i18n="about.clients">Clients</h3>
 
             <ul class="clients-list has-scrollbar">
-              <!-- CLIENTS_START -->
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-
-        <li class="clients-item">
-          <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
-            <img src="" alt="Test Client" class="client-logo" loading="lazy">
-          </a>
-        </li>
-
-<!-- CLIENTS_END -->
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
+              <li class="clients-item">
+                <a href="https://testclient.com" target="_blank" rel="noopener noreferrer">
+                  <img src="" alt="Test Client" class="client-logo" loading="lazy">
+                </a>
+              </li>
+              
             </ul>
           </section>
         </article>
@@ -705,106 +693,91 @@
             </div>
 
             <ol class="timeline-list">
-              <!-- EDUCATION_START -->
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test University</h4>
-          <span>2015 - 2019</span>
-          <p class="timeline-text">Bachelor in Computer Science</p>
-        </li>
-
-<!-- EDUCATION_END -->
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test University</h4>
+                <span>2015 - 2019</span>
+                <p class="timeline-text">Bachelor in Computer Science</p>
+              </li>
+              
             </ol>
           </section>
 
@@ -817,113 +790,97 @@
             </div>
 
             <ol class="timeline-list">
-              <!-- EXPERIENCE_START -->
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">Test Developer</h4>
-          <span>2020 - 2022</span>
-          <p class="timeline-text">Description de l'expérience de test</p>
-        </li>
-
-<!-- EXPERIENCE_END -->
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
+              <li class="timeline-item">
+                <h4 class="h4 timeline-item-title">Test Developer</h4>
+                <span>2020 - 2022</span>
+                <p class="timeline-text">Description de l&#39;expérience de test</p>
+              </li>
+              
             </ol>
           </section>
           <section class="timeline">
@@ -934,219 +891,198 @@
               <h3 class="h3" data-i18n="resume.cv">Mon CV</h3>
             </div>
             <div>
-              <!-- CV_SECTION_START -->
-
-            <div class="cv-container">
-                <p>Aucun CV disponible pour le moment.</p>
-            </div>
-        
-<!-- CV_SECTION_END -->
+              
+              <div class="cv-container">
+                <p class="cv-not-available">CV non disponible pour le moment</p>
+              </div>
+              
             </div>
           </section>
           <section class="skill">
             <h3 class="h3 skills-title" data-i18n="resume.skills">Mes compétences</h3>
 
             <ul class="skills-list content-card">
-              <!-- SKILLS_START -->
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Graphic design</h5>
-            <data value="70">70%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 70%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Branding</h5>
-            <data value="90">90%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 90%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">WordPress</h5>
-            <data value="50">50%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 50%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Web design</h5>
-            <data value="80">80%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 80%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">Test Skill</h5>
-            <data value="85">85%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: 85%"></div>
-          </div>
-        </li>
-
-<!-- SKILLS_END -->
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Graphic design</h5>
+                  <data value="70">70%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 70%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Branding</h5>
+                  <data value="90">90%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 90%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">WordPress</h5>
+                  <data value="50">50%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 50%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Web design</h5>
+                  <data value="80">80%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 80%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
+              <li class="skills-item">
+                <div class="title-wrapper">
+                  <h5 class="h5">Test Skill</h5>
+                  <data value="85">85%</data>
+                </div>
+                <div class="skill-progress-bg">
+                  <div class="skill-progress-fill" style="width: 85%"></div>
+                </div>
+              </li>
+              
             </ul>
           </section>
         </article>
@@ -1166,38 +1102,31 @@
               <li class="filter-item">
                 <button class="active" data-filter-btn data-i18n="portfolio.all">Tous</button>
               </li>
-              <!-- CATEGORY_FILTERS_START -->
-
-        <li class="filter-item">
-          <button data-filter-btn>Applications</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Mobile Apps</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Test Category 1</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Test Category 2</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Web Design</button>
-        </li>
-
-
-        <li class="filter-item">
-          <button data-filter-btn>Web Development</button>
-        </li>
-
-<!-- CATEGORY_FILTERS_END -->
+              
+              <li class="filter-item">
+                <button data-filter-btn>Applications</button>
+              </li>
+              
+              <li class="filter-item">
+                <button data-filter-btn>Mobile Apps</button>
+              </li>
+              
+              <li class="filter-item">
+                <button data-filter-btn>Test Category 1</button>
+              </li>
+              
+              <li class="filter-item">
+                <button data-filter-btn>Test Category 2</button>
+              </li>
+              
+              <li class="filter-item">
+                <button data-filter-btn>Web Design</button>
+              </li>
+              
+              <li class="filter-item">
+                <button data-filter-btn>Web Development</button>
+              </li>
+              
             </ul>
 
             <div class="filter-select-box">
@@ -1213,171 +1142,165 @@
                 <li class="select-item">
                   <button data-select-item data-i18n="portfolio.all">Tous</button>
                 </li>
-                <!-- CATEGORY_SELECT_START -->
-
-        <li class="select-item">
-                    <button data-select-item>Applications</button>
+                
+                <li class="select-item">
+                  <button data-select-item>Applications</button>
                 </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Mobile Apps</button>
+                
+                <li class="select-item">
+                  <button data-select-item>Mobile Apps</button>
                 </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Test Category 1</button>
+                
+                <li class="select-item">
+                  <button data-select-item>Test Category 1</button>
                 </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Test Category 2</button>
+                
+                <li class="select-item">
+                  <button data-select-item>Test Category 2</button>
                 </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Web Design</button>
+                
+                <li class="select-item">
+                  <button data-select-item>Web Design</button>
                 </li>
-
-
-        <li class="select-item">
-                    <button data-select-item>Web Development</button>
+                
+                <li class="select-item">
+                  <button data-select-item>Web Development</button>
                 </li>
-
-<!-- CATEGORY_SELECT_END -->
+                
               </ul>
             </div>
 
-            <ul class="project-list">
-              <!-- PORTFOLIO_PROJECTS_START -->
-
-      <li class="project-item" data-filter-item data-category="null">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="/assets/images/test.jpg" alt="Project 4 updated" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title data-i18n="project_18_title">Project 4 updated</h3>
-          <p class="project-category" data-project-category>Web</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description data-i18n="project_18_description">Desc</span>
-            <span data-project-repo-link>null</span>
-            <span data-project-live-link>null</span>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="project-item" data-filter-item data-category="Web">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="" alt="Project 4" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title data-i18n="project_17_title">Project 4</h3>
-          <p class="project-category" data-project-category>Web</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description data-i18n="project_17_description">Desc</span>
-            <span data-project-repo-link></span>
-            <span data-project-live-link></span>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="project-item" data-filter-item data-category="test">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="" alt="Test Old" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title data-i18n="project_16_title">Test Old</h3>
-          <p class="project-category" data-project-category>Test</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description data-i18n="project_16_description">...</span>
-            <span data-project-repo-link></span>
-            <span data-project-live-link></span>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="project-item" data-filter-item data-category="test-category-1">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="" alt="asd" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title data-i18n="project_14_title">asd</h3>
-          <p class="project-category" data-project-category>Test Category 1</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description data-i18n="project_14_description">Description du projet de test</span>
-            <span data-project-repo-link>https://github.com/test/project1</span>
-            <span data-project-live-link>https://project1.test.com</span>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="project-item" data-filter-item data-category="test-category-1">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title data-i18n="project_13_title">Test Portfolio Project 1</h3>
-          <p class="project-category" data-project-category>Test Category 1</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description data-i18n="project_13_description">Description du projet de test</span>
-            <span data-project-repo-link>https://github.com/test/project1</span>
-            <span data-project-live-link>https://project1.test.com</span>
-          </div>
-        </a>
-      </li>
-
-
-      <li class="project-item" data-filter-item data-category="test-category-1">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title data-i18n="project_1_title">Test Portfolio Project 1</h3>
-          <p class="project-category" data-project-category>Test Category 1</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description data-i18n="project_1_description">Description du projet de test</span>
-            <span data-project-repo-link>https://github.com/test/project1</span>
-            <span data-project-live-link>https://project1.test.com</span>
-          </div>
-        </a>
-      </li>
-
-<!-- PORTFOLIO_PROJECTS_END -->
+            <ul class="project-list" id="portfolio-project-list">
+              
+              <li class="project-item" data-filter-item data-category="null">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="/assets/images/test.jpg" alt="Project 4 updated" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title data-i18n="project_18_title">Project 4 updated</h3>
+                  <p class="project-category" data-project-category>Web</p>
+                  
+                  <!-- Données pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description data-i18n="project_18_description">Desc</span>
+                    <span data-project-repo-link>null</span>
+                    <span data-project-live-link>null</span>
+                  </div>
+                </a>
+              </li>
+              
+              <li class="project-item" data-filter-item data-category="Web">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="" alt="Project 4" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title data-i18n="project_17_title">Project 4</h3>
+                  <p class="project-category" data-project-category>Web</p>
+                  
+                  <!-- Données pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description data-i18n="project_17_description">Desc</span>
+                    <span data-project-repo-link></span>
+                    <span data-project-live-link></span>
+                  </div>
+                </a>
+              </li>
+              
+              <li class="project-item" data-filter-item data-category="test">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="" alt="Test Old" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title data-i18n="project_16_title">Test Old</h3>
+                  <p class="project-category" data-project-category>Test</p>
+                  
+                  <!-- Données pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description data-i18n="project_16_description">...</span>
+                    <span data-project-repo-link></span>
+                    <span data-project-live-link></span>
+                  </div>
+                </a>
+              </li>
+              
+              <li class="project-item" data-filter-item data-category="test-category-1">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="" alt="asd" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title data-i18n="project_14_title">asd</h3>
+                  <p class="project-category" data-project-category>Test Category 1</p>
+                  
+                  <!-- Données pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description data-i18n="project_14_description">Description du projet de test</span>
+                    <span data-project-repo-link>https://github.com/test/project1</span>
+                    <span data-project-live-link>https://project1.test.com</span>
+                  </div>
+                </a>
+              </li>
+              
+              <li class="project-item" data-filter-item data-category="test-category-1">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title data-i18n="project_13_title">Test Portfolio Project 1</h3>
+                  <p class="project-category" data-project-category>Test Category 1</p>
+                  
+                  <!-- Données pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description data-i18n="project_13_description">Description du projet de test</span>
+                    <span data-project-repo-link>https://github.com/test/project1</span>
+                    <span data-project-live-link>https://project1.test.com</span>
+                  </div>
+                </a>
+              </li>
+              
+              <li class="project-item" data-filter-item data-category="test-category-1">
+                <a href="#" data-project-item>
+                  <figure class="project-img">
+                    <div class="project-item-icon-box">
+                      <ion-icon name="eye-outline"></ion-icon>
+                    </div>
+                    <img src="" alt="Test Portfolio Project 1" loading="lazy" data-project-image>
+                  </figure>
+                  <h3 class="project-title" data-project-title data-i18n="project_1_title">Test Portfolio Project 1</h3>
+                  <p class="project-category" data-project-category>Test Category 1</p>
+                  
+                  <!-- Données pour la modal -->
+                  <div style="display: none;">
+                    <span data-project-description data-i18n="project_1_description">Description du projet de test</span>
+                    <span data-project-repo-link>https://github.com/test/project1</span>
+                    <span data-project-live-link>https://project1.test.com</span>
+                  </div>
+                </a>
+              </li>
+              
             </ul>
+
+            <!-- Pagination controls -->
+            <div class="pagination-container" id="portfolio-pagination" style="display: none; text-align: center; margin-top: 30px;">
+              <button class="form-btn" id="portfolio-load-more" style="margin: 0 auto; display: inline-flex;">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                <span data-i18n="portfolio.load_more">Voir plus de projets</span>
+              </button>
+            </div>
 
           </section>
         </article>
@@ -1392,11 +1315,18 @@
           </header>
 
           <section class="blog-posts">
-            <ul class="blog-posts-list">
-              <!-- BLOGS_START -->
-
-<!-- BLOGS_END -->
+            <ul class="blog-posts-list" id="blog-posts-list">
+              
             </ul>
+
+            <!-- Pagination controls -->
+            <div class="pagination-container" id="blog-pagination" style="display: none; text-align: center; margin-top: 30px;">
+              <button class="form-btn" id="blog-load-more" style="margin: 0 auto; display: inline-flex;">
+                <ion-icon name="add-circle-outline"></ion-icon>
+                <span data-i18n="blog.load_more">Charger plus d'articles</span>
+              </button>
+            </div>
+          </section>>
           </section>
         </article>
 
@@ -1410,18 +1340,16 @@
 
           <section class="mapbox" data-mapbox>
             <figure>
-              <!-- MAP_START -->
-
-                    <iframe
-                        src="https://maps.google.com/maps?q=Test%20City&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                        width="400"
-                        height="300"
-                        loading="lazy"
-                        style="border:0;"
-                        allowfullscreen="">
-                    </iframe>
-                
-<!-- MAP_END -->
+              
+              <iframe
+                  src="https://maps.google.com/maps?q=Test%20City&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                  width="400"
+                  height="300"
+                  loading="lazy"
+                  style="border:0;"
+                  allowfullscreen="">
+              </iframe>
+              
             </figure>
           </section>
 

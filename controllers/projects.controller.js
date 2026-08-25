@@ -3,8 +3,6 @@ const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
-let lastUpdate = Date.now();
-
 exports.getAllProjects = catchAsync(async (req, res, next) => {
   const projects = await dbOperations.projects.getAll();
   res.json(projects);
@@ -17,8 +15,6 @@ exports.createProject = catchAsync(async (req, res, next) => {
   if (req.file && req.file.optimized) {
     console.log(`📊 Optimisation: ${req.file.optimizationStats.savings}% d'économie`);
   }
-
-  lastUpdate = Date.now();
 
   const newProject = await dbOperations.projects.create({
     title,
@@ -34,8 +30,6 @@ exports.createProject = catchAsync(async (req, res, next) => {
 exports.updateProject = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { title, category, description } = req.body;
-
-  lastUpdate = Date.now();
 
   const updateData = { title, category, description };
   if (req.file) {
@@ -53,13 +47,8 @@ exports.updateProject = catchAsync(async (req, res, next) => {
 
 exports.deleteProject = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  lastUpdate = Date.now();
 
   await dbOperations.projects.delete(id);
   await updateHtmlFile();
   res.json({ success: true });
 });
-
-// Export lastUpdate pour les autres modules
-exports.getLastUpdate = () => lastUpdate;
-exports.updateLastUpdate = () => { lastUpdate = Date.now(); };

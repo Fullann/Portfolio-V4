@@ -3,8 +3,7 @@ const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const { formatPortfolioProject } = require('../utils/formatters');
-
-let lastUpdate = Date.now();
+const { toBoolInt } = require('../utils/helpers');
 
 exports.getAllPortfolioProjects = catchAsync(async (req, res, next) => {
   const projects = await dbOperations.portfolioProjects.getAll();
@@ -22,8 +21,6 @@ exports.createPortfolioProject = catchAsync(async (req, res, next) => {
   const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, translations } = req.body;
   const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
-  lastUpdate = Date.now();
-
   const newProject = await dbOperations.portfolioProjects.create({
     title,
     category,
@@ -32,8 +29,8 @@ exports.createPortfolioProject = catchAsync(async (req, res, next) => {
     repoLink: repoLink || '',
     liveLink: liveLink || '',
     filterCategory: filterCategory || category,
-    isCurrentWork: isCurrentWork === '1' || isCurrentWork === 1 || isCurrentWork === 'true' || isCurrentWork === true ? 1 : 0,
-    isVisible: isVisible !== undefined ? (isVisible === '1' || isVisible === 1 || isVisible === 'true' || isVisible === true ? 1 : 0) : 1
+    isCurrentWork: toBoolInt(isCurrentWork),
+    isVisible: isVisible !== undefined ? toBoolInt(isVisible) : 1
   });
 
   if (translations && translations !== 'undefined' && translations !== 'null') {
@@ -49,14 +46,12 @@ exports.updatePortfolioProject = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, translations } = req.body;
 
-  lastUpdate = Date.now();
-
   const updateData = { title, category, description, repoLink, liveLink, filterCategory };
   if (isCurrentWork !== undefined) {
-    updateData.isCurrentWork = isCurrentWork === '1' || isCurrentWork === 1 || isCurrentWork === 'true' || isCurrentWork === true ? 1 : 0;
+    updateData.isCurrentWork = toBoolInt(isCurrentWork);
   }
   if (isVisible !== undefined) {
-    updateData.isVisible = isVisible === '1' || isVisible === 1 || isVisible === 'true' || isVisible === true ? 1 : 0;
+    updateData.isVisible = toBoolInt(isVisible);
   }
   if (req.file) {
     updateData.image = `/assets/images/${req.file.filename}`;
@@ -80,8 +75,6 @@ exports.toggleCurrentWork = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { isCurrentWork } = req.body;
 
-  lastUpdate = Date.now();
-
   const updatedProject = await dbOperations.portfolioProjects.toggleCurrentWork(id, isCurrentWork);
   if (!updatedProject) {
     return next(new AppError('Projet portfolio non trouvé', 404));
@@ -95,8 +88,6 @@ exports.toggleVisibility = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { isVisible } = req.body;
 
-  lastUpdate = Date.now();
-
   const updatedProject = await dbOperations.portfolioProjects.toggleVisibility(id, isVisible);
   if (!updatedProject) {
     return next(new AppError('Projet portfolio non trouvé', 404));
@@ -108,7 +99,6 @@ exports.toggleVisibility = catchAsync(async (req, res, next) => {
 
 exports.deletePortfolioProject = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  lastUpdate = Date.now();
 
   await dbOperations.portfolioProjects.delete(id);
   await updateHtmlFile();

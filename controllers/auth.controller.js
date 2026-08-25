@@ -58,7 +58,7 @@ exports.nextcloudCallback = catchAsync(async (req, res, next) => {
       return res.redirect('/admin?error=unauthorized_user');
     }
     
-    // 4. Générer le JWT pour le portfolio
+    // Générer le JWT pour le portfolio
     // On associe l'utilisateur Nextcloud à l'id 1 du système (Admin principal)
     const token = jwt.sign(
       { username: nextcloudUserId, id: 1 },
@@ -66,8 +66,16 @@ exports.nextcloudCallback = catchAsync(async (req, res, next) => {
       { expiresIn: '24h' }
     );
     
-    // Rediriger vers le dashboard admin avec le token
-    res.redirect(`/admin?token=${token}`);
+    // Stocker le JWT dans un cookie HttpOnly (jamais exposé dans l'URL)
+    res.cookie('admin_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24h
+    });
+
+    // Rediriger vers le dashboard admin (sans token dans l'URL)
+    res.redirect('/admin');
   } catch (err) {
     console.error('Erreur OAuth2 Nextcloud:', err.response ? err.response.data : err.message);
     res.redirect('/admin?error=oauth_failed');

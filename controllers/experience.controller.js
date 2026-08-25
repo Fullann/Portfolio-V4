@@ -3,7 +3,6 @@ const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
-let lastUpdate = Date.now();
 
 exports.getAllExperience = catchAsync(async (req, res, next) => {
   const experience = await dbOperations.experience.getAll();
@@ -12,7 +11,6 @@ exports.getAllExperience = catchAsync(async (req, res, next) => {
 
 exports.createExperience = catchAsync(async (req, res, next) => {
   const { position, period, description } = req.body;
-  lastUpdate = Date.now();
 
   const newExperience = await dbOperations.experience.create({ position, period, description });
 
@@ -23,7 +21,6 @@ exports.createExperience = catchAsync(async (req, res, next) => {
 exports.updateExperience = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { position, period, description } = req.body;
-  lastUpdate = Date.now();
 
   const updatedExperience = await dbOperations.experience.update(id, { position, period, description });
 
@@ -37,7 +34,6 @@ exports.updateExperience = catchAsync(async (req, res, next) => {
 
 exports.deleteExperience = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  lastUpdate = Date.now();
 
   await dbOperations.experience.delete(id);
   await updateHtmlFile();

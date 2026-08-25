@@ -3,7 +3,6 @@ const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
-let lastUpdate = Date.now();
 
 exports.getAllEducation = catchAsync(async (req, res, next) => {
   const education = await dbOperations.education.getAll();
@@ -12,7 +11,6 @@ exports.getAllEducation = catchAsync(async (req, res, next) => {
 
 exports.createEducation = catchAsync(async (req, res, next) => {
   const { institution, period, description } = req.body;
-  lastUpdate = Date.now();
 
   const newEducation = await dbOperations.education.create({ institution, period, description });
 
@@ -23,7 +21,6 @@ exports.createEducation = catchAsync(async (req, res, next) => {
 exports.updateEducation = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { institution, period, description } = req.body;
-  lastUpdate = Date.now();
 
   const updatedEducation = await dbOperations.education.update(id, { institution, period, description });
 
@@ -37,7 +34,6 @@ exports.updateEducation = catchAsync(async (req, res, next) => {
 
 exports.deleteEducation = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  lastUpdate = Date.now();
 
   await dbOperations.education.delete(id);
   await updateHtmlFile();

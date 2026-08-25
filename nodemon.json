@@ -1,0 +1,22 @@
+{
+  "watch": [
+    "server.js",
+    "app.js",
+    "routes/",
+    "controllers/",
+    "middleware/",
+    "models/",
+    "services/",
+    "config/",
+    "utils/",
+    "validation/"
+  ],
+  "ignore": [
+    "public/index.html",
+    "public/assets/",
+    "node_modules/",
+    "*.test.js"
+  ],
+  "ext": "js,json",
+  "delay": 1000
+}

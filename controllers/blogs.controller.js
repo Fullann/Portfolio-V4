@@ -4,8 +4,7 @@ const { marked } = require('marked');
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const { escapeHtml } = require('../utils/sanitize');
-
-let lastUpdate = Date.now();
+const { toSlug } = require('../utils/slug');
 
 exports.getAllBlogs = catchAsync(async (req, res, next) => {
   const blogs = await dbOperations.blogs.getAll();
@@ -38,12 +37,7 @@ exports.createBlog = catchAsync(async (req, res, next) => {
   const { title, category, excerpt, content, author, translations } = req.body;
   const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
-  const slug = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-
-  lastUpdate = Date.now();
+  const slug = toSlug(title);
 
   const newBlog = await dbOperations.blogs.create({
     title,
@@ -69,15 +63,10 @@ exports.updateBlog = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const { title, category, excerpt, content, author, translations } = req.body;
 
-  lastUpdate = Date.now();
-
   const updateData = { title, category, excerpt, content, author };
 
   if (title) {
-    updateData.slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
+    updateData.slug = toSlug(title);
   }
 
   if (req.file) {
@@ -100,7 +89,6 @@ exports.updateBlog = catchAsync(async (req, res, next) => {
 
 exports.deleteBlog = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  lastUpdate = Date.now();
 
   await dbOperations.blogs.delete(id);
   await updateHtmlFile();
@@ -147,7 +135,7 @@ exports.renderBlogPage = catchAsync(async (req, res, next) => {
   const siteName = escapeHtml(siteSettings.site_name || 'Portfolio');
   const contentHtml = marked(blog.content || '');
 
-  let blogImageUrl = blog.image ? (blog.image.startsWith('http') ? blog.image : `${baseUrl}/${blog.image.replace(/^\.\//, '')}`) : `${baseUrl}/assets/images/logo.svg`;
+  let blogImageUrl = blog.image ? (blog.image.startsWith('http') ? blog.image : `${baseUrl}/${blog.image.replace(/^\.\//, '')}`) : `${baseUrl}/og-image?title=${encodeURIComponent(blog.title)}`;
   const fullArticleUrl = `${baseUrl}/blog/${encodeURI(blog.slug)}`;
   const pageDescription = escapeHtml(blog.excerpt || blog.title);
 

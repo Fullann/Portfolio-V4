@@ -1,419 +1,63 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { dbOperations } = require('../config/database');
+const { fetchAllData } = require('./generator/fetchData');
+const { renderHtmlTemplate } = require('./generator/renderTemplate');
 const { formatPersonalInfo, formatPortfolioProject } = require('../utils/formatters');
-const { escapeHtml } = require('../utils/sanitize');
+const { debounceAsync } = require('../utils/helpers');
 
+/**
+ * Orchestrateur principal : récupère les données, les formate, génère le HTML via EJS et l'écrit sur le disque.
+ */
 async function updateHtmlFile() {
   try {
     console.log('🔄 Mise à jour du fichier HTML...');
 
-    // Lire le template HTML
-    const templatePath = path.join(__dirname, '..', 'index-template.html');
-    let htmlContent = await fs.readFile(templatePath, 'utf-8');
+    // 1. Récupérer toutes les données brutes de la base de données
+    const data = await fetchAllData();
 
-    // Récupérer toutes les données
-    const [
-      projects,
-      testimonials,
-      portfolioProjects,
-      clients,
-      categories,
-      blogs,
-      personalInfo,
-      socialLinks,
-      education,
-      experience,
-      skills,
-      siteSettings
-    ] = await Promise.all([
-      dbOperations.projects.getAll(),
-      dbOperations.testimonials.getAll(),
-      dbOperations.portfolioProjects.getAll(),
-      dbOperations.clients.getAll(),
-      dbOperations.categories.getAll(),
-      dbOperations.blogs.getAll(),
-      dbOperations.personalInfo.get(),
-      dbOperations.socialLinks.getAll(),
-      dbOperations.education.getAll(),
-      dbOperations.experience.getAll(),
-      dbOperations.skills.getAll(),
-      dbOperations.settings.getAll()
-    ]);
-
-    const formattedPersonalInfo = formatPersonalInfo(personalInfo);
-    const visiblePortfolioProjects = portfolioProjects.filter(p => p.is_visible !== 0);
+    // 2. Formater les données spécifiques
+    const formattedPersonalInfo = formatPersonalInfo(data.personalInfo);
+    const visiblePortfolioProjects = data.portfolioProjects.filter(p => p.is_visible !== 0);
     const formattedPortfolioProjects = await Promise.all(
       visiblePortfolioProjects.map(formatPortfolioProject)
     );
 
-    // Mettre à jour le SEO, Open Graph & Twitter Cards
-    const siteName = escapeHtml(siteSettings.site_name || `${formattedPersonalInfo.name} Portfolio`);
-    const siteDesc = escapeHtml(siteSettings.site_description || `Portfolio de ${formattedPersonalInfo.name} : projets web, expériences, compétences et contact.`);
-    const baseUrl = (siteSettings.base_url || 'http://localhost:3000').replace(/\/$/, '');
+    // 3. Préparer les variables pour le template SEO
+    const siteName = data.siteSettings.site_name || `${formattedPersonalInfo.name} Portfolio`;
+    const siteDesc = data.siteSettings.site_description || `Portfolio de ${formattedPersonalInfo.name} : projets web, expériences, compétences et contact.`;
+    const baseUrl = (data.siteSettings.base_url || 'http://localhost:3000').replace(/\/$/, '');
     let avatarUrl = formattedPersonalInfo.avatar || '/assets/images/my-avatar.png';
     if (!avatarUrl.startsWith('http')) {
       avatarUrl = `${baseUrl}/${avatarUrl.replace(/^\.\//, '')}`;
     }
 
-    htmlContent = htmlContent
-      .replace(/<title>.*?<\/title>/i, `<title>${siteName} | ${escapeHtml(formattedPersonalInfo.title || 'Portfolio')}</title>`)
-      .replace(/<meta\s+name="description"\s+content=".*?"\s*\/>/i, `<meta name="description" content="${siteDesc}" />`)
-      .replace(/<link\s+rel="canonical"\s+href=".*?"\s*\/>/i, `<link rel="canonical" href="${baseUrl}/" />`)
-      .replace(/<meta\s+property="og:site_name"\s+content=".*?"\s*\/>/i, `<meta property="og:site_name" content="${siteName}" />`)
-      .replace(/<meta\s+property="og:title"\s+content=".*?"\s*\/>/i, `<meta property="og:title" content="${escapeHtml(formattedPersonalInfo.name)} | ${escapeHtml(formattedPersonalInfo.title)}" />`)
-      .replace(/<meta\s+property="og:description"\s+content=".*?"\s*\/>/i, `<meta property="og:description" content="${siteDesc}" />`)
-      .replace(/<meta\s+property="og:url"\s+content=".*?"\s*\/>/i, `<meta property="og:url" content="${baseUrl}/" />`)
-      .replace(/<meta\s+property="og:image"\s+content=".*?"\s*\/>/i, `<meta property="og:image" content="${avatarUrl}" />`)
-      .replace(/<meta\s+name="twitter:title"\s+content=".*?"\s*\/>/i, `<meta name="twitter:title" content="${escapeHtml(formattedPersonalInfo.name)} | ${escapeHtml(formattedPersonalInfo.title)}" />`)
-      .replace(/<meta\s+name="twitter:description"\s+content=".*?"\s*\/>/i, `<meta name="twitter:description" content="${siteDesc}" />`)
-      .replace(/<meta\s+name="twitter:image"\s+content=".*?"\s*\/>/i, `<meta name="twitter:image" content="${avatarUrl}" />`);
-
-    // Générer le HTML pour les projets "Sur quoi je travaille actuellement"
+    // 4. Déterminer les projets "Héros" (actuels ou les 4 premiers)
     const currentWorkProjects = formattedPortfolioProjects.filter(p => p.isCurrentWork === 1);
     const heroProjects = currentWorkProjects.length > 0 ? currentWorkProjects : formattedPortfolioProjects.slice(0, 4);
 
-    const projectsHtml = heroProjects
-      .map(project => `
-      <li class="project-item active" data-filter-item data-category="${escapeHtml(project.filterCategory || project.category)}">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="${escapeHtml(project.image || '/assets/images/project-1.jpg')}" alt="${escapeHtml(project.title)}" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title>${escapeHtml(project.title)}</h3>
-          <p class="project-category" data-project-category>${escapeHtml(project.category)}</p>
-          
-          <!-- Données cachées pour la modal -->
-          <div style="display: none;">
-            <span data-project-description>${escapeHtml(project.description || '')}</span>
-            <span data-project-repo-link>${escapeHtml(project.repoLink || '')}</span>
-            <span data-project-live-link>${escapeHtml(project.liveLink || '')}</span>
-          </div>
-        </a>
-      </li>
-    `)
-      .join('\n');
-
-    // Générer le HTML pour les témoignages
-    const testimonialsHtml = testimonials
-      .map(testimonial => `
-        <li class="testimonials-item">
-          <div class="content-card" data-testimonials-item>
-            <figure class="testimonials-avatar-box">
-              <img src="${escapeHtml(testimonial.avatar)}" alt="${escapeHtml(testimonial.name)}" width="60" data-testimonials-avatar>
-            </figure>
-            <h4 class="h4 testimonials-item-title" data-testimonials-title>${escapeHtml(testimonial.name)}</h4>
-            <div class="testimonials-text" data-testimonials-text>
-              <p>${escapeHtml(testimonial.text)}</p>
-            </div>
-          </div>
-        </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour les projets portfolio
-    const portfolioProjectsHtml = formattedPortfolioProjects
-      .map(project => `
-      <li class="project-item" data-filter-item data-category="${escapeHtml(project.filterCategory || project.category.toLowerCase())}">
-        <a href="#" data-project-item>
-          <figure class="project-img">
-            <div class="project-item-icon-box">
-              <ion-icon name="eye-outline"></ion-icon>
-            </div>
-            <img src="${escapeHtml(project.image)}" alt="${escapeHtml(project.title)}" loading="lazy" data-project-image>
-          </figure>
-          <h3 class="project-title" data-project-title data-i18n="project_${project.id}_title">${escapeHtml(project.title)}</h3>
-          <p class="project-category" data-project-category>${escapeHtml(project.category)}</p>
-          
-          <!-- Données pour la modal -->
-          <div style="display: none;">
-            <span data-project-description data-i18n="project_${project.id}_description">${escapeHtml(project.description)}</span>
-            <span data-project-repo-link>${escapeHtml(project.repoLink || '')}</span>
-            <span data-project-live-link>${escapeHtml(project.liveLink || '')}</span>
-          </div>
-        </a>
-      </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour les clients
-    const clientsHtml = clients
-      .map(client => `
-        <li class="clients-item">
-          <a href="${escapeHtml(client.website || '#')}" ${client.website ? 'target="_blank" rel="noopener noreferrer"' : ''}>
-            <img src="${escapeHtml(client.logo)}" alt="${escapeHtml(client.name)}" class="client-logo" loading="lazy">
-          </a>
-        </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour les filtres de catégories
-    const categoryFiltersHtml = categories
-      .map(category => `
-        <li class="filter-item">
-          <button data-filter-btn>${escapeHtml(category.display_name)}</button>
-        </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour le select des catégories
-    const categorySelectHtml = categories
-      .map(category => `
-        <li class="select-item">
-                    <button data-select-item>${escapeHtml(category.display_name)}</button>
-                </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour les blogs
-    const calculateReadingTime = (text) => {
-      if (!text) return '1 min de lecture';
-      const words = text.replace(/<[^>]*>/g, '').trim().split(/\s+/).filter(Boolean).length;
-      const minutes = Math.max(1, Math.ceil(words / 200));
-      return `${minutes} min de lecture`;
+    // 5. Rassembler toutes les données pour EJS
+    const templateData = {
+      formattedPersonalInfo,
+      siteName,
+      siteDesc,
+      baseUrl,
+      avatarUrl,
+      heroProjects,
+      testimonials: data.testimonials,
+      formattedPortfolioProjects,
+      clients: data.clients,
+      categories: data.categories,
+      blogs: data.blogs,
+      socialLinks: data.socialLinks,
+      education: data.education,
+      experience: data.experience,
+      skills: data.skills
     };
 
-    const blogsHtml = blogs
-      .map(blog => `
-      <li class="blog-post-item">
-        <a href="/blog/${encodeURI(blog.slug)}">
-          <figure class="blog-banner-box">
-            <img src="${escapeHtml(blog.image)}" alt="${escapeHtml(blog.title)}" loading="lazy">
-          </figure>
-          <div class="blog-content">
-            <div class="blog-meta">
-              <p class="blog-category">${escapeHtml(blog.category)}</p>
-              <span class="dot"></span>
-              <time datetime="${escapeHtml(blog.date)}">${escapeHtml(blog.date)}</time>
-              <span class="dot"></span>
-              <span>${calculateReadingTime(blog.content || blog.excerpt)}</span>
-            </div>
-            <h3 class="h3 blog-item-title" data-i18n="blog_${blog.id}_title">${escapeHtml(blog.title)}</h3>
-            <p class="blog-text" data-i18n="blog_${blog.id}_excerpt">${escapeHtml(blog.excerpt)}</p>
-          </div>
-        </a>
-      </li>
-`)
-      .join('\n');
+    // 6. Rendre le HTML avec EJS
+    const htmlContent = await renderHtmlTemplate(templateData);
 
-    // Générer le HTML pour les liens sociaux
-    const socialLinksHtml = socialLinks
-      .map(link => `
-        <li class="social-item">
-          <a href="${escapeHtml(link.url)}" class="social-link" target="_blank" rel="noopener noreferrer">
-            <ion-icon name="${escapeHtml(link.icon)}"></ion-icon>
-          </a>
-        </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour l'éducation
-    const educationHtml = education
-      .map(edu => `
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">${edu.institution}</h4>
-          <span>${edu.period}</span>
-          <p class="timeline-text">${edu.description}</p>
-        </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour l'expérience
-    const experienceHtml = experience
-      .map(exp => `
-        <li class="timeline-item">
-          <h4 class="h4 timeline-item-title">${exp.position}</h4>
-          <span>${exp.period}</span>
-          <p class="timeline-text">${exp.description}</p>
-        </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour les compétences
-    const skillsHtml = skills
-      .map(skill => `
-        <li class="skills-item">
-          <div class="title-wrapper">
-            <h5 class="h5">${skill.name}</h5>
-            <data value="${skill.percentage}">${skill.percentage}%</data>
-          </div>
-          <div class="skill-progress-bg">
-            <div class="skill-progress-fill" style="width: ${skill.percentage}%"></div>
-          </div>
-        </li>
-`)
-      .join('\n');
-
-    // Générer le HTML pour le texte "À propos"
-    const aboutTextHtml = formattedPersonalInfo?.aboutText
-      ? formattedPersonalInfo.aboutText.map(paragraph => `<p>${paragraph}</p>`).join('\n')
-      : '';
-
-    // Générer la section CV
-    const cvSectionHtml = formattedPersonalInfo?.cvFile
-      ? `
-            <div class="cv-container">
-                <div class="cv-preview">
-                    <div class="cv-info">
-                        <ion-icon name="document-text-outline"></ion-icon>
-                        <div class="cv-details">
-                            <h4>Télécharger mon CV</h4>
-                            <p>Consultez mon parcours complet au format PDF</p>
-                        </div>
-                    </div>
-                    <div class="cv-actions">
-                        <a href="/download-cv" class="cv-download-btn" target="_blank">
-                            <ion-icon name="download-outline"></ion-icon>
-                            <span>Télécharger PDF</span>
-                        </a>
-                        <button onclick="viewCVInline()" class="cv-view-btn">
-                            <ion-icon name="eye-outline"></ion-icon>
-                            <span>Aperçu</span>
-                        </button>
-                    </div>
-                </div>
-                <div id="cv-viewer" class="cv-viewer" style="display: none;">
-                    <iframe src="${formattedPersonalInfo.cvFile}" width="100%" height="600px"></iframe>
-                </div>
-            </div>
-        `
-      : `
-            <div class="cv-container">
-                <p>Aucun CV disponible pour le moment.</p>
-            </div>
-        `;
-
-    // Générer la carte Google Maps
-    const mapHtml = formattedPersonalInfo?.location
-      ? `
-                    <iframe
-                        src="https://maps.google.com/maps?q=${encodeURIComponent(formattedPersonalInfo.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                        width="400"
-                        height="300"
-                        loading="lazy"
-                        style="border:0;"
-                        allowfullscreen="">
-                    </iframe>
-                `
-      : '';
-
-    // Remplacer les sections dans le HTML
-    const replacements = [
-      { regex: /(<!-- PROJECTS_START -->)([\s\S]*?)(<!-- PROJECTS_END -->)/, content: projectsHtml },
-      { regex: /(<!-- TESTIMONIALS_START -->)([\s\S]*?)(<!-- TESTIMONIALS_END -->)/, content: testimonialsHtml },
-      { regex: /(<!-- PORTFOLIO_PROJECTS_START -->)([\s\S]*?)(<!-- PORTFOLIO_PROJECTS_END -->)/, content: portfolioProjectsHtml },
-      { regex: /(<!-- CLIENTS_START -->)([\s\S]*?)(<!-- CLIENTS_END -->)/, content: clientsHtml },
-      { regex: /(<!-- BLOGS_START -->)([\s\S]*?)(<!-- BLOGS_END -->)/, content: blogsHtml },
-      { regex: /(<!-- CATEGORY_FILTERS_START -->)([\s\S]*?)(<!-- CATEGORY_FILTERS_END -->)/, content: categoryFiltersHtml },
-      { regex: /(<!-- CATEGORY_SELECT_START -->)([\s\S]*?)(<!-- CATEGORY_SELECT_END -->)/, content: categorySelectHtml },
-      { regex: /(<!-- SOCIAL_LINKS_START -->)([\s\S]*?)(<!-- SOCIAL_LINKS_END -->)/, content: socialLinksHtml },
-      { regex: /(<!-- EDUCATION_START -->)([\s\S]*?)(<!-- EDUCATION_END -->)/, content: educationHtml },
-      { regex: /(<!-- EXPERIENCE_START -->)([\s\S]*?)(<!-- EXPERIENCE_END -->)/, content: experienceHtml },
-      { regex: /(<!-- SKILLS_START -->)([\s\S]*?)(<!-- SKILLS_END -->)/, content: skillsHtml },
-      { regex: /(<!-- ABOUT_TEXT_START -->)([\s\S]*?)(<!-- ABOUT_TEXT_END -->)/, content: aboutTextHtml },
-      { regex: /(<!-- CV_SECTION_START -->)([\s\S]*?)(<!-- CV_SECTION_END -->)/, content: cvSectionHtml },
-      { regex: /(<!-- MAP_START -->)([\s\S]*?)(<!-- MAP_END -->)/, content: mapHtml }
-    ];
-
-    replacements.forEach(({ regex, content }) => {
-      if (regex.test(htmlContent)) {
-        htmlContent = htmlContent.replace(regex, `$1\n${content}\n$3`);
-      }
-    });
-
-    // Remplacer les informations personnelles
-    if (formattedPersonalInfo) {
-      // Remplacer le nom
-      const nameRegex = /(<!-- NAME_START -->)([\s\S]*?)(<!-- NAME_END -->)/;
-      if (nameRegex.test(htmlContent)) {
-        const nameHtml = `
-            <h1 class="name" title="${formattedPersonalInfo.name}" data-name>
-              ${formattedPersonalInfo.name}
-            </h1>`;
-        htmlContent = htmlContent.replace(nameRegex, `$1\n${nameHtml}\n$3`);
-      }
-
-      // Remplacer le titre
-      const titleRegex = /(<!-- TITLE_START -->)([\s\S]*?)(<!-- TITLE_END -->)/;
-      if (titleRegex.test(htmlContent)) {
-        const titleHtml = `
-            <p class="title" data-title>${formattedPersonalInfo.title}</p>`;
-        htmlContent = htmlContent.replace(titleRegex, `$1\n${titleHtml}\n$3`);
-      }
-
-      // Remplacer l'avatar
-      const avatarRegex = /(<!-- AVATAR_START -->)([\s\S]*?)(<!-- AVATAR_END -->)/;
-      if (avatarRegex.test(htmlContent)) {
-        const avatarHtml = `<img src="${formattedPersonalInfo.avatar}" alt="${formattedPersonalInfo.name}" width="80">`;
-        htmlContent = htmlContent.replace(avatarRegex, `$1\n${avatarHtml}\n$3`);
-      }
-
-      // Remplacer les informations de contact
-      const emailRegex = /(<!-- CONTACT_EMAIL_START -->)([\s\S]*?)(<!-- CONTACT_EMAIL_END -->)/;
-      if (emailRegex.test(htmlContent)) {
-        const emailHtml = `
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="mail-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title" data-i18n="sidebar.email">Email</p>
-                <a href="mailto:${formattedPersonalInfo.email}" class="contact-link" data-contact-email>${formattedPersonalInfo.email}</a>
-              </div>
-            </li>`;
-        htmlContent = htmlContent.replace(emailRegex, `$1\n${emailHtml}\n$3`);
-      }
-
-      const phoneRegex = /(<!-- CONTACT_PHONE_START -->)([\s\S]*?)(<!-- CONTACT_PHONE_END -->)/;
-      if (phoneRegex.test(htmlContent)) {
-        const phoneHtml = `
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="phone-portrait-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title" data-i18n="sidebar.phone">Téléphone</p>
-                <a href="tel:${formattedPersonalInfo.phone}" class="contact-link" data-contact-phone>${formattedPersonalInfo.phone}</a>
-              </div>
-            </li>`;
-        htmlContent = htmlContent.replace(phoneRegex, `$1\n${phoneHtml}\n$3`);
-      }
-
-      const birthdayRegex = /(<!-- CONTACT_BIRTHDAY_START -->)([\s\S]*?)(<!-- CONTACT_BIRTHDAY_END -->)/;
-      if (birthdayRegex.test(htmlContent)) {
-        const birthdayHtml = `
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="calendar-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title" data-i18n="sidebar.birthday">Date de naissance</p>
-                <time datetime="${formattedPersonalInfo.birthday}" data-contact-birthday>${formattedPersonalInfo.birthday}</time>
-              </div>
-            </li>`;
-        htmlContent = htmlContent.replace(birthdayRegex, `$1\n${birthdayHtml}\n$3`);
-      }
-
-      const locationRegex = /(<!-- CONTACT_LOCATION_START -->)([\s\S]*?)(<!-- CONTACT_LOCATION_END -->)/;
-      if (locationRegex.test(htmlContent)) {
-        const locationHtml = `
-            <li class="contact-item">
-              <div class="icon-box">
-                <ion-icon name="location-outline"></ion-icon>
-              </div>
-              <div class="contact-info">
-                <p class="contact-title" data-i18n="sidebar.location">Localisation</p>
-                <address data-contact-location>${formattedPersonalInfo.location}</address>
-              </div>
-            </li>`;
-        htmlContent = htmlContent.replace(locationRegex, `$1\n${locationHtml}\n$3`);
-      }
-    }
-
-    // Écrire le fichier HTML final
+    // 7. Écrire le fichier final dans public/index.html
     const outputPath = path.join(__dirname, '..', 'public', 'index.html');
     await fs.writeFile(outputPath, htmlContent, 'utf-8');
 
@@ -425,4 +69,8 @@ async function updateHtmlFile() {
   }
 }
 
-module.exports = { updateHtmlFile };
+// Version débouncée : les appels multiples en rafale sont fusionnés en une seule
+// exécution après 500ms, évitant les race conditions d'écriture simultanée.
+const updateHtmlFileDebounced = debounceAsync(updateHtmlFile, 500);
+
+module.exports = { updateHtmlFile: updateHtmlFileDebounced, updateHtmlFileImmediate: updateHtmlFile };
