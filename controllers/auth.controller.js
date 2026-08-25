@@ -12,8 +12,9 @@ exports.nextcloudLogin = catchAsync(async (req, res, next) => {
     return next(new AppError('Configuration Nextcloud manquante (URL ou CLIENT_ID)', 500));
   }
 
-  // URL de redirection enregistrée dans Nextcloud
-  const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/nextcloud/callback`;
+  // Forcer HTTPS en production (contourne les soucis de reverse proxy cPanel)
+  const protocol = (req.hostname === 'localhost' || req.hostname === '127.0.0.1') ? 'http' : 'https';
+  const redirectUri = `${protocol}://${req.get('host')}/api/auth/nextcloud/callback`;
   
   // URL d'autorisation OAuth2 Nextcloud
   const authUrl = `${NEXTCLOUD_URL}/apps/oauth2/authorize?response_type=code&client_id=${NEXTCLOUD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}`;
@@ -29,7 +30,8 @@ exports.nextcloudCallback = catchAsync(async (req, res, next) => {
     return res.redirect('/admin?error=access_denied');
   }
 
-  const redirectUri = `${req.protocol}://${req.get('host')}/api/auth/nextcloud/callback`;
+  const protocol = (req.hostname === 'localhost' || req.hostname === '127.0.0.1') ? 'http' : 'https';
+  const redirectUri = `${protocol}://${req.get('host')}/api/auth/nextcloud/callback`;
 
   try {
     // 1. Échanger le code contre un token d'accès
