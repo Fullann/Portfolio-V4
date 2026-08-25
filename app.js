@@ -38,7 +38,7 @@ app.use(helmet({
         "https://fonts.gstatic.com",
         "https://cdn.jsdelivr.net"
       ],
-      frameSrc: ["https://newassets.hcaptcha.com", "https://*.hcaptcha.com"],
+      frameSrc: ["'self'", "https://newassets.hcaptcha.com", "https://*.hcaptcha.com"],
     }
   },
   crossOriginEmbedderPolicy: false, // nécessaire pour les images externes

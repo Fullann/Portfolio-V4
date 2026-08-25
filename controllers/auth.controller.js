@@ -70,7 +70,7 @@ exports.nextcloudCallback = catchAsync(async (req, res, next) => {
     res.cookie('admin_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
+      sameSite: 'Lax',
       maxAge: 24 * 60 * 60 * 1000 // 24h
     });
 
