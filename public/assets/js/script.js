@@ -148,6 +148,31 @@ function applyTranslations() {
     }
   });
 
+  // 1.5 HTML (innerHTML)
+  document.querySelectorAll("[data-i18n-html]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-html");
+    if (translations[key] !== undefined) {
+      const formattedHTML = translations[key].split('\n\n').map(p => `<p>${p}</p>`).join('');
+      el.innerHTML = formattedHTML;
+    }
+  });
+  
+  // 1.6 Sources (src)
+  document.querySelectorAll("[data-i18n-src]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-src");
+    if (translations[key] !== undefined && translations[key] !== "") {
+      el.src = translations[key];
+    }
+  });
+
+  // 1.7 Href (links)
+  document.querySelectorAll("[data-i18n-href]").forEach((el) => {
+    const key = el.getAttribute("data-i18n-href");
+    if (translations[key] !== undefined && translations[key] !== "") {
+      el.href = translations[key];
+    }
+  });
+
   // 2. Placeholders (inputs, textareas)
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
     const key = el.getAttribute("data-i18n-placeholder");

@@ -40,7 +40,7 @@ async function optimizeImage(inputPath, outputPath, options = {}) {
 
 // Traiter un fichier individuel
 async function processSingleFile(fileObj) {
-  if (!fileObj || fileObj.fieldname === 'cv') {
+  if (!fileObj || fileObj.fieldname.startsWith('cv')) {
     return;
   }
   const isImage = /\.(jpg|jpeg|png|webp|gif|bmp)$/i.test(fileObj.filename || fileObj.originalname || '');

@@ -61,10 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errorMsg) {
       errorMsg.textContent = "Erreur de connexion Nextcloud : " + errorFromUrl;
       errorMsg.classList.remove("hidden");
-      alert("Erreur de connexion Nextcloud : " + errorFromUrl); // Debug visible
     }
-    // Commenté temporairement pour que l'erreur reste visible dans l'URL si besoin
-    // window.history.replaceState({}, document.title, "/admin");
+    window.history.replaceState({}, document.title, "/admin");
   }
 
 function isTokenExpired(tokenStr) {
@@ -105,18 +103,13 @@ function isTokenExpired(tokenStr) {
         document.getElementById("admin-panel").classList.remove("hidden");
         initializeDashboard();
       } else {
-        console.error("🔴 /api/auth/verify a renvoyé une erreur", response.status);
-        if (window.location.search.indexOf('error=') === -1 && !token) {
-           alert("Échec de vérification de session (Erreur " + response.status + "). Le cookie est manquant ou invalide.");
-        }
         localStorage.removeItem("adminToken");
         token = null;
         document.getElementById("login-section").classList.remove("hidden");
         document.getElementById("admin-panel").classList.add("hidden");
       }
     })
-    .catch((err) => {
-      console.error("🔴 Erreur réseau lors de la vérification:", err);
+    .catch(() => {
       document.getElementById("login-section").classList.remove("hidden");
       document.getElementById("admin-panel").classList.add("hidden");
     });
@@ -659,25 +652,33 @@ async function handlePersonalInfoSubmit(e) {
   e.stopPropagation();
 
   const formData = new FormData();
+  saveCurrentModalTranslations('personal');
+  
   formData.append("name", document.getElementById("personal-name").value);
-  formData.append("title", document.getElementById("personal-title").value);
   formData.append("email", document.getElementById("personal-email").value);
   formData.append("phone", document.getElementById("personal-phone").value);
-  formData.append(
-    "birthday",
-    document.getElementById("personal-birthday").value,
-  );
-  formData.append(
-    "location",
-    document.getElementById("personal-location").value,
-  );
-  formData.append("aboutText", document.getElementById("personal-about").value);
+  formData.append("birthday", document.getElementById("personal-birthday").value);
+  formData.append("location", document.getElementById("personal-location").value);
+  
+  // Set top level title and aboutText to French (default) for backward compatibility
+  const defaultT = currentPersonalTranslations['fr'] || {};
+  formData.append("title", defaultT.title || document.getElementById("personal-title").value);
+  let aboutText = defaultT.aboutText || document.getElementById("personal-about").value;
+  if (Array.isArray(aboutText)) aboutText = aboutText.join('\n\n');
+  formData.append("aboutText", aboutText);
+  
+  formData.append("translations", JSON.stringify(currentPersonalTranslations));
 
   const avatarFile = document.getElementById("personal-avatar").files[0];
   if (avatarFile) formData.append("avatar", avatarFile);
 
-  const cvFile = document.getElementById("personal-cv").files[0];
-  if (cvFile) formData.append("cv", cvFile);
+  // Append all CV files for different languages
+  window.activeLanguages.forEach(l => {
+    const cvInput = document.getElementById(`personal-cv-${l.code}`);
+    if (cvInput && cvInput.files[0]) {
+      formData.append(`cv_${l.code}`, cvInput.files[0]);
+    }
+  });
 
   try {
     const response = await fetchWithAuth("/api/personal-info", {
@@ -793,11 +794,17 @@ async function loadPersonalInfo() {
       document.getElementById("personal-phone").value = info.phone || "";
       document.getElementById("personal-birthday").value = info.birthday || "";
       document.getElementById("personal-location").value = info.location || "";
-      document.getElementById("personal-about").value = Array.isArray(
-        info.aboutText,
-      )
-        ? info.aboutText.join("\n")
-        : info.aboutText || "";
+      
+      currentPersonalTranslations = info.translations || {};
+      if (!currentPersonalTranslations[activePersonalLang]) {
+        currentPersonalTranslations[activePersonalLang] = {
+          title: info.title || "",
+          aboutText: Array.isArray(info.aboutText) ? info.aboutText.join("\n\n") : (info.aboutText || "")
+        };
+      }
+      
+      loadModalTranslationsToInputs('personal');
+      renderModalLangTabs('personal');
 
       if (info.name) {
         document.getElementById("preview-name").textContent = info.name;
@@ -2217,15 +2224,29 @@ async function handleI18nFormSubmit(e) {
 
 let currentPortfolioTranslations = {};
 let currentBlogTranslations = {};
+let currentPersonalTranslations = {};
 let activePortfolioLang = 'fr';
 let activeBlogLang = 'fr';
+let activePersonalLang = 'fr';
 
 function renderModalLangTabs(modalType) {
-  const containerId = modalType === 'blog' ? 'blog-lang-tabs' : 'portfolio-lang-tabs';
+  let containerId;
+  let activeLangCode;
+  
+  if (modalType === 'blog') {
+    containerId = 'blog-lang-tabs';
+    activeLangCode = activeBlogLang;
+  } else if (modalType === 'personal') {
+    containerId = 'personal-info-lang-tabs';
+    activeLangCode = activePersonalLang;
+  } else {
+    containerId = 'portfolio-lang-tabs';
+    activeLangCode = activePortfolioLang;
+  }
+  
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const activeLangCode = modalType === 'blog' ? activeBlogLang : activePortfolioLang;
   const activeLangObj = window.activeLanguages.find(l => l.code === activeLangCode);
   const activeLangName = activeLangObj ? activeLangObj.name : activeLangCode.toUpperCase();
 
@@ -2243,19 +2264,58 @@ function renderModalLangTabs(modalType) {
   html += `</div>`;
   container.innerHTML = html;
   
-  // Update classes of the container if needed (remove flex gap-2 since it's now inside)
   container.classList.remove('flex', 'gap-2');
   
-  const badgeId = modalType === 'blog' ? 'blog-title-lang-badge' : 'portfolio-title-lang-badge';
+  if (modalType === 'personal') {
+    const cvContainer = document.getElementById('personal-cv-inputs-container');
+    if (cvContainer) {
+      cvContainer.innerHTML = window.activeLanguages.map(l => `
+        <input
+          type="file"
+          id="personal-cv-${l.code}"
+          accept=".pdf,.doc,.docx"
+          class="${l.code === activeLangCode ? 'block' : 'hidden'} w-full px-4 py-2 border-2 border-gray-700 rounded-lg focus:border-primary outline-none transition text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+        />
+      `).join('');
+      
+      const t = currentPersonalTranslations[activeLangCode] || {};
+      const currentText = document.getElementById('personal-cv-current-text');
+      if (currentText) {
+        if (t.cv_file) {
+          currentText.innerHTML = `CV actuel : <a href="${t.cv_file}" target="_blank" class="text-primary hover:underline">${t.cv_file.split('/').pop()}</a>. Uploadez un nouveau fichier pour le remplacer.`;
+        } else {
+          currentText.innerHTML = `Aucun CV spécifique défini pour cette langue.`;
+        }
+      }
+    }
+  }
+  
+  let badgeId;
+  if (modalType === 'blog') badgeId = 'blog-title-lang-badge';
+  else if (modalType === 'personal') badgeId = 'personal-title-lang-badge';
+  else badgeId = 'portfolio-title-lang-badge';
+  
   const badge = document.getElementById(badgeId);
   if (badge) {
-    badge.textContent = (modalType === 'blog' ? activeBlogLang : activePortfolioLang);
+    if (modalType === 'blog') badge.textContent = activeBlogLang;
+    else if (modalType === 'personal') badge.textContent = activePersonalLang;
+    else badge.textContent = activePortfolioLang;
   }
 }
 
 function saveCurrentModalTranslations(modalType) {
-  const lang = modalType === 'blog' ? activeBlogLang : activePortfolioLang;
-  const transObj = modalType === 'blog' ? currentBlogTranslations : currentPortfolioTranslations;
+  let lang, transObj;
+  
+  if (modalType === 'blog') {
+    lang = activeBlogLang;
+    transObj = currentBlogTranslations;
+  } else if (modalType === 'personal') {
+    lang = activePersonalLang;
+    transObj = currentPersonalTranslations;
+  } else {
+    lang = activePortfolioLang;
+    transObj = currentPortfolioTranslations;
+  }
   
   if (!transObj[lang]) transObj[lang] = {};
   
@@ -2263,6 +2323,9 @@ function saveCurrentModalTranslations(modalType) {
     transObj[lang].title = document.getElementById("blog-title").value;
     transObj[lang].excerpt = document.getElementById("blog-excerpt").value;
     transObj[lang].content = document.getElementById("blog-content").value;
+  } else if (modalType === 'personal') {
+    transObj[lang].title = document.getElementById("personal-title").value;
+    transObj[lang].aboutText = document.getElementById("personal-about").value;
   } else {
     transObj[lang].title = document.getElementById("portfolio-title").value;
     transObj[lang].description = document.getElementById("portfolio-description").value;
@@ -2270,8 +2333,18 @@ function saveCurrentModalTranslations(modalType) {
 }
 
 function loadModalTranslationsToInputs(modalType) {
-  const lang = modalType === 'blog' ? activeBlogLang : activePortfolioLang;
-  const transObj = modalType === 'blog' ? currentBlogTranslations : currentPortfolioTranslations;
+  let lang, transObj;
+  
+  if (modalType === 'blog') {
+    lang = activeBlogLang;
+    transObj = currentBlogTranslations;
+  } else if (modalType === 'personal') {
+    lang = activePersonalLang;
+    transObj = currentPersonalTranslations;
+  } else {
+    lang = activePortfolioLang;
+    transObj = currentPortfolioTranslations;
+  }
   
   const t = transObj[lang] || {};
   
@@ -2279,6 +2352,11 @@ function loadModalTranslationsToInputs(modalType) {
     document.getElementById("blog-title").value = t.title || '';
     document.getElementById("blog-excerpt").value = t.excerpt || '';
     document.getElementById("blog-content").value = t.content || '';
+  } else if (modalType === 'personal') {
+    document.getElementById("personal-title").value = t.title || '';
+    let about = t.aboutText || '';
+    if (Array.isArray(about)) about = about.join('\n\n');
+    document.getElementById("personal-about").value = about;
   } else {
     document.getElementById("portfolio-title").value = t.title || '';
     document.getElementById("portfolio-description").value = t.description || '';
@@ -2289,6 +2367,8 @@ window.switchModalLang = function(modalType, langCode) {
   saveCurrentModalTranslations(modalType);
   if (modalType === 'blog') {
     activeBlogLang = langCode;
+  } else if (modalType === 'personal') {
+    activePersonalLang = langCode;
   } else {
     activePortfolioLang = langCode;
   }

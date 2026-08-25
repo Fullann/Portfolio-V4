@@ -61,7 +61,11 @@ app.use(express.static(path.join(__dirname, 'public'), {
   maxAge: '1d',
   etag: true,
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else if (filePath.includes('admin.js') || filePath.includes('admin.css')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
       res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30j
     }
     if (filePath.endsWith('.jpg') || filePath.endsWith('.png') ||

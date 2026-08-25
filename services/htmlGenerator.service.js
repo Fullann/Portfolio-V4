@@ -48,6 +48,7 @@ async function updateHtmlFile() {
       clients: data.clients,
       categories: data.categories,
       blogs: data.blogs,
+      version: Date.now(),
       socialLinks: data.socialLinks,
       education: data.education,
       experience: data.experience,

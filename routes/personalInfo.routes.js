@@ -9,10 +9,7 @@ router.get('/', personalInfoController.getPersonalInfo);
 
 router.put('/',
   authenticateToken,
-  upload.fields([
-    { name: 'avatar', maxCount: 1 },
-    { name: 'cv', maxCount: 1 }
-  ]),
+  upload.any(),
   optimizeUploadedImage,
   personalInfoController.updatePersonalInfo
 );

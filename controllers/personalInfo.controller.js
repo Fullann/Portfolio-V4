@@ -6,11 +6,17 @@ const { formatPersonalInfo } = require('../utils/formatters');
 
 exports.getPersonalInfo = catchAsync(async (req, res, next) => {
   const personalInfo = await dbOperations.personalInfo.get();
-  res.json(formatPersonalInfo(personalInfo));
+  const formatted = formatPersonalInfo(personalInfo);
+  
+  // Include translations
+  const translations = await dbOperations.personalInfo.getTranslations();
+  formatted.translations = translations;
+  
+  res.json(formatted);
 });
 
 exports.updatePersonalInfo = catchAsync(async (req, res, next) => {
-  const { name, title, email, phone, birthday, location, aboutText } = req.body;
+  const { name, title, email, phone, birthday, location, aboutText, translations } = req.body;
 
   const updateData = { name, title, email, phone, birthday, location };
 
@@ -18,16 +24,47 @@ exports.updatePersonalInfo = catchAsync(async (req, res, next) => {
     updateData.aboutText = aboutText;
   }
 
-  if (req.files?.avatar) {
-    updateData.avatar = `/assets/images/${req.files.avatar[0].filename}`;
+  // Parse translations if sent as string
+  let parsedTranslations = {};
+  if (translations && translations !== 'undefined' && translations !== 'null') {
+    parsedTranslations = typeof translations === 'string' ? JSON.parse(translations) : translations;
   }
-  if (req.files?.cv) {
-    updateData.cvFile = `/assets/documents/${req.files.cv[0].filename}`;
+
+  if (req.files && Array.isArray(req.files)) {
+    // Find avatar
+    const avatarFile = req.files.find(f => f.fieldname === 'avatar');
+    if (avatarFile) {
+      updateData.avatar = `/assets/images/${avatarFile.filename}`;
+    }
+    
+    // Find default cv
+    const defaultCv = req.files.find(f => f.fieldname === 'cv');
+    if (defaultCv) {
+      updateData.cvFile = `/assets/documents/${defaultCv.filename}`;
+    }
+    
+    // Process language-specific CVs
+    const cvFiles = req.files.filter(f => f.fieldname.startsWith('cv_'));
+    for (const file of cvFiles) {
+      const lang = file.fieldname.split('_')[1]; // e.g. cv_en -> en
+      if (lang) {
+        if (!parsedTranslations[lang]) parsedTranslations[lang] = {};
+        parsedTranslations[lang]['cv_file'] = `/assets/documents/${file.filename}`;
+      }
+    }
   }
 
   const updatedInfo = await dbOperations.personalInfo.update(updateData);
+  
+  if (Object.keys(parsedTranslations).length > 0) {
+    await dbOperations.personalInfo.updateTranslations(parsedTranslations);
+  }
+  
   await updateHtmlFile();
-  res.json(formatPersonalInfo(updatedInfo));
+  
+  const finalInfo = formatPersonalInfo(updatedInfo);
+  finalInfo.translations = await dbOperations.personalInfo.getTranslations();
+  res.json(finalInfo);
 });
 
 exports.downloadCV = catchAsync(async (req, res, next) => {
