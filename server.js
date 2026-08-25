@@ -1,3 +1,4 @@
+require('./compat.cjs');
 require('dotenv').config();
 const app = require('./app');
 const { initializeDatabase } = require('./mysql-db');
