@@ -22,6 +22,7 @@ async function fetchWithAuth(url, options = {}) {
   }
 
   options.headers = headers;
+  options.credentials = "same-origin"; // Ensure HttpOnly cookies are sent
 
   try {
     const response = await fetch(url, options);
@@ -86,33 +87,32 @@ function isTokenExpired(tokenStr) {
   }
 }
 
-  // Vérifier token au chargement
-  if (token) {
-    if (isTokenExpired(token)) {
-      console.warn("⚠️ Token JWT expiré");
-      localStorage.removeItem("adminToken");
-      token = null;
-      showNotification("⚠️ Session expirée, veuillez vous reconnecter", "warning");
-    } else {
-      fetch("/api/portfolio-projects", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((response) => {
-          if (response.ok) {
-            document.getElementById("login-section").classList.add("hidden");
-            document.getElementById("admin-panel").classList.remove("hidden");
-            initializeDashboard();
-          } else {
-            localStorage.removeItem("adminToken");
-            token = null;
-          }
-        })
-        .catch(() => {
-          localStorage.removeItem("adminToken");
-          token = null;
-        });
-    }
+  // Nettoyage token LocalStorage expiré
+  if (token && isTokenExpired(token)) {
+    console.warn("⚠️ Token JWT expiré");
+    localStorage.removeItem("adminToken");
+    token = null;
   }
+
+  // Toujours vérifier l'authentification (Cookie HttpOnly ou LocalStorage)
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+  fetch("/api/auth/verify", { headers: authHeaders, credentials: "same-origin" })
+    .then((response) => {
+      if (response.ok) {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("admin-panel").classList.remove("hidden");
+        initializeDashboard();
+      } else {
+        localStorage.removeItem("adminToken");
+        token = null;
+        document.getElementById("login-section").classList.remove("hidden");
+        document.getElementById("admin-panel").classList.add("hidden");
+      }
+    })
+    .catch(() => {
+      document.getElementById("login-section").classList.remove("hidden");
+      document.getElementById("admin-panel").classList.add("hidden");
+    });
 
   // Attacher tous les autres event listeners
   attachAllEventListeners();
