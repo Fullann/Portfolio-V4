@@ -707,6 +707,7 @@ async function handlePersonalInfoSubmit(e) {
 // ============================================
 
 async function initializeDashboard() {
+  await loadI18nSettings();
   try {
     await Promise.all([
       loadDashboardStats(),
@@ -723,7 +724,6 @@ async function initializeDashboard() {
       loadCategories(),
       loadCategoryOptions(),
       loadAccountInfo(),
-      loadI18nSettings(),
     ]);
   } catch (error) {
     console.error("Erreur init:", error);
@@ -2269,14 +2269,31 @@ function renderModalLangTabs(modalType) {
   if (modalType === 'personal') {
     const cvContainer = document.getElementById('personal-cv-inputs-container');
     if (cvContainer) {
-      cvContainer.innerHTML = window.activeLanguages.map(l => `
-        <input
-          type="file"
-          id="personal-cv-${l.code}"
-          accept=".pdf,.doc,.docx"
-          class="${l.code === activeLangCode ? 'block' : 'hidden'} w-full px-4 py-2 border-2 border-gray-700 rounded-lg focus:border-primary outline-none transition text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-        />
-      `).join('');
+      // Create inputs if they don't exist
+      if (cvContainer.children.length === 0) {
+        cvContainer.innerHTML = window.activeLanguages.map(l => `
+          <input
+            type="file"
+            id="personal-cv-${l.code}"
+            accept=".pdf,.doc,.docx"
+            class="hidden w-full px-4 py-2 border-2 border-gray-700 rounded-lg focus:border-primary outline-none transition text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+          />
+        `).join('');
+      }
+      
+      // Toggle visibility
+      window.activeLanguages.forEach(l => {
+        const input = document.getElementById(`personal-cv-${l.code}`);
+        if (input) {
+          if (l.code === activeLangCode) {
+            input.classList.remove('hidden');
+            input.classList.add('block');
+          } else {
+            input.classList.remove('block');
+            input.classList.add('hidden');
+          }
+        }
+      });
       
       const t = currentPersonalTranslations[activeLangCode] || {};
       const currentText = document.getElementById('personal-cv-current-text');
