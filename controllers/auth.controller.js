@@ -71,8 +71,7 @@ exports.nextcloudCallback = catchAsync(async (req, res, next) => {
     // Stocker le JWT dans un cookie HttpOnly (jamais exposé dans l'URL)
     res.cookie('admin_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Lax',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000 // 24h
     });
 

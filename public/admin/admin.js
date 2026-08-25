@@ -61,8 +61,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (errorMsg) {
       errorMsg.textContent = "Erreur de connexion Nextcloud : " + errorFromUrl;
       errorMsg.classList.remove("hidden");
+      alert("Erreur de connexion Nextcloud : " + errorFromUrl); // Debug visible
     }
-    window.history.replaceState({}, document.title, "/admin");
+    // Commenté temporairement pour que l'erreur reste visible dans l'URL si besoin
+    // window.history.replaceState({}, document.title, "/admin");
   }
 
 function isTokenExpired(tokenStr) {
@@ -103,13 +105,18 @@ function isTokenExpired(tokenStr) {
         document.getElementById("admin-panel").classList.remove("hidden");
         initializeDashboard();
       } else {
+        console.error("🔴 /api/auth/verify a renvoyé une erreur", response.status);
+        if (window.location.search.indexOf('error=') === -1 && !token) {
+           alert("Échec de vérification de session (Erreur " + response.status + "). Le cookie est manquant ou invalide.");
+        }
         localStorage.removeItem("adminToken");
         token = null;
         document.getElementById("login-section").classList.remove("hidden");
         document.getElementById("admin-panel").classList.add("hidden");
       }
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error("🔴 Erreur réseau lors de la vérification:", err);
       document.getElementById("login-section").classList.remove("hidden");
       document.getElementById("admin-panel").classList.add("hidden");
     });
