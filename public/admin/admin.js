@@ -2247,6 +2247,10 @@ function renderModalLangTabs(modalType) {
   const container = document.getElementById(containerId);
   if (!container) return;
 
+  if (!window.activeLanguages || window.activeLanguages.length === 0) {
+    window.activeLanguages = [{ code: "fr", name: "Français", flag: "🇫🇷", is_active: 1 }];
+  }
+
   const activeLangObj = window.activeLanguages.find(l => l.code === activeLangCode);
   const activeLangName = activeLangObj ? activeLangObj.name : activeLangCode.toUpperCase();
 
