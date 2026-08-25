@@ -26,7 +26,11 @@ async function generateSitemap() {
     blogs.forEach(blog => {
       let lastmod = new Date().toISOString();
       if (blog.date) {
-        try { lastmod = new Date(blog.date).toISOString(); } catch(e) {}
+        try { 
+          lastmod = new Date(blog.date).toISOString(); 
+        } catch(_e) { 
+          // Utilise la date par défaut en cas d'erreur de parsing
+        }
       }
       sitemap += `
   <url>
