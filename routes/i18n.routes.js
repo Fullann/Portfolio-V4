@@ -7,6 +7,7 @@ router.get('/languages', i18nController.getLanguages);
 router.get('/languages/all', authenticateToken, i18nController.getAllLanguages);
 router.get('/translations/:lang', i18nController.getTranslations);
 
+router.post('/languages', authenticateToken, i18nController.addLanguage);
 router.put('/translations/:lang', authenticateToken, i18nController.updateTranslations);
 router.post('/languages/toggle', authenticateToken, i18nController.toggleLanguage);
 

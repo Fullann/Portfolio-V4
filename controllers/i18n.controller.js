@@ -12,6 +12,15 @@ exports.getAllLanguages = catchAsync(async (req, res, next) => {
   res.json(languages);
 });
 
+exports.addLanguage = catchAsync(async (req, res, next) => {
+  const { code, name, flag } = req.body;
+  if (!code || !name || !flag) {
+    return res.status(400).json({ error: "Code, name and flag are required" });
+  }
+  await dbOperations.i18n.addLanguage({ code, name, flag });
+  res.status(201).json({ success: true });
+});
+
 exports.getTranslations = catchAsync(async (req, res, next) => {
   const { lang } = req.params;
   const translations = await dbOperations.i18n.getTranslations(lang);

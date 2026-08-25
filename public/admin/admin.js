@@ -164,9 +164,11 @@ function attachAllEventListeners() {
     "client-form": handleClientSubmit,
     "testimonial-form": handleTestimonialSubmit,
     "social-form": handleSocialSubmit,
+    "social-form": handleSocialSubmit,
     "personal-info-form": handlePersonalInfoSubmit,
     "site-settings-form": handleSiteSettingsSubmit,
     "i18n-translations-form": handleI18nFormSubmit,
+    "add-language-form": handleAddLanguageSubmit,
   };
 
   Object.entries(forms).forEach(([formId, handler]) => {
@@ -2111,7 +2113,41 @@ async function loadI18nSettings() {
   }
 }
 
-function selectI18nLang(code) {
+function openAddLanguageModal() {
+  document.getElementById("add-language-form").reset();
+  document.getElementById("add-language-modal").classList.remove("hidden");
+  document.getElementById("add-language-modal").classList.add("flex");
+}
+
+async function handleAddLanguageSubmit(e) {
+  e.preventDefault();
+  
+  const data = {
+    code: document.getElementById("lang-code").value.toLowerCase(),
+    name: document.getElementById("lang-name").value,
+    flag: document.getElementById("lang-flag").value
+  };
+
+  try {
+    const response = await fetchWithAuth("/api/i18n/languages", {
+      method: "POST",
+      body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+      showNotification("Langue ajoutée avec succès !", "success");
+      closeModal("add-language-modal");
+      await loadI18nSettings();
+    } else {
+      const error = await response.json();
+      showNotification(error.error || "Erreur", "error");
+    }
+  } catch (err) {
+    console.error("Erreur ajout langue:", err);
+  }
+}
+
+async function selectI18nLang(code) {
   currentI18nLang = code;
   loadI18nSettings();
 }

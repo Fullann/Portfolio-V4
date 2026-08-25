@@ -11,6 +11,13 @@ const i18nModel = {
     return rows;
   },
 
+  addLanguage: async ({ code, name, flag }) => {
+    await pool.execute(
+      "INSERT INTO languages (code, name, flag, is_active, is_default) VALUES (?, ?, ?, 1, 0) ON DUPLICATE KEY UPDATE name = VALUES(name), flag = VALUES(flag)",
+      [code, name, flag]
+    );
+  },
+
   getTranslations: async (langCode) => {
     // Exclure les clés se terminant par _content (ex: blogs) pour la performance du frontend public
     const [rows] = await pool.execute(
