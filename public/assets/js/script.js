@@ -151,8 +151,9 @@ function applyTranslations() {
   // 1.5 HTML (innerHTML)
   document.querySelectorAll("[data-i18n-html]").forEach((el) => {
     const key = el.getAttribute("data-i18n-html");
-    if (translations[key] !== undefined) {
-      const formattedHTML = translations[key].split('\n\n').map(p => `<p>${p}</p>`).join('');
+    if (translations[key] !== undefined && translations[key] !== null) {
+      const val = String(translations[key]);
+      const formattedHTML = val.split('\n\n').map(p => `<p>${p}</p>`).join('');
       el.innerHTML = formattedHTML;
     }
   });
