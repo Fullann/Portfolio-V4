@@ -41,7 +41,7 @@
       href="/assets/images/icon.ico"
       type="image/x-icon"
     />
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    <script src="https://js.hcaptcha.com/1/api.js?render=explicit" async defer></script>
     <!--
     - custom css link
   -->
@@ -665,7 +665,7 @@
                 data-form-input
               ></textarea>
 
-              <div class="h-captcha" data-sitekey="" id="hcaptcha-widget"></div>
+              <div class="h-captcha" data-sitekey="<%= (typeof hcaptchaSitekey !== 'undefined' && hcaptchaSitekey) ? hcaptchaSitekey : '' %>" id="hcaptcha-widget"></div>
 
               <button class="form-btn" type="submit" data-form-btn>
                 <ion-icon name="paper-plane"></ion-icon>

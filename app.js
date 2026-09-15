@@ -23,14 +23,35 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://js.hcaptcha.com", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
+      scriptSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "https://unpkg.com", 
+        "https://js.hcaptcha.com", 
+        "https://hcaptcha.com", 
+        "https://*.hcaptcha.com", 
+        "https://newassets.hcaptcha.com", 
+        "https://cdn.tailwindcss.com", 
+        "https://cdn.jsdelivr.net"
+      ],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      styleSrc: [
+        "'self'", 
+        "'unsafe-inline'", 
+        "https://fonts.googleapis.com", 
+        "https://hcaptcha.com", 
+        "https://*.hcaptcha.com", 
+        "https://newassets.hcaptcha.com"
+      ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: [
         "'self'", 
         "https://api.hcaptcha.com", 
+        "https://hcaptcha.com", 
+        "https://*.hcaptcha.com", 
+        "https://*.w.hcaptcha.com", 
+        "https://newassets.hcaptcha.com", 
         "https://unpkg.com",
         "https://cdn.tailwindcss.com",
         "https://js.hcaptcha.com",
@@ -38,7 +59,16 @@ app.use(helmet({
         "https://fonts.gstatic.com",
         "https://cdn.jsdelivr.net"
       ],
-      frameSrc: ["'self'", "https://newassets.hcaptcha.com", "https://*.hcaptcha.com"],
+      frameSrc: [
+        "'self'", 
+        "https://newassets.hcaptcha.com", 
+        "https://hcaptcha.com", 
+        "https://*.hcaptcha.com", 
+        "https://*.w.hcaptcha.com", 
+        "https://maps.google.com", 
+        "https://www.google.com", 
+        "https://*.google.com"
+      ],
     }
   },
   crossOriginEmbedderPolicy: false, // nécessaire pour les images externes

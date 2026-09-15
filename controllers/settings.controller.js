@@ -66,6 +66,7 @@ exports.updateSettings = catchAsync(async (req, res, next) => {
 
 // Route publique : retourner uniquement la sitekey hCaptcha (pas le secret)
 exports.getHcaptchaSitekey = catchAsync(async (req, res, next) => {
-  const sitekey = await dbOperations.settings.get('hcaptcha_sitekey');
-  res.json({ sitekey: sitekey || '' });
+  const dbSitekey = await dbOperations.settings.get('hcaptcha_sitekey');
+  const sitekey = dbSitekey || process.env.HCAPTCHA_SITEKEY || '';
+  res.json({ sitekey });
 });

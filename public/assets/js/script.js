@@ -543,24 +543,46 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Initialiser la sitekey hCaptcha depuis le backend
+  // Initialiser la sitekey hCaptcha depuis le backend ou l'attribut data-sitekey
   const hcaptchaWidget = document.getElementById("hcaptcha-widget") || document.querySelector(".h-captcha");
   if (hcaptchaWidget) {
-    fetch("/api/settings/public/hcaptcha-sitekey")
-      .then(res => res.json())
-      .then(data => {
-        if (data.sitekey) {
-          hcaptchaWidget.setAttribute("data-sitekey", data.sitekey);
-          if (typeof hcaptcha !== "undefined" && hcaptcha.render) {
-            try {
-              hcaptcha.render(hcaptchaWidget, { sitekey: data.sitekey });
-            } catch (e) {
-              // Déjà rendu automatiquement par l'API script
+    const renderWidget = (sitekey) => {
+      if (!sitekey || !sitekey.trim()) return;
+      hcaptchaWidget.setAttribute("data-sitekey", sitekey.trim());
+
+      let attempts = 0;
+      const tryRender = () => {
+        if (typeof hcaptcha !== "undefined" && typeof hcaptcha.render === "function") {
+          try {
+            if (!hcaptchaWidget.hasChildNodes()) {
+              hcaptcha.render(hcaptchaWidget, { sitekey: sitekey.trim() });
             }
+          } catch (e) {
+            // Déjà rendu
           }
+        } else if (attempts < 50) {
+          attempts++;
+          setTimeout(tryRender, 100);
         }
-      })
-      .catch(err => console.warn("Impossible de charger la sitekey hCaptcha:", err));
+      };
+      tryRender();
+    };
+
+    const initialKey = hcaptchaWidget.getAttribute("data-sitekey");
+    if (initialKey && initialKey.trim()) {
+      renderWidget(initialKey);
+    } else {
+      fetch("/api/settings/public/hcaptcha-sitekey")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.sitekey) {
+            renderWidget(data.sitekey);
+          }
+        })
+        .catch((err) =>
+          console.warn("Impossible de charger la sitekey hCaptcha:", err)
+        );
+    }
   }
 
   formInputs.forEach((input) => {

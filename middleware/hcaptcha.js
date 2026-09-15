@@ -3,21 +3,20 @@ const { dbOperations } = require('../config/database');
 
 // Middleware de vérification hCaptcha
 const verifyHcaptcha = async (req, res, next) => {
-  const token = req.body['h-captcha-response'];
-  
-  if (!token) {
-    return res.status(400).json({
-      error: 'CAPTCHA manquant. Veuillez réessayer.'
-    });
-  }
-
   try {
-    // Récupérer la clé secrète depuis la base de données
-    const secret = await dbOperations.settings.get('hcaptcha_secret');
+    // Récupérer la clé secrète depuis la base de données ou les variables d'environnement
+    const secret = (await dbOperations.settings.get('hcaptcha_secret')) || process.env.HCAPTCHA_SECRET;
 
     if (!secret) {
       console.warn('⚠️ Clé secrète hCaptcha non configurée, vérification ignorée');
       return next();
+    }
+
+    const token = req.body['h-captcha-response'];
+    if (!token) {
+      return res.status(400).json({
+        error: 'CAPTCHA manquant. Veuillez cocher le captcha et réessayer.'
+      });
     }
 
     const response = await axios.post(

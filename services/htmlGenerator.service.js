@@ -52,7 +52,8 @@ async function updateHtmlFile() {
       socialLinks: data.socialLinks,
       education: data.education,
       experience: data.experience,
-      skills: data.skills
+      skills: data.skills,
+      hcaptchaSitekey: data.siteSettings?.hcaptcha_sitekey || process.env.HCAPTCHA_SITEKEY || ''
     };
 
     // 6. Rendre le HTML avec EJS
