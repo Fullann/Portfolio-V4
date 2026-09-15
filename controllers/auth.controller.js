@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const jwt = require('jsonwebtoken');
@@ -14,24 +15,38 @@ exports.nextcloudLogin = catchAsync(async (req, res, next) => {
 
   // Forcer HTTPS en production (contourne les soucis de reverse proxy cPanel)
   const protocol = (req.hostname === 'localhost' || req.hostname === '127.0.0.1') ? 'http' : 'https';
-  const redirectUri = `${protocol}://${req.get('host')}/api/auth/nextcloud/callback`;
-  
-  // URL d'autorisation OAuth2 Nextcloud
-  const authUrl = `${NEXTCLOUD_URL}/apps/oauth2/authorize?response_type=code&client_id=${NEXTCLOUD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+  const base = process.env.BASE_URL ? process.env.BASE_URL.replace(/\/$/, '') : `${protocol}://${req.get('host')}`;
+  const redirectUri = `${base}/api/auth/nextcloud/callback`;
+
+  // Générer un state CSRF aléatoire (obligatoire dans l'application OAuth2 Nextcloud)
+  const state = crypto.randomBytes(16).toString('hex');
+  res.cookie('oauth_state', state, {
+    httpOnly: true,
+    secure: protocol === 'https',
+    sameSite: 'lax',
+    maxAge: 10 * 60 * 1000 // 10 minutes
+  });
+
+  // URL d'autorisation OAuth2 Nextcloud avec paramètre state
+  const authUrl = `${NEXTCLOUD_URL}/apps/oauth2/authorize?response_type=code&client_id=${NEXTCLOUD_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
   
   res.redirect(authUrl);
 });
 
 exports.nextcloudCallback = catchAsync(async (req, res, next) => {
-  const { code, error } = req.query;
+  const { code, state, error } = req.query;
   const { NEXTCLOUD_URL, NEXTCLOUD_CLIENT_ID, NEXTCLOUD_CLIENT_SECRET, NEXTCLOUD_ADMIN_USER } = process.env;
   
-  if (error || !code) {
+  const savedState = req.cookies ? req.cookies.oauth_state : null;
+  res.clearCookie('oauth_state');
+
+  if (error || !code || (savedState && state !== savedState)) {
     return res.redirect('/admin?error=access_denied');
   }
 
   const protocol = (req.hostname === 'localhost' || req.hostname === '127.0.0.1') ? 'http' : 'https';
-  const redirectUri = `${protocol}://${req.get('host')}/api/auth/nextcloud/callback`;
+  const base = process.env.BASE_URL ? process.env.BASE_URL.replace(/\/$/, '') : `${protocol}://${req.get('host')}`;
+  const redirectUri = `${base}/api/auth/nextcloud/callback`;
 
   try {
     // 1. Échanger le code contre un token d'accès
@@ -71,6 +86,8 @@ exports.nextcloudCallback = catchAsync(async (req, res, next) => {
     // Stocker le JWT dans un cookie HttpOnly (jamais exposé dans l'URL)
     res.cookie('admin_token', token, {
       httpOnly: true,
+      secure: protocol === 'https',
+      sameSite: 'lax',
       path: '/',
       maxAge: 24 * 60 * 60 * 1000 // 24h
     });
