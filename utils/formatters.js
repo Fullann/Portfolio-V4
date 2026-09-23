@@ -38,6 +38,20 @@ async function formatPortfolioProject(dbData) {
     }
   }
 
+  let technologies = [];
+  if (dbData.technologies) {
+    if (typeof dbData.technologies === 'string') {
+      try {
+        const parsed = JSON.parse(dbData.technologies);
+        technologies = Array.isArray(parsed) ? parsed : dbData.technologies.split(',').map(t => t.trim()).filter(Boolean);
+      } catch (e) {
+        technologies = dbData.technologies.split(',').map(t => t.trim()).filter(Boolean);
+      }
+    } else if (Array.isArray(dbData.technologies)) {
+      technologies = dbData.technologies;
+    }
+  }
+
   return {
     id: dbData.id,
     title: dbData.title,
@@ -47,7 +61,9 @@ async function formatPortfolioProject(dbData) {
     repoLink: dbData.repo_link,
     liveLink: dbData.live_link,
     filterCategory: dbData.filter_category || null,
-    isCurrentWork: Number(dbData.is_current_work) || 0
+    isCurrentWork: Number(dbData.is_current_work) || 0,
+    technologies,
+    rawTechnologies: Array.isArray(technologies) ? technologies.join(', ') : (dbData.technologies || '')
   };
 }
 

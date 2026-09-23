@@ -1,14 +1,20 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
-// Configuration du stockage pour les images
+// Configuration du stockage pour les images et documents
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (file.fieldname.startsWith('cv')) {
-      cb(null, 'public/assets/documents/');
-    } else {
-      cb(null, 'public/assets/images/');
+    const destDir = file.fieldname.startsWith('cv')
+      ? path.join(__dirname, '..', 'public', 'assets', 'documents')
+      : path.join(__dirname, '..', 'public', 'assets', 'images');
+
+    // S'assurer que le dossier existe sur le serveur (ex: o2switch)
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
     }
+
+    cb(null, destDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);

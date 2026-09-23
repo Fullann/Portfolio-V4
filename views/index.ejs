@@ -105,6 +105,11 @@
             </h1>
 
             <p class="title" data-title data-i18n="personal_title"><%= formattedPersonalInfo.title %></p>
+
+            <div class="status-indicator status-<%= typeof availabilityStatus !== 'undefined' ? availabilityStatus : 'available' %>" title="<%= typeof availabilityText !== 'undefined' ? availabilityText : 'Disponible pour de nouveaux projets' %>">
+              <span class="status-dot"></span>
+              <span class="status-label"><%= typeof availabilityText !== 'undefined' ? availabilityText : 'Disponible pour de nouveaux projets' %></span>
+            </div>
           </div>
 
           <button class="info_more-btn" data-sidebar-btn>
@@ -415,6 +420,51 @@
               <% } %>
             </ol>
           </section>
+
+          <% if (typeof certifications !== 'undefined' && certifications && certifications.length > 0) { %>
+          <section class="certifications">
+            <div class="title-wrapper">
+              <div class="icon-box">
+                <ion-icon name="ribbon-outline"></ion-icon>
+              </div>
+              <h3 class="h3" data-i18n="resume.certifications">Certifications</h3>
+            </div>
+
+            <ul class="certifications-list">
+              <% for (let cert of certifications) { %>
+              <li class="certifications-item">
+                <div class="cert-card">
+                  <div class="cert-logo-wrapper">
+                    <% if (cert.logo) { %>
+                    <img src="<%= cert.logo %>" alt="<%= cert.title %>" class="cert-logo" loading="lazy">
+                    <% } else { %>
+                    <ion-icon name="ribbon-outline" class="cert-default-icon"></ion-icon>
+                    <% } %>
+                  </div>
+                  <div class="cert-content">
+                    <h4 class="h4 cert-title" title="<%= cert.title %>"><%= cert.title %></h4>
+                    <% if (cert.issuer) { %>
+                    <p class="cert-issuer"><%= cert.issuer %></p>
+                    <% } %>
+                    <div class="cert-footer">
+                      <% if (cert.date) { %>
+                      <span class="cert-date"><%= cert.date %></span>
+                      <% } %>
+                      <% if (cert.credential_url) { %>
+                      <a href="<%= cert.credential_url %>" target="_blank" rel="noopener noreferrer" class="cert-link">
+                        <span data-i18n="resume.verify_cert">Vérifier</span>
+                        <ion-icon name="open-outline"></ion-icon>
+                      </a>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <% } %>
+            </ul>
+          </section>
+          <% } %>
+
           <section class="timeline">
             <div class="title-wrapper">
               <div class="icon-box">
@@ -456,21 +506,103 @@
             </div>
           </section>
           <section class="skill">
-            <h3 class="h3 skills-title" data-i18n="resume.skills">Mes compétences</h3>
+            <div class="title-wrapper">
+              <div class="icon-box">
+                <ion-icon name="hardware-chip-outline"></ion-icon>
+              </div>
+              <h3 class="h3 skills-title" data-i18n="resume.skills">Stack & Compétences Techniques</h3>
+            </div>
 
-            <ul class="skills-list content-card">
-              <% for (let skill of skills) { %>
-              <li class="skills-item">
-                <div class="title-wrapper">
-                  <h5 class="h5"><%= skill.name %></h5>
-                  <data value="<%= skill.percentage %>"><%= skill.percentage %>%</data>
+            <div class="tech-stack-container">
+              <% const categoriesList = Object.keys(categorizedSkills || {}); %>
+              <% if (categoriesList.length > 0) { %>
+                <% for (let cat of categoriesList) { %>
+                <div class="tech-domain-group">
+                  <h4 class="tech-domain-title"><%= cat %></h4>
+                  <div class="tech-badges-grid">
+                    <% for (let skill of categorizedSkills[cat]) { %>
+                    <div class="tech-card" title="<%= skill.name %>">
+                      <div class="tech-icon-box">
+                        <% if (skill.icon) { %>
+                          <% if (skill.icon.startsWith('http') || skill.icon.startsWith('/') || skill.icon.startsWith('./')) { %>
+                            <img src="<%= skill.icon %>" alt="<%= skill.name %>" class="tech-icon-img" loading="lazy">
+                          <% } else { %>
+                            <i class="<%= skill.icon %>"></i>
+                          <% } %>
+                        <% } else { %>
+                          <ion-icon name="code-working-outline"></ion-icon>
+                        <% } %>
+                      </div>
+                      <span class="tech-name"><%= skill.name %></span>
+                      <% if (skill.percentage) { %>
+                      <div class="tech-mini-bar">
+                        <div class="tech-mini-fill" style="width: <%= skill.percentage %>%;"></div>
+                      </div>
+                      <% } %>
+                    </div>
+                    <% } %>
+                  </div>
                 </div>
-                <div class="skill-progress-bg">
-                  <div class="skill-progress-fill" style="width: <%= skill.percentage %>%"></div>
-                </div>
-              </li>
+                <% } %>
+              <% } else { %>
+                <p class="text-gray-400">Aucune compétence enregistrée.</p>
               <% } %>
-            </ul>
+            </div>
+          </section>
+
+          <!-- Activité GitHub & Open-Source -->
+          <section class="github-activity-section">
+            <div class="title-wrapper">
+              <div class="icon-box">
+                <ion-icon name="logo-github"></ion-icon>
+              </div>
+              <h3 class="h3">Activité GitHub & Open-Source</h3>
+            </div>
+
+            <div class="github-card" id="github-widget" data-github-user="<%= typeof githubUsername !== 'undefined' ? githubUsername : 'Fullann' %>">
+              <div class="github-header">
+                <div class="github-profile">
+                  <div class="github-avatar-box">
+                    <img id="github-avatar" src="https://github.com/<%= typeof githubUsername !== 'undefined' ? githubUsername : 'Fullann' %>.png" alt="GitHub" loading="lazy" />
+                  </div>
+                  <div>
+                    <h4 class="github-name" id="github-name">@<%= typeof githubUsername !== 'undefined' ? githubUsername : 'Fullann' %></h4>
+                    <p class="github-bio" id="github-bio">Développeur & Créateur Open-Source</p>
+                  </div>
+                </div>
+                <a href="https://github.com/<%= typeof githubUsername !== 'undefined' ? githubUsername : 'Fullann' %>" target="_blank" rel="noopener noreferrer" class="github-profile-link">
+                  <span>Voir le profil</span>
+                  <ion-icon name="open-outline"></ion-icon>
+                </a>
+              </div>
+
+              <!-- Stats bar -->
+              <div class="github-stats-grid">
+                <div class="github-stat-item">
+                  <span class="github-stat-value" id="github-repos-count">-</span>
+                  <span class="github-stat-label">Dépôts publics</span>
+                </div>
+                <div class="github-stat-item">
+                  <span class="github-stat-value" id="github-followers-count">-</span>
+                  <span class="github-stat-label">Followers</span>
+                </div>
+                <div class="github-stat-item">
+                  <span class="github-stat-value" id="github-stars-count">-</span>
+                  <span class="github-stat-label">Étoiles reçues</span>
+                </div>
+              </div>
+
+              <!-- Pinned / Recent Repositories list -->
+              <div class="github-repos-container">
+                <h5 class="github-repos-title">Dépôts récents & phares</h5>
+                <div class="github-repos-grid" id="github-repos-grid">
+                  <div class="github-repo-loading">
+                    <span class="spinner-sm"></span>
+                    <span>Chargement de l'activité GitHub...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </section>
         </article>
 
@@ -517,10 +649,22 @@
               </ul>
             </div>
 
+            <% if (typeof allTechnologies !== 'undefined' && allTechnologies && allTechnologies.length > 0) { %>
+            <div class="tech-filter-bar">
+              <span class="tech-filter-label"><ion-icon name="code-slash-outline"></ion-icon> Stack :</span>
+              <div class="tech-filter-tags">
+                <button type="button" class="tech-tag-btn active" data-tech-tag="all">Toutes</button>
+                <% for (let tech of allTechnologies) { %>
+                <button type="button" class="tech-tag-btn" data-tech-tag="<%= tech.toLowerCase() %>"><%= tech %></button>
+                <% } %>
+              </div>
+            </div>
+            <% } %>
+
             <ul class="project-list" id="portfolio-project-list">
               <% for (let project of formattedPortfolioProjects) { %>
-              <li class="project-item" data-filter-item data-category="<%= project.filterCategory || project.category.toLowerCase() %>">
-                <a href="#" data-project-item>
+              <li class="project-item" data-filter-item data-category="<%= project.filterCategory || project.category.toLowerCase() %>" data-technologies="<%= (project.technologies || []).map(t => t.toLowerCase()).join(',') %>">
+                <a href="#" data-project-item data-project-id="<%= project.id %>">
                   <figure class="project-img">
                     <div class="project-item-icon-box">
                       <ion-icon name="eye-outline"></ion-icon>
@@ -529,6 +673,14 @@
                   </figure>
                   <h3 class="project-title" data-project-title data-i18n="project_<%= project.id %>_title"><%= project.title %></h3>
                   <p class="project-category" data-project-category><%= project.category %></p>
+                  
+                  <% if (project.technologies && project.technologies.length > 0) { %>
+                  <div class="project-tech-badges">
+                    <% for (let tech of project.technologies) { %>
+                    <span class="tech-badge"><%= tech %></span>
+                    <% } %>
+                  </div>
+                  <% } %>
                   
                   <!-- Données pour la modal -->
                   <div style="display: none;">

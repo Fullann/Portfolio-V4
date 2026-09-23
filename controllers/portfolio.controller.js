@@ -18,7 +18,7 @@ exports.getProjectTranslations = catchAsync(async (req, res, next) => {
 });
 
 exports.createPortfolioProject = catchAsync(async (req, res, next) => {
-  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, translations } = req.body;
+  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, technologies, translations } = req.body;
   const image = req.file ? `/assets/images/${req.file.filename}` : null;
 
   const newProject = await dbOperations.portfolioProjects.create({
@@ -30,7 +30,8 @@ exports.createPortfolioProject = catchAsync(async (req, res, next) => {
     liveLink: liveLink || '',
     filterCategory: filterCategory || category,
     isCurrentWork: toBoolInt(isCurrentWork),
-    isVisible: isVisible !== undefined ? toBoolInt(isVisible) : 1
+    isVisible: isVisible !== undefined ? toBoolInt(isVisible) : 1,
+    technologies: technologies || ''
   });
 
   if (translations && translations !== 'undefined' && translations !== 'null') {
@@ -44,9 +45,12 @@ exports.createPortfolioProject = catchAsync(async (req, res, next) => {
 
 exports.updatePortfolioProject = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, translations } = req.body;
+  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, technologies, translations } = req.body;
 
   const updateData = { title, category, description, repoLink, liveLink, filterCategory };
+  if (technologies !== undefined) {
+    updateData.technologies = technologies;
+  }
   if (isCurrentWork !== undefined) {
     updateData.isCurrentWork = toBoolInt(isCurrentWork);
   }

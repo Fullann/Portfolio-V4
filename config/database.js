@@ -13,11 +13,13 @@ const personalInfoModel = require('../models/personalInfo.model');
 const socialLinkModel = require('../models/socialLink.model');
 const educationModel = require('../models/education.model');
 const experienceModel = require('../models/experience.model');
+const certificationModel = require('../models/certification.model');
 const skillModel = require('../models/skill.model');
 const adminUserModel = require('../models/adminUser.model');
 const settingModel = require('../models/setting.model');
 const i18nModel = require('../models/i18n.model');
 const auditLogModel = require('../models/auditLog.model');
+const analyticsModel = require('../models/analytics.model');
 
 // Définir la méthode globale deleteAll
 const deleteAll = async () => {
@@ -33,7 +35,9 @@ const deleteAll = async () => {
     await connection.execute("DELETE FROM social_links");
     await connection.execute("DELETE FROM education");
     await connection.execute("DELETE FROM experience");
+    await connection.execute("DELETE FROM certifications");
     await connection.execute("DELETE FROM skills");
+    await connection.execute("DELETE FROM analytics_events");
 
     const aboutText = JSON.stringify(["Votre présentation personnelle ici."]);
     await connection.execute(
@@ -71,11 +75,13 @@ const dbOperations = {
   socialLinks: socialLinkModel,
   education: educationModel,
   experience: experienceModel,
+  certifications: certificationModel,
   skills: skillModel,
   admin: adminUserModel,
   settings: settingModel,
   i18n: i18nModel,
   auditLogs: auditLogModel,
+  analytics: analyticsModel,
   deleteAll
 };
 

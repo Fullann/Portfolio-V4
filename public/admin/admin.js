@@ -160,10 +160,10 @@ function attachAllEventListeners() {
     "blog-form": handleBlogSubmit,
     "experience-form": handleExperienceSubmit,
     "education-form": handleEducationSubmit,
+    "certification-form": handleCertificationSubmit,
     "skill-form": handleSkillSubmit,
     "client-form": handleClientSubmit,
     "testimonial-form": handleTestimonialSubmit,
-    "social-form": handleSocialSubmit,
     "social-form": handleSocialSubmit,
     "personal-info-form": handlePersonalInfoSubmit,
     "site-settings-form": handleSiteSettingsSubmit,
@@ -177,6 +177,22 @@ function attachAllEventListeners() {
       form.addEventListener("submit", handler);
     }
   });
+
+  // Prévisualisation instantanée du logo de certification
+  const certLogoInput = document.getElementById("certification-logo");
+  if (certLogoInput) {
+    certLogoInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      const preview = document.getElementById("certification-logo-preview");
+      if (file && preview) {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          preview.innerHTML = `<img src="${evt.target.result}" alt="Aperçu Logo" class="w-full h-full object-contain" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
 
   // Synchroniser slider et input
   const skillPercentage = document.getElementById("skill-percentage");
@@ -266,6 +282,11 @@ async function handlePortfolioSubmit(e) {
   const isVisibleCheckbox = document.getElementById("portfolio-is-visible");
   if (isVisibleCheckbox) {
     formData.append("isVisible", isVisibleCheckbox.checked ? "1" : "0");
+  }
+
+  const techInput = document.getElementById("portfolio-technologies");
+  if (techInput) {
+    formData.append("technologies", techInput.value);
   }
 
   const imageFile = document.getElementById("portfolio-image").files[0];
@@ -491,6 +512,8 @@ async function handleSkillSubmit(e) {
   const skillData = {
     name: document.getElementById("skill-name").value,
     percentage: document.getElementById("skill-percentage").value,
+    category: document.getElementById("skill-category")?.value || "Frontend",
+    icon: document.getElementById("skill-icon")?.value || "",
   };
 
   try {
@@ -515,6 +538,52 @@ async function handleSkillSubmit(e) {
     } else {
       const error = await response.json();
       showNotification("" + error.error, "error");
+    }
+  } catch (error) {
+    if (error.message !== "Unauthorized") {
+      console.error("Erreur:", error);
+    }
+  }
+
+  return false;
+}
+
+async function handleCertificationSubmit(e) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const formData = new FormData();
+  formData.append("title", document.getElementById("certification-title").value);
+  formData.append("issuer", document.getElementById("certification-issuer").value);
+  formData.append("date", document.getElementById("certification-date").value);
+  formData.append("credentialUrl", document.getElementById("certification-credential-url").value);
+
+  const logoFile = document.getElementById("certification-logo").files[0];
+  if (logoFile) {
+    formData.append("logo", logoFile);
+  } else {
+    const existingLogo = document.getElementById("certification-existing-logo").value;
+    if (existingLogo) formData.append("logo", existingLogo);
+  }
+
+  try {
+    const url = currentEditingId
+      ? `/api/certifications/${currentEditingId}`
+      : "/api/certifications";
+    const method = currentEditingId ? "PUT" : "POST";
+
+    const response = await fetchWithAuth(url, { method, body: formData });
+
+    if (response.ok) {
+      showNotification(
+        `Certification ${currentEditingId ? "modifiée" : "ajoutée"} !`,
+        "success",
+      );
+      closeModal("certification-modal");
+      await loadCertifications();
+    } else {
+      const error = await response.json();
+      showNotification("" + (error.error || error.message || "Erreur"), "error");
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {
@@ -720,12 +789,14 @@ async function initializeDashboard() {
       loadBlogs(),
       loadExperience(),
       loadEducation(),
+      loadCertifications(),
       loadSkills(),
       loadClients(),
       loadTestimonials(),
       loadCategories(),
       loadCategoryOptions(),
       loadAccountInfo(),
+      loadSiteSettings(),
     ]);
   } catch (error) {
     console.error("Erreur init:", error);
@@ -751,8 +822,7 @@ async function loadDashboardStats() {
     if (recentActivityContainer) {
       const recentItems = [];
       
-      // Get 3 most recent projects (assuming they are ordered or we take the first 3 if they come sorted by date DESC)
-      // If not sorted, we should ideally sort them by a date field, but we'll take the first 3 for now
+      // Get 3 most recent projects
       portfolio.slice(0, 3).forEach(p => {
         recentItems.push({ type: 'projet', title: p.title, icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10', color: 'text-primary', bg: 'bg-primary/10' });
       });
@@ -779,9 +849,115 @@ async function loadDashboardStats() {
       }
     }
 
+    // Charger les métriques d'analytique intégrées
+    await loadAnalyticsDashboard();
+
   } catch (error) {
     console.error("Erreur stats:", error);
   }
+}
+
+async function loadAnalyticsDashboard() {
+  try {
+    const res = await fetchWithAuth("/api/analytics/dashboard");
+    if (!res.ok) return;
+    const data = await res.json();
+
+    const totalViewsEl = document.getElementById("stat-analytics-total-views");
+    const weekViewsEl = document.getElementById("stat-analytics-week-views");
+    const cvDownloadsEl = document.getElementById("stat-analytics-cv-downloads");
+    const projectClicksEl = document.getElementById("stat-analytics-project-clicks");
+
+    if (totalViewsEl) totalViewsEl.textContent = (data.totalViews || 0).toLocaleString();
+    if (weekViewsEl) weekViewsEl.textContent = (data.weekViews || 0).toLocaleString();
+    if (cvDownloadsEl) cvDownloadsEl.textContent = (data.cvDownloads || 0).toLocaleString();
+    if (projectClicksEl) projectClicksEl.textContent = (data.projectClicks || 0).toLocaleString();
+
+    // 7-day mini bar chart
+    const chartContainer = document.getElementById("analytics-chart-container");
+    if (chartContainer && Array.isArray(data.dailyViews)) {
+      const maxCount = Math.max(...data.dailyViews.map((d) => d.count), 1);
+      chartContainer.innerHTML = data.dailyViews.map((d) => {
+        const heightPct = Math.max(Math.round((d.count / maxCount) * 100), 6);
+        const dayLabel = new Date(d.date).toLocaleDateString("fr-FR", { weekday: "short" });
+        return `
+          <div class="flex-1 flex flex-col items-center gap-1.5 group relative h-full justify-end">
+            <span class="text-[10px] text-gray-400 opacity-0 group-hover:opacity-100 transition duration-200 font-mono">${d.count}</span>
+            <div class="w-full max-w-[32px] bg-gradient-to-t from-emerald-600/40 to-emerald-400 rounded-t transition-all duration-300 group-hover:brightness-125" style="height: ${heightPct}%;"></div>
+            <span class="text-[10px] text-gray-400 font-mono mt-1">${dayLabel}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Top projects
+    const topProjectsContainer = document.getElementById("analytics-top-projects");
+    if (topProjectsContainer) {
+      if (!data.topProjects || data.topProjects.length === 0) {
+        topProjectsContainer.innerHTML = '<p class="text-xs text-gray-500 py-4 text-center">Aucun clic enregistré pour le moment.</p>';
+      } else {
+        const maxProjectClicks = Math.max(...data.topProjects.map((p) => p.count), 1);
+        topProjectsContainer.innerHTML = data.topProjects.slice(0, 5).map((p, idx) => {
+          const pct = Math.round((p.count / maxProjectClicks) * 100);
+          return `
+            <div class="p-2 rounded bg-dark-900 border border-gray-800 text-xs">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-medium text-gray-200 truncate pr-2"><span class="text-emerald-400 font-mono font-bold mr-1.5">#${idx + 1}</span>${p.title}</span>
+                <span class="font-mono text-gray-400 text-[11px] whitespace-nowrap">${p.count} clics</span>
+              </div>
+              <div class="w-full bg-dark-800 rounded-full h-1.5 overflow-hidden">
+                <div class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+    }
+  } catch (err) {
+    console.error("Erreur analytics dashboard:", err);
+  }
+}
+
+async function quickSetAvailability(status) {
+  const statusTexts = {
+    available: "Disponible pour de nouveaux projets",
+    busy: "Actuellement en mission",
+    soon: "Disponible prochainement"
+  };
+  try {
+    const response = await fetchWithAuth("/api/settings", {
+      method: "PUT",
+      body: JSON.stringify({
+        availability_status: status,
+        availability_text: statusTexts[status] || "Disponible"
+      }),
+    });
+    if (response.ok) {
+      updateQuickAvailabilityUI(status);
+      showNotification(`Statut mis à jour : ${statusTexts[status]}`, "success");
+    } else {
+      showNotification("Erreur lors de la mise à jour du statut", "error");
+    }
+  } catch (error) {
+    console.error("Erreur quickSetAvailability:", error);
+    showNotification("Erreur lors de la mise à jour", "error");
+  }
+}
+
+function updateQuickAvailabilityUI(status) {
+  const statuses = ["available", "busy", "soon"];
+  statuses.forEach((s) => {
+    const btn = document.getElementById(`quick-status-${s}`);
+    if (btn) {
+      if (s === status) {
+        btn.classList.add("bg-white/10", "ring-1", "ring-white/20");
+      } else {
+        btn.classList.remove("bg-white/10", "ring-1", "ring-white/20");
+      }
+    }
+  });
+  const select = document.getElementById("setting-availability-status");
+  if (select) select.value = status;
 }
 
 async function loadPersonalInfo() {
@@ -1235,6 +1411,53 @@ async function loadSkills() {
   }
 }
 
+async function loadCertifications() {
+  try {
+    const response = await fetch("/api/certifications");
+    const certs = await response.json();
+    const list = document.getElementById("certifications-list");
+    const countEl = document.getElementById("certifications-count");
+
+    if (countEl) countEl.textContent = certs.length || 0;
+    if (!list) return;
+
+    if (certs.length === 0) {
+      list.innerHTML =
+        '<p class="text-gray-400 text-center py-8 col-span-full">Aucune certification enregistrée</p>';
+      return;
+    }
+
+    list.innerHTML = certs.map((cert) => `
+      <div id="cert-item-${cert.id}" class="p-4 bg-dark-900 border border-gray-800 rounded-lg flex items-start justify-between gap-3 hover:border-gray-700 transition">
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="w-14 h-14 min-w-[56px] min-h-[56px] max-w-[56px] max-h-[56px] rounded-lg bg-dark-800 border border-gray-700 flex items-center justify-center p-1.5 overflow-hidden flex-shrink-0">
+            ${cert.logo ? `<img src="${cert.logo}" alt="${cert.title}" class="w-full h-full object-contain"/>` : `<svg class="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>`}
+          </div>
+          <div class="min-w-0">
+            <h4 class="font-bold text-white text-sm truncate" title="${cert.title}">${cert.title}</h4>
+            ${cert.issuer ? `<p class="text-xs text-gray-400 truncate mt-0.5">${cert.issuer}</p>` : ''}
+            <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+              ${cert.date ? `<span class="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">${cert.date}</span>` : ''}
+              ${cert.credential_url ? `<a href="${cert.credential_url}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary hover:underline flex items-center gap-1">Vérifier <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-1 flex-shrink-0 items-end">
+          <div class="drag-handle cursor-move p-1 text-gray-500 hover:text-white">☰</div>
+          <div class="flex gap-1 mt-1">
+            <button onclick="editCertification(${cert.id})" type="button" class="text-xs px-2.5 py-1 bg-dark-800 hover:bg-primary/20 text-primary rounded transition">Modifier</button>
+            <button onclick="deleteCertification(${cert.id})" type="button" class="text-xs px-2.5 py-1 bg-dark-800 hover:bg-red-900/30 text-red-500 rounded transition">Supprimer</button>
+          </div>
+        </div>
+      </div>
+    `).join("");
+
+    initSortable("certifications-list", "/api/certifications/reorder");
+  } catch (error) {
+    console.error("Erreur certifications:", error);
+  }
+}
+
 async function loadClients() {
   try {
     const response = await fetch("/api/clients");
@@ -1362,6 +1585,19 @@ async function loadSiteSettings() {
         document.getElementById("setting-admin-email").value = settings.admin_email || "";
         document.getElementById("setting-hcaptcha-sitekey").value = settings.hcaptcha_sitekey || "";
         document.getElementById("setting-hcaptcha-secret").value = settings.hcaptcha_secret || "";
+
+        if (document.getElementById("setting-availability-status")) {
+          document.getElementById("setting-availability-status").value = settings.availability_status || "available";
+        }
+        if (document.getElementById("setting-availability-text")) {
+          document.getElementById("setting-availability-text").value = settings.availability_text || "Disponible pour de nouveaux projets";
+        }
+        if (document.getElementById("setting-github-username")) {
+          document.getElementById("setting-github-username").value = settings.github_username || "Fullann";
+        }
+        if (typeof updateQuickAvailabilityUI === "function") {
+          updateQuickAvailabilityUI(settings.availability_status || "available");
+        }
       }
     }
   } catch (error) {
@@ -1381,6 +1617,9 @@ async function handleSiteSettingsSubmit(e) {
     admin_email: document.getElementById("setting-admin-email").value,
     hcaptcha_sitekey: document.getElementById("setting-hcaptcha-sitekey").value,
     hcaptcha_secret: document.getElementById("setting-hcaptcha-secret").value,
+    availability_status: document.getElementById("setting-availability-status")?.value || "available",
+    availability_text: document.getElementById("setting-availability-text")?.value || "Disponible pour de nouveaux projets",
+    github_username: document.getElementById("setting-github-username")?.value || "Fullann",
   };
 
   try {
@@ -1467,6 +1706,10 @@ function showSection(sectionName) {
     document.getElementById("section-description").textContent =
       titles[sectionName].desc;
   }
+
+  if (sectionName === "dashboard") {
+    loadDashboardStats();
+  }
 }
 
 function openModal(modalId) {
@@ -1539,6 +1782,10 @@ function openPortfolioModal() {
   document.getElementById("portfolio-form").reset();
   const currentWorkCheckbox = document.getElementById("portfolio-current-work");
   if (currentWorkCheckbox) currentWorkCheckbox.checked = false;
+  const isVisibleCheckbox = document.getElementById("portfolio-is-visible");
+  if (isVisibleCheckbox) isVisibleCheckbox.checked = true;
+  const techInput = document.getElementById("portfolio-technologies");
+  if (techInput) techInput.value = "";
   openModal("portfolio-modal");
 }
 
@@ -1571,7 +1818,24 @@ function openSkillModal() {
   document.getElementById("skill-form").reset();
   const slider = document.getElementById("skill-slider");
   if (slider) slider.value = 50;
+  const categorySelect = document.getElementById("skill-category");
+  if (categorySelect) categorySelect.value = "Frontend";
+  const iconInput = document.getElementById("skill-icon");
+  if (iconInput) iconInput.value = "";
   openModal("skill-modal");
+}
+
+function openCertificationModal() {
+  currentEditingId = null;
+  const form = document.getElementById("certification-form");
+  if (form) form.reset();
+  const existingLogo = document.getElementById("certification-existing-logo");
+  if (existingLogo) existingLogo.value = "";
+  const preview = document.getElementById("certification-logo-preview");
+  if (preview) preview.innerHTML = '<span class="text-xs text-gray-500 text-center">Aucun</span>';
+  const titleEl = document.getElementById("certification-modal-title");
+  if (titleEl) titleEl.textContent = "Nouvelle Certification";
+  openModal("certification-modal");
 }
 
 function openClientModal() {
@@ -1634,6 +1898,21 @@ async function editPortfolioProject(id) {
       if (isVisibleCheckbox) {
         // By default, visible (1) unless explicitly 0
         isVisibleCheckbox.checked = project.isVisible !== 0;
+      }
+      const techInput = document.getElementById("portfolio-technologies");
+      if (techInput) {
+        if (Array.isArray(project.technologies)) {
+          techInput.value = project.technologies.join(", ");
+        } else if (typeof project.technologies === "string") {
+          try {
+            const parsed = JSON.parse(project.technologies);
+            techInput.value = Array.isArray(parsed) ? parsed.join(", ") : project.technologies;
+          } catch (e) {
+            techInput.value = project.technologies;
+          }
+        } else {
+          techInput.value = "";
+        }
       }
       openModal("portfolio-modal");
     }
@@ -1753,7 +2032,43 @@ async function editSkill(id) {
       document.getElementById("skill-percentage").value = skill.percentage;
       const slider = document.getElementById("skill-slider");
       if (slider) slider.value = skill.percentage;
+      const categorySelect = document.getElementById("skill-category");
+      if (categorySelect) categorySelect.value = skill.category || "Frontend";
+      const iconInput = document.getElementById("skill-icon");
+      if (iconInput) iconInput.value = skill.icon || "";
       openModal("skill-modal");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+  }
+}
+
+async function editCertification(id) {
+  try {
+    const response = await fetch("/api/certifications");
+    const certs = await response.json();
+    const cert = certs.find((c) => c.id === id);
+
+    if (cert) {
+      currentEditingId = id;
+      document.getElementById("certification-title").value = cert.title || "";
+      document.getElementById("certification-issuer").value = cert.issuer || "";
+      document.getElementById("certification-date").value = cert.date || "";
+      document.getElementById("certification-credential-url").value = cert.credential_url || cert.credentialUrl || "";
+      document.getElementById("certification-existing-logo").value = cert.logo || "";
+
+      const preview = document.getElementById("certification-logo-preview");
+      if (preview) {
+        if (cert.logo) {
+          preview.innerHTML = `<img src="${cert.logo}" alt="${cert.title}" class="w-full h-full object-contain" />`;
+        } else {
+          preview.innerHTML = '<span class="text-xs text-gray-500 text-center">Aucun</span>';
+        }
+      }
+
+      const titleEl = document.getElementById("certification-modal-title");
+      if (titleEl) titleEl.textContent = "Modifier la Certification";
+      openModal("certification-modal");
     }
   } catch (error) {
     console.error("Erreur:", error);
@@ -1927,6 +2242,25 @@ async function deleteEducation(id) {
     if (response.ok) {
       showNotification("Formation supprimée !", "success");
       await loadEducation();
+    }
+  } catch (error) {
+    if (error.message !== "Unauthorized") {
+      console.error("Erreur:", error);
+    }
+  }
+}
+
+async function deleteCertification(id) {
+  if (!confirm("Supprimer cette certification ?")) return;
+
+  try {
+    const response = await fetchWithAuth(`/api/certifications/${id}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      showNotification("Certification supprimée !", "success");
+      await loadCertifications();
     }
   } catch (error) {
     if (error.message !== "Unauthorized") {

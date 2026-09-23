@@ -19,10 +19,12 @@ const personalInfoRoutes = require('./personalInfo.routes');
 const socialLinksRoutes = require('./socialLinks.routes');
 const educationRoutes = require('./education.routes');
 const experienceRoutes = require('./experience.routes');
+const certificationsRoutes = require('./certifications.routes');
 const skillsRoutes = require('./skills.routes');
 const adminRoutes = require('./admin.routes');
 const settingsRoutes = require('./settings.routes');
 const i18nRoutes = require('./i18n.routes');
+const analyticsRoutes = require('./analytics.routes');
 
 // Routes modulaires
 router.use('/auth', authRoutes);
@@ -36,10 +38,12 @@ router.use('/personal-info', personalInfoRoutes);
 router.use('/social-links', socialLinksRoutes);
 router.use('/education', educationRoutes);
 router.use('/experience', experienceRoutes);
+router.use('/certifications', certificationsRoutes);
 router.use('/skills', skillsRoutes);
 router.use('/admin', adminRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/i18n', i18nRoutes);
+router.use('/analytics', analyticsRoutes);
 router.get('/optimization-stats', authenticateToken, adminController.getOptimizationStats);
 
 

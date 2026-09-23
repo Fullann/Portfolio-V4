@@ -1,0 +1,125 @@
+name: DevSecOps & AppSec Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # ===================================================
+  # 1. QUALITÉ DE CODE & SYNTAXE
+  # ===================================================
+  code-quality:
+    name: Code Quality & Linting
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run JavaScript Syntax Validation
+        run: |
+          echo "🔍 Checking JavaScript syntax..."
+          find . -name "*.js" -not -path "./node_modules/*" -not -path "./test/*" -exec node -c {} +
+          echo "✅ All JavaScript files are syntactically valid."
+
+      - name: Run ESLint
+        run: npm run lint || true
+
+  # ===================================================
+  # 2. DÉTECTION DE FUITE DE SECRETS (Secret Scanning)
+  # ===================================================
+  secret-scan:
+    name: Secret Leak Detection (Gitleaks & TruffleHog)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout full git history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Run TruffleHog Secret Scanner
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --only-verified
+        continue-on-error: true
+
+  # ===================================================
+  # 3. ANALYSE STATIQUE DE SÉCURITÉ (SAST - Semgrep OWASP Top 10)
+  # ===================================================
+  sast-semgrep:
+    name: SAST Scan (Semgrep OWASP Top 10)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: semgrep/semgrep
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Semgrep Security Rules (OWASP Top 10 & Node.js)
+        run: |
+          semgrep scan \
+            --config "p/owasp-top-ten" \
+            --config "p/javascript" \
+            --config "p/nodejs" \
+            --error \
+            --exclude "node_modules" \
+            --exclude "public/assets/js/script.js" \
+            --exclude "test" \
+            --metrics=off || true
+
+  # ===================================================
+  # 4. ANALYSE DE COMPOSITION LOGICIELLE (SCA - Dependencies)
+  # ===================================================
+  sca-audit:
+    name: Software Composition Analysis (SCA)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm security audit (Production dependencies)
+        run: |
+          echo "🔍 Auditing production dependencies..."
+          npm audit --omit=dev --audit-level=high || true

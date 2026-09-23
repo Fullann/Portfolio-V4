@@ -1036,32 +1036,48 @@ document.addEventListener("DOMContentLoaded", function () {
   const filterBtns = document.querySelectorAll("[data-filter-btn]");
   const selectItems = document.querySelectorAll("[data-select-item]");
   
+  const techBtns = document.querySelectorAll("[data-tech-tag]");
+  
   const applyPortfolioPagination = () => {
-    // 1. Cacher tout par défaut (pour reset)
     const allItems = document.querySelectorAll("#portfolio-project-list [data-filter-item]");
     
-    // 2. Marquer les éléments filtrés
     const activeFilterBtn = document.querySelector("[data-filter-btn].active");
-    const selectedValue = activeFilterBtn ? activeFilterBtn.innerText.toLowerCase().trim() : "all";
+    const selectedCategory = activeFilterBtn ? activeFilterBtn.innerText.toLowerCase().trim() : "all";
+    
+    const activeTechBtn = document.querySelector("[data-tech-tag].active");
+    const selectedTech = activeTechBtn ? activeTechBtn.dataset.techTag.toLowerCase().trim() : "all";
     
     allItems.forEach(item => {
       item.classList.remove("filtered-out");
-      if (selectedValue !== "all" && selectedValue !== "tout" && selectedValue !== "tous") {
-        if (!item.dataset.category || item.dataset.category.toLowerCase() !== selectedValue) {
-          item.classList.add("filtered-out");
-          item.style.display = "none";
-        }
+      const itemCat = (item.dataset.category || "").toLowerCase();
+      const itemTechs = (item.dataset.technologies || "").toLowerCase().split(",").map(t => t.trim());
+      
+      const matchesCat = (
+        selectedCategory === "all" ||
+        selectedCategory === "tout" ||
+        selectedCategory === "tous" ||
+        itemCat === selectedCategory
+      );
+      
+      const matchesTech = (
+        selectedTech === "all" ||
+        selectedTech === "toutes" ||
+        itemTechs.includes(selectedTech)
+      );
+      
+      if (!matchesCat || !matchesTech) {
+        item.classList.add("filtered-out");
+        item.style.display = "none";
       }
     });
     
-    // 3. Appliquer la pagination sur ceux qui ne sont pas filtered-out
     initPagination("portfolio-project-list", "[data-filter-item]:not(.filtered-out)", "portfolio-load-more", "portfolio-pagination");
   };
   
   // Exécuter une première fois
   setTimeout(applyPortfolioPagination, 150);
   
-  // Hooker sur les filtres
+  // Hooker sur les filtres de catégorie
   filterBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       setTimeout(applyPortfolioPagination, 50);
@@ -1073,5 +1089,140 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(applyPortfolioPagination, 50);
     });
   });
+
+  // Hooker sur les tags de technologie
+  techBtns.forEach(btn => {
+    btn.addEventListener("click", function() {
+      techBtns.forEach(b => b.classList.remove("active"));
+      this.classList.add("active");
+      setTimeout(applyPortfolioPagination, 50);
+    });
+  });
 });
+
+// ============================================
+// 📈 ANALYTICS DISCRET & RESPECTUEUX DE LA VIE PRIVÉE (100% SANS COOKIE)
+// ============================================
+function initAnalytics() {
+  function sendTrack(type, target = '') {
+    try {
+      fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, target }),
+        keepalive: true
+      }).catch(() => {});
+    } catch (e) {}
+  }
+
+  // 1. Page view (une seule fois par session)
+  if (!sessionStorage.getItem('pv_logged')) {
+    sendTrack('page_view', window.location.pathname);
+    sessionStorage.setItem('pv_logged', '1');
+  }
+
+  // 2. Clics sur le téléchargement de CV
+  document.querySelectorAll('a[download], .cv-download-btn, .cv-view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sendTrack('cv_download', 'CV_Document');
+    });
+  });
+
+  // 3. Clics sur les projets
+  document.querySelectorAll('[data-project-item]').forEach(item => {
+    item.addEventListener('click', function() {
+      const title = this.querySelector('[data-project-title]')?.textContent?.trim() || 'Projet';
+      sendTrack('project_click', title);
+    });
+  });
+}
+
+// ============================================
+// 🐙 ACTIVITÉ GITHUB & OPEN-SOURCE EN DIRECT
+// ============================================
+async function initGitHubWidget() {
+  const widget = document.getElementById('github-widget');
+  if (!widget) return;
+
+  const username = widget.dataset.githubUser || 'Fullann';
+  const grid = document.getElementById('github-repos-grid');
+  const reposCountEl = document.getElementById('github-repos-count');
+  const followersCountEl = document.getElementById('github-followers-count');
+  const starsCountEl = document.getElementById('github-stars-count');
+  const bioEl = document.getElementById('github-bio');
+  const avatarEl = document.getElementById('github-avatar');
+
+  try {
+    // 1. Récupération profil
+    const userRes = await fetch(`https://api.github.com/users/${username}`);
+    if (userRes.ok) {
+      const userData = await userRes.json();
+      if (reposCountEl) reposCountEl.textContent = userData.public_repos ?? '-';
+      if (followersCountEl) followersCountEl.textContent = userData.followers ?? '-';
+      if (bioEl && userData.bio) bioEl.textContent = userData.bio;
+      if (avatarEl && userData.avatar_url) avatarEl.src = userData.avatar_url;
+    }
+
+    // 2. Récupération dépôts récents
+    const reposRes = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=6`);
+    if (!reposRes.ok) throw new Error('API GitHub indisponible');
+
+    const repos = await reposRes.json();
+    if (!Array.isArray(repos)) throw new Error('Format invalide');
+
+    // Calculer le total des étoiles
+    const totalStars = repos.reduce((acc, r) => acc + (r.stargazers_count || 0), 0);
+    if (starsCountEl) starsCountEl.textContent = totalStars;
+
+    // Filtrer pour afficher jusqu'à 4 dépôts pertinents
+    const displayRepos = repos.filter(r => !r.fork).slice(0, 4);
+    const finalRepos = displayRepos.length > 0 ? displayRepos : repos.slice(0, 4);
+
+    if (grid) {
+      if (finalRepos.length === 0) {
+        grid.innerHTML = '<p class="text-gray-400 text-sm col-span-full">Aucun dépôt public trouvé.</p>';
+      } else {
+        grid.innerHTML = finalRepos.map(repo => `
+          <div class="github-repo-card">
+            <div>
+              <div class="github-repo-header">
+                <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="github-repo-name">
+                  <ion-icon name="folder-outline"></ion-icon>
+                  <span>${repo.name}</span>
+                </a>
+                <ion-icon name="open-outline" style="font-size: 14px; color: var(--light-gray-70);"></ion-icon>
+              </div>
+              <p class="github-repo-desc">${repo.description || 'Aucune description fournie.'}</p>
+            </div>
+            <div class="github-repo-meta">
+              ${repo.language ? `
+                <span class="github-repo-lang">
+                  <span class="github-lang-dot"></span>
+                  <span>${repo.language}</span>
+                </span>
+              ` : ''}
+              <span>⭐ ${repo.stargazers_count || 0}</span>
+              <span>🍴 ${repo.forks_count || 0}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+  } catch (err) {
+    if (grid) {
+      grid.innerHTML = `
+        <div class="col-span-full p-4 rounded-lg bg-dark-800 text-center text-sm text-gray-400">
+          <p>Consultez mes contributions et dépôts directement sur <a href="https://github.com/${username}" target="_blank" rel="noopener noreferrer" class="text-amber-400 underline">github.com/${username}</a></p>
+        </div>
+      `;
+    }
+  }
+}
+
+// Démarrer les widgets interactifs au chargement du DOM
+document.addEventListener('DOMContentLoaded', () => {
+  initAnalytics();
+  initGitHubWidget();
+});
+
 

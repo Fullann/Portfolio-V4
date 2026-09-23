@@ -16,6 +16,7 @@ async function fetchAllData() {
     socialLinks,
     education,
     experience,
+    certifications,
     skills,
     siteSettings
   ] = await Promise.all([
@@ -29,6 +30,7 @@ async function fetchAllData() {
     dbOperations.socialLinks.getAll(),
     dbOperations.education.getAll(),
     dbOperations.experience.getAll(),
+    dbOperations.certifications.getAll(),
     dbOperations.skills.getAll(),
     dbOperations.settings.getAll()
   ]);
@@ -44,6 +46,7 @@ async function fetchAllData() {
     socialLinks,
     education,
     experience,
+    certifications,
     skills,
     siteSettings
   };

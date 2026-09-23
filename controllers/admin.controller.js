@@ -24,6 +24,7 @@ exports.resetAllData = catchAsync(async (req, res, next) => {
   (await dbOperations.skills.deleteAll?.()) || Promise.resolve();
   (await dbOperations.experience.deleteAll?.()) || Promise.resolve();
   (await dbOperations.education.deleteAll?.()) || Promise.resolve();
+  (await dbOperations.certifications.deleteAll?.()) || Promise.resolve();
   (await dbOperations.socialLinks.deleteAll?.()) || Promise.resolve();
 
   // Mettre à jour le HTML si possible

@@ -3,7 +3,7 @@ const { pool, safeUpdate } = require('../config/dbPool');
 const skillModel = {
   getAll: async () => {
     const [rows] = await pool.execute(
-      "SELECT * FROM skills ORDER BY created_at"
+      "SELECT * FROM skills ORDER BY category ASC, id ASC"
     );
     return rows;
   },
@@ -13,16 +13,23 @@ const skillModel = {
   },
   create: async (data) => {
     const [result] = await pool.execute(
-      `INSERT INTO skills (name, percentage)
-       VALUES (?, ?)`,
-      [data.name, data.percentage]
+      `INSERT INTO skills (name, percentage, category, icon)
+       VALUES (?, ?, ?, ?)`,
+      [
+        data.name,
+        data.percentage || 80,
+        data.category || 'Frontend',
+        data.icon || ''
+      ]
     );
     return { id: result.insertId, ...data };
   },
   update: async (id, data) => {
     await safeUpdate("skills", id, data, {
       name: "name",
-      percentage: "percentage"
+      percentage: "percentage",
+      category: "category",
+      icon: "icon"
     });
     return skillModel.getById(id);
   },

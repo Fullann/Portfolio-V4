@@ -49,7 +49,8 @@ async function initializeDatabase() {
       "ADD COLUMN live_link TEXT",
       "ADD COLUMN filter_category VARCHAR(255)",
       "ADD COLUMN is_current_work INT DEFAULT 0",
-      "ADD COLUMN is_visible INT DEFAULT 1"
+      "ADD COLUMN is_visible INT DEFAULT 1",
+      "ADD COLUMN technologies TEXT"
     ];
 
     for (const col of portfolioColumns) {
@@ -153,11 +154,46 @@ async function initializeDatabase() {
     } catch (e) { /* ignore if column exists */ }
 
     await connection.execute(`
+      CREATE TABLE IF NOT EXISTS certifications (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        issuer VARCHAR(255),
+        date VARCHAR(50),
+        logo TEXT,
+        credential_url TEXT,
+        display_order INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await connection.execute(`
       CREATE TABLE IF NOT EXISTS skills (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         percentage INT NOT NULL,
+        category VARCHAR(100) DEFAULT 'Frontend',
+        icon VARCHAR(255) DEFAULT '',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    try {
+      await connection.execute("ALTER TABLE skills ADD COLUMN category VARCHAR(100) DEFAULT 'Frontend'");
+    } catch (e) { /* ignore if column exists */ }
+
+    try {
+      await connection.execute("ALTER TABLE skills ADD COLUMN icon VARCHAR(255) DEFAULT ''");
+    } catch (e) { /* ignore if column exists */ }
+
+    await connection.execute(`
+      CREATE TABLE IF NOT EXISTS analytics_events (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        event_type VARCHAR(50) NOT NULL,
+        event_target VARCHAR(255) DEFAULT '',
+        event_date DATE NOT NULL,
+        count INT DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_daily_event (event_type, event_target, event_date)
       )
     `);
 
@@ -327,6 +363,12 @@ async function initializeDatabase() {
       ['en', 'contact.email_placeholder', 'Email address'],
       ['en', 'contact.message_placeholder', 'Your message here...'],
       ['en', 'portfolio.select_category', 'Select a category'],
+      ['fr', 'resume.certifications', 'Certifications'],
+      ['fr', 'resume.verify_cert', 'Vérifier'],
+      ['en', 'resume.certifications', 'Certifications'],
+      ['en', 'resume.verify_cert', 'Verify'],
+      ['es', 'resume.certifications', 'Certificaciones'],
+      ['es', 'resume.verify_cert', 'Verificar'],
     ];
     for (const [lang, key, val] of i18nMigration) {
       await connection.execute(
@@ -410,7 +452,10 @@ async function insertDefaultData() {
         ["admin_email", ""],
         ["hcaptcha_sitekey", ""],
         ["hcaptcha_secret", ""],
-        ["maintenance_mode", "false"]
+        ["maintenance_mode", "false"],
+        ["availability_status", "available"],
+        ["availability_text", "Disponible pour de nouveaux projets"],
+        ["github_username", "Fullann"]
       ];
       for (const [key, value] of defaultSettings) {
         await pool.execute(`INSERT INTO settings (setting_key, setting_value) VALUES (?, ?)`, [key, value]);
@@ -418,6 +463,9 @@ async function insertDefaultData() {
     } else {
       // Incremental migration for missing settings
       await pool.execute(`INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)`, ["maintenance_mode", "false"]);
+      await pool.execute(`INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)`, ["availability_status", "available"]);
+      await pool.execute(`INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)`, ["availability_text", "Disponible pour de nouveaux projets"]);
+      await pool.execute(`INSERT IGNORE INTO settings (setting_key, setting_value) VALUES (?, ?)`, ["github_username", "Fullann"]);
     }
   } catch (error) {
     console.error("❌ Erreur lors de l'insertion des données par défaut:", error);

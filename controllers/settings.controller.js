@@ -1,6 +1,7 @@
 const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
+const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 // Liste des clés autorisées (whitelist)
 const ALLOWED_KEYS = [
@@ -11,6 +12,10 @@ const ALLOWED_KEYS = [
   'admin_email',
   'hcaptcha_sitekey',
   'hcaptcha_secret',
+  'maintenance_mode',
+  'availability_status',
+  'availability_text',
+  'github_username'
 ];
 
 // Clés sensibles masquées dans les réponses GET
@@ -54,6 +59,12 @@ exports.updateSettings = catchAsync(async (req, res, next) => {
   }
 
   await dbOperations.settings.setBulk(filteredUpdates);
+
+  try {
+    await updateHtmlFile();
+  } catch (err) {
+    console.warn('⚠️ Erreur génération HTML lors de la mise à jour des settings:', err.message);
+  }
 
   console.log(`✅ Settings mis à jour: ${Object.keys(filteredUpdates).join(', ')}`);
 

@@ -32,6 +32,7 @@ const createdIds = {
   blogs: [],
   experience: [],
   education: [],
+  certifications: [],
   skills: [],
   clients: [],
   testimonials: [],
@@ -431,6 +432,53 @@ async function testEducation() {
 }
 
 // ============================================
+// 🏆 CERTIFICATIONS
+// ============================================
+
+async function testCertifications() {
+  logSection('🏆 TEST CERTIFICATIONS');
+  
+  try {
+    // CREATE
+    logInfo('Création de certifications...');
+    const cert1 = await request('POST', '/api/certifications', {
+      title: 'AWS Certified Solutions Architect',
+      issuer: 'Amazon Web Services',
+      date: '2024',
+      credentialUrl: 'https://aws.amazon.com/verification'
+    }, true);
+    
+    if (cert1.status === 200 || cert1.status === 201) {
+      createdIds.certifications.push(cert1.data.id);
+      logSuccess(`Certification créée: ID ${cert1.data.id}`);
+    }
+    
+    // READ
+    const getAll = await request('GET', '/api/certifications');
+    if (getAll.status === 200) {
+      logSuccess(`${getAll.data.length} certifications récupérées`);
+    }
+    
+    // UPDATE
+    if (createdIds.certifications[0]) {
+      const update = await request('PUT', `/api/certifications/${createdIds.certifications[0]}`, {
+        title: 'AWS Certified Solutions Architect - Associate',
+        issuer: 'AWS',
+        date: '2024 - 2027',
+        credentialUrl: 'https://aws.amazon.com/verification-updated'
+      }, true);
+      
+      if (update.status === 200) {
+        logSuccess('Certification mise à jour');
+      }
+    }
+    
+  } catch (error) {
+    logError(`Erreur certifications: ${error.message}`);
+  }
+}
+
+// ============================================
 // ⚡ COMPÉTENCES
 // ============================================
 
@@ -667,6 +715,11 @@ async function cleanup() {
       await request('DELETE', `/api/education/${id}`, null, true);
       logInfo(`Formation ${id} supprimée`);
     }
+
+    for (const id of createdIds.certifications) {
+      await request('DELETE', `/api/certifications/${id}`, null, true);
+      logInfo(`Certification ${id} supprimée`);
+    }
     
     for (const id of createdIds.experience) {
       await request('DELETE', `/api/experience/${id}`, null, true);
@@ -747,6 +800,7 @@ async function runAllTests() {
   await testBlogs();
   await testExperience();
   await testEducation();
+  await testCertifications();
   await testSkills();
   await testClients();
   await testTestimonials();
