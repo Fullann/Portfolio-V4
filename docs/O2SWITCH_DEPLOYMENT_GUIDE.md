@@ -130,9 +130,29 @@ Pour appliquer des modifications sans redémarrer le serveur physique :
 
 ---
 
+## 🛠️ Étape 6 : Tester & Réparer Automatiquement la Base de Données
+
+Un script dédié d'audit et de réparation automatique est fourni avec le projet.
+Il teste la connexion MySQL, inspecte les 18 tables et toutes les colonnes, et **crée automatiquement les tables et champs manquants** (via `ALTER TABLE`) sans toucher à vos données existantes.
+
+Lancez-le en SSH sur votre serveur o2switch :
+```bash
+# Dans le dossier de l'application
+npm run db:check
+```
+
+Ce script vérifie notamment :
+- Les colonnes récentes (`technologies`, `category`, `icon`, `display_order`...).
+- La table d'analytique `analytics_events` et ses index uniques.
+- Les paramètres système (`availability_status`, `availability_text`, `github_username`, etc.).
+- L'intégrité de la table `personal_info` et des langues.
+
+---
+
 ## 🔍 Checklist de Vérification Pré-Mise en Production
 
 - [x] **Pipeline DevSecOps** configuré avec SAST (Semgrep OWASP Top 10), Secret Scanning (Gitleaks, TruffleHog) et SCA (`npm audit`).
+- [x] **Script de vérification DB** : `npm run db:check` pour auditer et auto-réparer le schéma en production.
 - [x] **Dossiers de téléversement** (`public/assets/images`, `public/assets/documents`) configurés avec création récursive automatique dans `config/multer.js`.
 - [x] **Variables d'environnement** : `process.env.JWT_SECRET` défini sans fallback faible en mémoire.
 - [x] **Port Passenger** : `server.js` écoute sur `process.env.PORT || 3000` (100% compatible reverse proxy Passenger).
