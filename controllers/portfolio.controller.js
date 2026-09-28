@@ -4,6 +4,7 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const { formatPortfolioProject } = require('../utils/formatters');
 const { toBoolInt } = require('../utils/helpers');
+const { normalizeGitHubUrl } = require('../utils/githubHelper');
 
 exports.getAllPortfolioProjects = catchAsync(async (req, res, next) => {
   const projects = await dbOperations.portfolioProjects.getAll();
@@ -18,8 +19,11 @@ exports.getProjectTranslations = catchAsync(async (req, res, next) => {
 });
 
 exports.createPortfolioProject = catchAsync(async (req, res, next) => {
-  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, technologies, translations } = req.body;
-  const image = req.file ? `/assets/images/${req.file.filename}` : null;
+  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, technologies, translations, imageUrl, image: bodyImage } = req.body;
+  let image = req.file ? `/assets/images/${req.file.filename}` : (imageUrl || bodyImage || null);
+  if (image) {
+    image = normalizeGitHubUrl(image);
+  }
 
   const newProject = await dbOperations.portfolioProjects.create({
     title,
@@ -45,7 +49,7 @@ exports.createPortfolioProject = catchAsync(async (req, res, next) => {
 
 exports.updatePortfolioProject = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, technologies, translations } = req.body;
+  const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, technologies, translations, imageUrl, image: bodyImage } = req.body;
 
   const updateData = { title, category, description, repoLink, liveLink, filterCategory };
   if (technologies !== undefined) {
@@ -59,6 +63,9 @@ exports.updatePortfolioProject = catchAsync(async (req, res, next) => {
   }
   if (req.file) {
     updateData.image = `/assets/images/${req.file.filename}`;
+  } else if (imageUrl !== undefined || bodyImage !== undefined) {
+    const rawImage = imageUrl !== undefined ? imageUrl : bodyImage;
+    updateData.image = rawImage ? normalizeGitHubUrl(rawImage) : null;
   }
 
   const updatedProject = await dbOperations.portfolioProjects.update(id, updateData);

@@ -1,4 +1,5 @@
 const { dbOperations } = require('../config/database');
+const { normalizeGitHubUrl } = require('./githubHelper');
 
 function formatPersonalInfo(dbData) {
   if (!dbData) return null;
@@ -56,7 +57,7 @@ async function formatPortfolioProject(dbData) {
     id: dbData.id,
     title: dbData.title,
     category: category ? category.display_name : dbData.category || 'Non définie',
-    image: dbData.image,
+    image: normalizeGitHubUrl(dbData.image),
     description: dbData.description,
     repoLink: dbData.repo_link,
     liveLink: dbData.live_link,

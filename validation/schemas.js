@@ -28,6 +28,14 @@ const emailSchema = z.object({
   'h-captcha-response': z.string().min(1, 'CAPTCHA manquant')
 });
 
+const safeImageUrlSchema = z.string()
+  .max(1000)
+  .refine(val => {
+    if (!val || val.trim() === '') return true;
+    return /^(https?:\/\/|\/assets\/|\.\/assets\/)/i.test(val.trim());
+  }, 'L\'URL de l\'image doit être un lien web valide (http://, https://) ou un chemin local (/assets/)')
+  .optional();
+
 // Schema pour les projets
 const projectSchema = z.object({
   title: z.string()
@@ -43,6 +51,8 @@ const projectSchema = z.object({
     .max(5000, 'La description est trop longue')
     .trim()
     .optional(),
+  imageUrl: safeImageUrlSchema,
+  image: safeImageUrlSchema,
 });
 
 // Schema pour les témoignages
@@ -81,7 +91,10 @@ const blogSchema = z.object({
   author: z.string()
     .max(255, 'Le nom de l\'auteur est trop long')
     .trim()
-    .optional()
+    .optional(),
+  imageUrl: safeImageUrlSchema,
+  image: safeImageUrlSchema,
+  translations: z.any().optional()
 });
 
 // Middleware de validation

@@ -4,6 +4,7 @@ const { fetchAllData } = require('./generator/fetchData');
 const { renderHtmlTemplate } = require('./generator/renderTemplate');
 const { formatPersonalInfo, formatPortfolioProject } = require('../utils/formatters');
 const { debounceAsync } = require('../utils/helpers');
+const { normalizeGitHubUrl } = require('../utils/githubHelper');
 
 /**
  * Orchestrateur principal : récupère les données, les formate, génère le HTML via EJS et l'écrit sur le disque.
@@ -67,7 +68,7 @@ async function updateHtmlFile() {
       allTechnologies,
       clients: data.clients,
       categories: data.categories,
-      blogs: data.blogs,
+      blogs: (data.blogs || []).map(b => ({ ...b, image: normalizeGitHubUrl(b.image) })),
       version: Date.now(),
       socialLinks: data.socialLinks,
       education: data.education,

@@ -41,7 +41,8 @@ app.use(helmet({
         "https://fonts.googleapis.com", 
         "https://hcaptcha.com", 
         "https://*.hcaptcha.com", 
-        "https://newassets.hcaptcha.com"
+        "https://newassets.hcaptcha.com",
+        "https://cdn.jsdelivr.net"
       ],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],

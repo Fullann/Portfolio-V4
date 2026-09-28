@@ -669,7 +669,7 @@
                     <div class="project-item-icon-box">
                       <ion-icon name="eye-outline"></ion-icon>
                     </div>
-                    <img src="<%= project.image %>" alt="<%= project.title %>" loading="lazy" data-project-image>
+                    <img src="<%= project.image || '/assets/images/project-1.jpg' %>" alt="<%= project.title %>" loading="lazy" data-project-image>
                   </figure>
                   <h3 class="project-title" data-project-title data-i18n="project_<%= project.id %>_title"><%= project.title %></h3>
                   <p class="project-category" data-project-category><%= project.category %></p>
@@ -727,7 +727,7 @@
               <li class="blog-post-item" data-blog-item>
                 <a href="/blog/<%= encodeURI(blog.slug) %>">
                   <figure class="blog-banner-box">
-                    <img src="<%= blog.image %>" alt="<%= blog.title %>" loading="lazy">
+                    <img src="<%= blog.image || '/assets/images/blog-1.jpg' %>" alt="<%= blog.title %>" loading="lazy">
                   </figure>
                   <div class="blog-content">
                     <div class="blog-meta">

@@ -2,6 +2,7 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
+const { normalizeGitHubUrl } = require('../utils/githubHelper');
 
 exports.getAllProjects = catchAsync(async (req, res, next) => {
   const projects = await dbOperations.projects.getAll();
@@ -9,8 +10,11 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 });
 
 exports.createProject = catchAsync(async (req, res, next) => {
-  const { title, category, description } = req.body;
-  const image = req.file ? `/assets/images/${req.file.filename}` : null;
+  const { title, category, description, imageUrl, image: bodyImage } = req.body;
+  let image = req.file ? `/assets/images/${req.file.filename}` : (imageUrl || bodyImage || null);
+  if (image) {
+    image = normalizeGitHubUrl(image);
+  }
 
   if (req.file && req.file.optimized) {
     console.log(`📊 Optimisation: ${req.file.optimizationStats.savings}% d'économie`);
@@ -29,11 +33,14 @@ exports.createProject = catchAsync(async (req, res, next) => {
 
 exports.updateProject = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { title, category, description } = req.body;
+  const { title, category, description, imageUrl, image: bodyImage } = req.body;
 
   const updateData = { title, category, description };
   if (req.file) {
     updateData.image = `/assets/images/${req.file.filename}`;
+  } else if (imageUrl !== undefined || bodyImage !== undefined) {
+    const rawImage = imageUrl !== undefined ? imageUrl : bodyImage;
+    updateData.image = rawImage ? normalizeGitHubUrl(rawImage) : null;
   }
 
   const updatedProject = await dbOperations.projects.update(id, updateData);

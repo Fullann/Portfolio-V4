@@ -207,6 +207,180 @@ function attachAllEventListeners() {
       skillPercentage.value = e.target.value;
     });
   }
+
+  // Initialiser les écouteurs d'images et liens GitHub
+  setupImageInputsListeners();
+}
+
+// ============================================
+// 🖼️ GESTION DES IMAGES GITHUB ET APERÇUS
+// ============================================
+
+function normalizeGitHubUrlClient(url) {
+  if (!url || typeof url !== 'string') return url;
+  const trimmed = url.trim();
+  const githubBlobRegex = /^https?:\/\/github\.com\/([^/\s]+)\/([^/\s]+)\/(?:blob|raw)\/(.+)$/i;
+  const match = trimmed.match(githubBlobRegex);
+  if (match) {
+    const owner = match[1];
+    const repo = match[2];
+    const cleanPath = match[3].split('?')[0].split('#')[0];
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${cleanPath}`;
+  }
+  return trimmed;
+}
+
+function updateAdminImagePreview(previewId, src, label = "Aperçu de l'image") {
+  const container = document.getElementById(previewId);
+  if (!container) return;
+
+  if (!src || !src.trim()) {
+    container.innerHTML = "";
+    container.classList.add("hidden");
+    return;
+  }
+
+  const cleanSrc = normalizeGitHubUrlClient(src);
+  const isGithub = /raw\.githubusercontent\.com|github\.com/i.test(src);
+
+  container.innerHTML = `
+    <div class="p-3 bg-dark-900 border border-gray-700/80 rounded-xl flex items-center justify-between gap-3 shadow-inner">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="${cleanSrc}" alt="Aperçu" class="w-14 h-14 object-cover rounded-lg border border-gray-600 shadow flex-shrink-0" onerror="this.onerror=null; this.src='/assets/images/project-1.jpg'; this.title='Impossible de charger l\\'image';" />
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-semibold text-gray-200">${label}</span>
+            ${isGithub ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1.5 py-0.5 rounded font-medium">Lien GitHub direct</span>' : ''}
+          </div>
+          <p class="text-[11px] text-gray-400 truncate mt-0.5 max-w-[280px]" title="${cleanSrc}">${cleanSrc}</p>
+        </div>
+      </div>
+      <button type="button" onclick="clearAdminImagePreview('${previewId}')" class="px-2.5 py-1 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition flex-shrink-0 border border-red-500/20">
+        Retirer
+      </button>
+    </div>
+  `;
+  container.classList.remove("hidden");
+}
+
+function clearAdminImagePreview(previewId) {
+  if (previewId === "portfolio-image-preview") {
+    const urlInput = document.getElementById("portfolio-image-url");
+    if (urlInput) urlInput.value = "";
+    const fileInput = document.getElementById("portfolio-image");
+    if (fileInput) fileInput.value = "";
+  } else if (previewId === "project-image-preview") {
+    const urlInput = document.getElementById("project-image-url");
+    if (urlInput) urlInput.value = "";
+    const fileInput = document.getElementById("project-image");
+    if (fileInput) fileInput.value = "";
+  } else if (previewId === "blog-image-preview") {
+    const urlInput = document.getElementById("blog-image-url");
+    if (urlInput) urlInput.value = "";
+    const fileInput = document.getElementById("blog-image");
+    if (fileInput) fileInput.value = "";
+  }
+  updateAdminImagePreview(previewId, "");
+}
+
+function insertGitHubImageIntoBlog() {
+  const textarea = document.getElementById("blog-content");
+  if (!textarea) return;
+
+  const url = prompt("Collez l'URL GitHub de l'image (ex: https://github.com/user/repo/blob/main/photo.png) :");
+  if (!url || !url.trim()) return;
+
+  const rawUrl = normalizeGitHubUrlClient(url.trim());
+  const alt = prompt("Légende / description de l'image (optionnel) :", "Image");
+  const markdownTag = `\n![${(alt || 'Image').trim()}](${rawUrl})\n`;
+
+  const start = textarea.selectionStart || 0;
+  const end = textarea.selectionEnd || 0;
+  const val = textarea.value;
+
+  textarea.value = val.substring(0, start) + markdownTag + val.substring(end);
+  textarea.focus();
+  textarea.selectionStart = start + markdownTag.length;
+  textarea.selectionEnd = start + markdownTag.length;
+
+  showNotification("Image GitHub convertie et insérée dans l'article !", "success");
+}
+
+function setupImageInputsListeners() {
+  // 1. Portfolio
+  const pUrl = document.getElementById("portfolio-image-url");
+  const pFile = document.getElementById("portfolio-image");
+  if (pUrl) {
+    pUrl.addEventListener("input", () => {
+      const val = pUrl.value.trim();
+      if (val) {
+        updateAdminImagePreview("portfolio-image-preview", val, "Lien GitHub / Web");
+      } else if (!pFile || !pFile.files[0]) {
+        updateAdminImagePreview("portfolio-image-preview", "");
+      }
+    });
+  }
+  if (pFile) {
+    pFile.addEventListener("change", () => {
+      if (pFile.files && pFile.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updateAdminImagePreview("portfolio-image-preview", e.target.result, "Fichier local sélectionné");
+        };
+        reader.readAsDataURL(pFile.files[0]);
+      }
+    });
+  }
+
+  // 2. Project
+  const projUrl = document.getElementById("project-image-url");
+  const projFile = document.getElementById("project-image");
+  if (projUrl) {
+    projUrl.addEventListener("input", () => {
+      const val = projUrl.value.trim();
+      if (val) {
+        updateAdminImagePreview("project-image-preview", val, "Lien GitHub / Web");
+      } else if (!projFile || !projFile.files[0]) {
+        updateAdminImagePreview("project-image-preview", "");
+      }
+    });
+  }
+  if (projFile) {
+    projFile.addEventListener("change", () => {
+      if (projFile.files && projFile.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updateAdminImagePreview("project-image-preview", e.target.result, "Fichier local sélectionné");
+        };
+        reader.readAsDataURL(projFile.files[0]);
+      }
+    });
+  }
+
+  // 3. Blog
+  const bUrl = document.getElementById("blog-image-url");
+  const bFile = document.getElementById("blog-image");
+  if (bUrl) {
+    bUrl.addEventListener("input", () => {
+      const val = bUrl.value.trim();
+      if (val) {
+        updateAdminImagePreview("blog-image-preview", val, "Lien GitHub / Web");
+      } else if (!bFile || !bFile.files[0]) {
+        updateAdminImagePreview("blog-image-preview", "");
+      }
+    });
+  }
+  if (bFile) {
+    bFile.addEventListener("change", () => {
+      if (bFile.files && bFile.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updateAdminImagePreview("blog-image-preview", e.target.result, "Fichier local sélectionné");
+        };
+        reader.readAsDataURL(bFile.files[0]);
+      }
+    });
+  }
 }
 
 // ============================================
@@ -289,6 +463,11 @@ async function handlePortfolioSubmit(e) {
     formData.append("technologies", techInput.value);
   }
 
+  const portfolioUrlInput = document.getElementById("portfolio-image-url");
+  if (portfolioUrlInput && portfolioUrlInput.value.trim()) {
+    formData.append("imageUrl", portfolioUrlInput.value.trim());
+  }
+
   const imageFile = document.getElementById("portfolio-image").files[0];
   if (imageFile) formData.append("image", imageFile);
   
@@ -344,6 +523,11 @@ async function handleProjectSubmit(e) {
     document.getElementById("project-description").value,
   );
 
+  const projectUrlInput = document.getElementById("project-image-url");
+  if (projectUrlInput && projectUrlInput.value.trim()) {
+    formData.append("imageUrl", projectUrlInput.value.trim());
+  }
+
   const imageFile = document.getElementById("project-image").files[0];
   if (imageFile) formData.append("image", imageFile);
 
@@ -385,6 +569,11 @@ async function handleBlogSubmit(e) {
   formData.append("excerpt", document.getElementById("blog-excerpt").value);
   formData.append("content", document.getElementById("blog-content").value);
   formData.append("author", document.getElementById("blog-author").value);
+
+  const blogUrlInput = document.getElementById("blog-image-url");
+  if (blogUrlInput && blogUrlInput.value.trim()) {
+    formData.append("imageUrl", blogUrlInput.value.trim());
+  }
 
   const imageFile = document.getElementById("blog-image").files[0];
   if (imageFile) formData.append("image", imageFile);
@@ -1786,18 +1975,27 @@ function openPortfolioModal() {
   if (isVisibleCheckbox) isVisibleCheckbox.checked = true;
   const techInput = document.getElementById("portfolio-technologies");
   if (techInput) techInput.value = "";
+  const urlInput = document.getElementById("portfolio-image-url");
+  if (urlInput) urlInput.value = "";
+  updateAdminImagePreview("portfolio-image-preview", "");
   openModal("portfolio-modal");
 }
 
 function openProjectModal() {
   currentEditingId = null;
   document.getElementById("project-form").reset();
+  const urlInput = document.getElementById("project-image-url");
+  if (urlInput) urlInput.value = "";
+  updateAdminImagePreview("project-image-preview", "");
   openModal("project-modal");
 }
 
 function openBlogModal() {
   currentEditingId = null;
   document.getElementById("blog-form").reset();
+  const urlInput = document.getElementById("blog-image-url");
+  if (urlInput) urlInput.value = "";
+  updateAdminImagePreview("blog-image-preview", "");
   openModal("blog-modal");
 }
 
@@ -1914,6 +2112,16 @@ async function editPortfolioProject(id) {
           techInput.value = "";
         }
       }
+
+      // Populate Image URL et Aperçu
+      const urlInput = document.getElementById("portfolio-image-url");
+      if (urlInput) urlInput.value = (project.image && project.image.startsWith("http")) ? project.image : "";
+      if (project.image) {
+        updateAdminImagePreview("portfolio-image-preview", project.image, "Image actuelle");
+      } else {
+        updateAdminImagePreview("portfolio-image-preview", "");
+      }
+
       openModal("portfolio-modal");
     }
   } catch (error) {
@@ -1957,6 +2165,15 @@ async function editProject(id) {
       document.getElementById("project-category").value = project.category;
       document.getElementById("project-description").value =
         project.description;
+
+      const urlInput = document.getElementById("project-image-url");
+      if (urlInput) urlInput.value = (project.image && project.image.startsWith("http")) ? project.image : "";
+      if (project.image) {
+        updateAdminImagePreview("project-image-preview", project.image, "Image actuelle");
+      } else {
+        updateAdminImagePreview("project-image-preview", "");
+      }
+
       openModal("project-modal");
     }
   } catch (error) {
@@ -1977,6 +2194,15 @@ async function editBlog(id) {
       document.getElementById("blog-excerpt").value = blog.excerpt;
       document.getElementById("blog-content").value = blog.content;
       document.getElementById("blog-author").value = blog.author || "";
+
+      const urlInput = document.getElementById("blog-image-url");
+      if (urlInput) urlInput.value = (blog.image && blog.image.startsWith("http")) ? blog.image : "";
+      if (blog.image) {
+        updateAdminImagePreview("blog-image-preview", blog.image, "Image actuelle");
+      } else {
+        updateAdminImagePreview("blog-image-preview", "");
+      }
+
       openModal("blog-modal");
     }
   } catch (error) {
