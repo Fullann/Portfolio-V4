@@ -48,6 +48,9 @@ app.use(helmet({
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: [
         "'self'", 
+        "https://api.github.com",
+        "https://raw.githubusercontent.com",
+        "https://maps.googleapis.com",
         "https://api.hcaptcha.com", 
         "https://hcaptcha.com", 
         "https://*.hcaptcha.com", 

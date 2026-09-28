@@ -25,7 +25,7 @@ const emailSchema = z.object({
     .min(5, 'Le message doit contenir au moins 5 caractères')
     .max(5000, 'Le message est trop long')
     .trim(),
-  'h-captcha-response': z.string().min(1, 'CAPTCHA manquant')
+  'h-captcha-response': z.string().optional()
 });
 
 const safeImageUrlSchema = z.string()
@@ -107,10 +107,11 @@ const validate = (schema) => {
       req.body = validatedData;
       next();
     } catch (error) {
-      // Vérifier si c'est bien une erreur Zod
-      if (error.name === 'ZodError' || error.errors) {
-        const errors = error.errors.map(err => ({
-          field: err.path.join('.'),
+      // Vérifier si c'est bien une erreur Zod (compatibilité Zod 3 & 4)
+      if (error.name === 'ZodError' || error.issues || error.errors) {
+        const issues = error.issues || error.errors || [];
+        const errors = issues.map(err => ({
+          field: Array.isArray(err.path) ? err.path.join('.') : String(err.path || ''),
           message: err.message
         }));
         return res.status(400).json({

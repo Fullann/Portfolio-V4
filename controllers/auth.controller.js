@@ -100,14 +100,31 @@ exports.nextcloudCallback = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.sendEmail = catchAsync(async (req, res, next) => {
+exports.sendEmail = catchAsync(async (req, res, _next) => {
   const { fullname, email, message } = req.body;
+
+  const settingsEmail = await dbOperations.settings.get('admin_email');
+  const personalInfo = await dbOperations.personalInfo.get();
+  const adminEmail = (settingsEmail && settingsEmail.trim()) || process.env.EMAIL_USER || (personalInfo && personalInfo.email) || 'contact@fullann.ch';
+
+  const hasSmtpConfig = Boolean(process.env.EMAIL_USER && process.env.EMAIL_PASS);
+
+  if (!hasSmtpConfig) {
+    console.log('📧 [MODE SANS SMTP / DEV] Nouveau message reçu depuis le formulaire :');
+    console.log(`   De          : ${fullname} <${email}>`);
+    console.log(`   Destinataire : ${adminEmail}`);
+    console.log(`   Message     : ${message}`);
+
+    return res.json({
+      success: true,
+      message: 'Message reçu avec succès ! (Note : configurez EMAIL_USER et EMAIL_PASS dans .env pour l\'envoi SMTP réel en production)'
+    });
+  }
+
   const transporter = require('../config/nodemailer');
-
-  const adminEmail = (await dbOperations.settings.get('admin_email')) || process.env.EMAIL_USER;
-
   const mailOptions = {
-    from: email,
+    from: `"${escapeHtml(fullname)}" <${process.env.EMAIL_USER}>`,
+    replyTo: email,
     to: adminEmail,
     subject: `Nouveau message de ${escapeHtml(fullname)}`,
     html: `
@@ -119,6 +136,14 @@ exports.sendEmail = catchAsync(async (req, res, next) => {
     `
   };
 
-  await transporter.sendMail(mailOptions);
-  res.json({ success: true, message: 'Email envoyé avec succès' });
+  try {
+    await transporter.sendMail(mailOptions);
+    return res.json({ success: true, message: 'Email envoyé avec succès' });
+  } catch (err) {
+    console.error('Erreur lors de l\'envoi de l\'email SMTP:', err);
+    return res.status(500).json({
+      error: 'Échec de l\'envoi de l\'email via le serveur SMTP',
+      details: err.message
+    });
+  }
 });

@@ -661,8 +661,12 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (response.status === 403) {
           showToast("Activité suspecte détectée. Veuillez réessayer.", "warning");
         } else {
-          const serverMessage =
-            result?.details || result?.error || "Erreur serveur";
+          let serverMessage = result?.message || result?.error || "Erreur serveur";
+          if (Array.isArray(result?.details)) {
+            serverMessage = result.details.map(d => d.message || d.field).join(", ");
+          } else if (typeof result?.details === "string") {
+            serverMessage = result.details;
+          }
           showToast(
             "L'envoi du message a échoué : " + serverMessage,
             "error"
