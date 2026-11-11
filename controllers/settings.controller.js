@@ -21,7 +21,7 @@ const ALLOWED_KEYS = [
 // Clés sensibles masquées dans les réponses GET
 const SENSITIVE_KEYS = ['hcaptcha_secret'];
 
-exports.getSettings = catchAsync(async (req, res, next) => {
+exports.getSettings = catchAsync(async (req, res, _next) => {
   const settings = await dbOperations.settings.getAll();
 
   // Masquer les clés sensibles
@@ -76,7 +76,7 @@ exports.updateSettings = catchAsync(async (req, res, next) => {
 });
 
 // Route publique : retourner uniquement la sitekey hCaptcha (pas le secret)
-exports.getHcaptchaSitekey = catchAsync(async (req, res, next) => {
+exports.getHcaptchaSitekey = catchAsync(async (req, res, _next) => {
   const dbSitekey = await dbOperations.settings.get('hcaptcha_sitekey');
   const sitekey = dbSitekey || process.env.HCAPTCHA_SITEKEY || '';
   res.json({ sitekey });

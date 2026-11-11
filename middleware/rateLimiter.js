@@ -33,7 +33,7 @@ const emailLimiter = rateLimit({
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 500,
-  skip: (req) => process.env.NODE_ENV === 'test',
+  skip: (_req) => process.env.NODE_ENV === 'test',
   message: {
     error: 'Trop de requêtes. Veuillez ralentir.'
   },

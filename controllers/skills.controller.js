@@ -4,7 +4,7 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 
-exports.getAllSkills = catchAsync(async (req, res, next) => {
+exports.getAllSkills = catchAsync(async (req, res, _next) => {
   const skills = await dbOperations.skills.getAll();
   res.json(skills);
 });
@@ -48,7 +48,7 @@ exports.updateSkill = catchAsync(async (req, res, next) => {
   res.json(updatedSkill);
 });
 
-exports.deleteSkill = catchAsync(async (req, res, next) => {
+exports.deleteSkill = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.skills.delete(id);

@@ -2,17 +2,17 @@ const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 
-exports.getLanguages = catchAsync(async (req, res, next) => {
+exports.getLanguages = catchAsync(async (req, res, _next) => {
   const languages = await dbOperations.i18n.getActiveLanguages();
   res.json(languages);
 });
 
-exports.getAllLanguages = catchAsync(async (req, res, next) => {
+exports.getAllLanguages = catchAsync(async (req, res, _next) => {
   const languages = await dbOperations.i18n.getAllLanguages();
   res.json(languages);
 });
 
-exports.addLanguage = catchAsync(async (req, res, next) => {
+exports.addLanguage = catchAsync(async (req, res, _next) => {
   const { code, name, flag } = req.body;
   if (!code || !name || !flag) {
     return res.status(400).json({ error: "Code, name and flag are required" });
@@ -21,7 +21,7 @@ exports.addLanguage = catchAsync(async (req, res, next) => {
   res.status(201).json({ success: true });
 });
 
-exports.getTranslations = catchAsync(async (req, res, next) => {
+exports.getTranslations = catchAsync(async (req, res, _next) => {
   const { lang } = req.params;
   const translations = await dbOperations.i18n.getTranslations(lang);
   res.json(translations);

@@ -1,5 +1,6 @@
 const transporter = require('../config/nodemailer');
 const { dbOperations } = require('../config/database');
+const { escapeHtml } = require('../utils/sanitize');
 
 async function sendContactEmail(data) {
   const { fullname, email, message } = data;
@@ -8,15 +9,16 @@ async function sendContactEmail(data) {
   const adminEmail = await dbOperations.settings.get('admin_email') || process.env.EMAIL_USER;
 
   const mailOptions = {
-    from: email,
+    from: `"${escapeHtml(fullname)}" <${process.env.EMAIL_USER || email}>`,
+    replyTo: email,
     to: adminEmail,
-    subject: `Nouveau message de ${fullname}`,
+    subject: `Nouveau message de ${escapeHtml(fullname)}`,
     html: `
       <h2>Nouveau message depuis le portfolio</h2>
-      <p><strong>Nom:</strong> ${fullname}</p>
-      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Nom:</strong> ${escapeHtml(fullname)}</p>
+      <p><strong>Email:</strong> ${escapeHtml(email)}</p>
       <p><strong>Message:</strong></p>
-      <p>${message}</p>
+      <p>${escapeHtml(message)}</p>
     `
   };
 

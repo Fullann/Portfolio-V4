@@ -5,9 +5,12 @@ const analyticsModel = {
    * Enregistre un événement anonyme agrégé par jour (100% privacy-friendly, pas d'IP ni cookie).
    */
   trackEvent: async (eventType, eventTarget = '') => {
-    const validTypes = ['page_view', 'cv_download', 'project_click'];
-    const type = validTypes.includes(eventType) ? eventType : 'page_view';
-    const target = String(eventTarget).slice(0, 255);
+    const validTypes = ['page_view', 'cv_download', 'project_click', 'blog_view'];
+    if (!validTypes.includes(eventType)) {
+      return null;
+    }
+    const type = eventType;
+    const target = String(eventTarget || '').trim().slice(0, 255);
 
     const [result] = await pool.execute(
       `INSERT INTO analytics_events (event_type, event_target, event_date, count)
@@ -62,12 +65,28 @@ const analyticsModel = {
        ORDER BY event_date ASC`
     );
 
+    // 7. Vues d'articles de blog
+    const [blogViewsRows] = await pool.execute(
+      "SELECT COALESCE(SUM(count), 0) as total FROM analytics_events WHERE event_type = 'blog_view'"
+    );
+
+    const [topBlogs] = await pool.execute(
+      `SELECT event_target as blog, SUM(count) as views
+       FROM analytics_events
+       WHERE event_type = 'blog_view' AND event_target != ''
+       GROUP BY event_target
+       ORDER BY views DESC
+       LIMIT 5`
+    );
+
     return {
       totalViews: Number(totalViewsRows[0]?.total || 0),
       weekViews: Number(weekViewsRows[0]?.total || 0),
       cvDownloads: Number(cvDownloadsRows[0]?.total || 0),
       projectClicks: Number(projectClicksRows[0]?.total || 0),
+      blogViews: Number(blogViewsRows[0]?.total || 0),
       topProjects: topProjects.map(p => ({ project: p.project, clicks: Number(p.clicks) })),
+      topBlogs: topBlogs.map(b => ({ blog: b.blog, views: Number(b.views) })),
       viewsHistory: viewsHistory.map(v => ({ date: v.date, views: Number(v.views) }))
     };
   },

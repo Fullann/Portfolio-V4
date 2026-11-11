@@ -33,14 +33,14 @@ exports.nextcloudLogin = catchAsync(async (req, res, next) => {
   res.redirect(authUrl);
 });
 
-exports.nextcloudCallback = catchAsync(async (req, res, next) => {
+exports.nextcloudCallback = catchAsync(async (req, res, _next) => {
   const { code, state, error } = req.query;
   const { NEXTCLOUD_URL, NEXTCLOUD_CLIENT_ID, NEXTCLOUD_CLIENT_SECRET, NEXTCLOUD_ADMIN_USER } = process.env;
   
   const savedState = req.cookies ? req.cookies.oauth_state : null;
   res.clearCookie('oauth_state');
 
-  if (error || !code || (savedState && state !== savedState)) {
+  if (error || !code || !savedState || !state || state !== savedState) {
     return res.redirect('/admin?error=access_denied');
   }
 

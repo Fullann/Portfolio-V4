@@ -4,12 +4,12 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const { normalizeGitHubUrl } = require('../utils/githubHelper');
 
-exports.getAllProjects = catchAsync(async (req, res, next) => {
+exports.getAllProjects = catchAsync(async (req, res, _next) => {
   const projects = await dbOperations.projects.getAll();
   res.json(projects);
 });
 
-exports.createProject = catchAsync(async (req, res, next) => {
+exports.createProject = catchAsync(async (req, res, _next) => {
   const { title, category, description, imageUrl, image: bodyImage } = req.body;
   let image = req.file ? `/assets/images/${req.file.filename}` : (imageUrl || bodyImage || null);
   if (image) {
@@ -52,7 +52,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
   res.json(updatedProject);
 });
 
-exports.deleteProject = catchAsync(async (req, res, next) => {
+exports.deleteProject = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.projects.delete(id);

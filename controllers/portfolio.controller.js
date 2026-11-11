@@ -6,19 +6,19 @@ const { formatPortfolioProject } = require('../utils/formatters');
 const { toBoolInt } = require('../utils/helpers');
 const { normalizeGitHubUrl } = require('../utils/githubHelper');
 
-exports.getAllPortfolioProjects = catchAsync(async (req, res, next) => {
+exports.getAllPortfolioProjects = catchAsync(async (req, res, _next) => {
   const projects = await dbOperations.portfolioProjects.getAll();
   const formattedProjects = await Promise.all(projects.map(formatPortfolioProject));
   res.json(formattedProjects);
 });
 
-exports.getProjectTranslations = catchAsync(async (req, res, next) => {
+exports.getProjectTranslations = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
   const translations = await dbOperations.portfolioProjects.getTranslations(id);
   res.json(translations);
 });
 
-exports.createPortfolioProject = catchAsync(async (req, res, next) => {
+exports.createPortfolioProject = catchAsync(async (req, res, _next) => {
   const { title, category, description, repoLink, liveLink, filterCategory, isCurrentWork, isVisible, technologies, translations, imageUrl, image: bodyImage } = req.body;
   let image = req.file ? `/assets/images/${req.file.filename}` : (imageUrl || bodyImage || null);
   if (image) {
@@ -108,10 +108,22 @@ exports.toggleVisibility = catchAsync(async (req, res, next) => {
   res.json(await formatPortfolioProject(updatedProject));
 });
 
-exports.deletePortfolioProject = catchAsync(async (req, res, next) => {
+exports.deletePortfolioProject = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.portfolioProjects.delete(id);
   await updateHtmlFile();
   res.json({ success: true });
+});
+
+exports.bulkReorder = catchAsync(async (req, res, next) => {
+  const { order } = req.body;
+  if (!Array.isArray(order)) {
+    return next(new AppError('Format invalide', 400));
+  }
+
+  await dbOperations.portfolioProjects.bulkReorder(order);
+  await updateHtmlFile();
+
+  res.json({ success: true, message: 'Ordre des projets mis à jour' });
 });

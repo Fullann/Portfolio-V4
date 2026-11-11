@@ -3,7 +3,7 @@ const { pool, safeUpdate } = require('../config/dbPool');
 const portfolioProjectModel = {
   getAll: async () => {
     const [rows] = await pool.execute(
-      "SELECT * FROM portfolio_projects ORDER BY created_at DESC"
+      "SELECT * FROM portfolio_projects ORDER BY display_order ASC, created_at DESC"
     );
     return rows;
   },
@@ -14,10 +14,17 @@ const portfolioProjectModel = {
     );
     return rows[0];
   },
+  getNextDisplayOrder: async () => {
+    const [rows] = await pool.execute(
+      "SELECT MAX(display_order) as maxOrder FROM portfolio_projects"
+    );
+    return (rows[0].maxOrder || 0) + 1;
+  },
   create: async (data) => {
+    const nextOrder = await portfolioProjectModel.getNextDisplayOrder();
     const [result] = await pool.execute(
-      `INSERT INTO portfolio_projects (title, category, image, description, repo_link, live_link, filter_category, is_current_work, is_visible, technologies)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO portfolio_projects (title, category, image, description, repo_link, live_link, filter_category, is_current_work, is_visible, technologies, display_order)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.title,
         data.category,
@@ -28,10 +35,11 @@ const portfolioProjectModel = {
         data.filterCategory,
         data.isCurrentWork ? 1 : 0,
         data.isVisible !== undefined ? (data.isVisible ? 1 : 0) : 1,
-        data.technologies || ''
+        data.technologies || '',
+        nextOrder
       ]
     );
-    return { id: result.insertId, ...data };
+    return { id: result.insertId, ...data, display_order: nextOrder };
   },
   update: async (id, data) => {
     await safeUpdate("portfolio_projects", id, data, {
@@ -44,7 +52,9 @@ const portfolioProjectModel = {
       filterCategory: "filter_category",
       isCurrentWork: "is_current_work",
       isVisible: "is_visible",
-      technologies: "technologies"
+      technologies: "technologies",
+      displayOrder: "display_order",
+      display_order: "display_order"
     });
     return portfolioProjectModel.getById(id);
   },
@@ -69,12 +79,16 @@ const portfolioProjectModel = {
       "DELETE FROM portfolio_projects WHERE id = ?",
       [id]
     );
+    await pool.execute(
+      "DELETE FROM translations WHERE translation_key IN (?, ?)",
+      [`project_${id}_title`, `project_${id}_description`]
+    );
     return result;
   },
   getTranslations: async (projectId) => {
     const [rows] = await pool.execute(
-      "SELECT lang_code, translation_key, translation_value FROM translations WHERE translation_key LIKE ?",
-      [`project_${projectId}_%`]
+      "SELECT lang_code, translation_key, translation_value FROM translations WHERE translation_key IN (?, ?)",
+      [`project_${projectId}_title`, `project_${projectId}_description`]
     );
     
     const translations = {};
@@ -108,8 +122,25 @@ const portfolioProjectModel = {
     );
     return result;
   },
+  bulkReorder: async (orderedIds) => {
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      for (let i = 0; i < orderedIds.length; i++) {
+        await connection.execute("UPDATE portfolio_projects SET display_order = ? WHERE id = ?", [i, orderedIds[i]]);
+      }
+      await connection.commit();
+      return true;
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  },
   deleteAll: async () => {
     const [result] = await pool.execute("DELETE FROM portfolio_projects");
+    await pool.execute("DELETE FROM translations WHERE translation_key LIKE 'project\\_%'");
     return result;
   }
 };

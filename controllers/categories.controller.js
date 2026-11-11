@@ -4,7 +4,7 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 
-exports.getAllCategories = catchAsync(async (req, res, next) => {
+exports.getAllCategories = catchAsync(async (req, res, _next) => {
   const categories = await dbOperations.categories.getAll();
   res.json(categories);
 });

@@ -7,6 +7,7 @@ const { optimizeUploadedImage } = require('../middleware/imageOptimizer');
 
 router.get('/', portfolioController.getAllPortfolioProjects);
 router.get('/:id/translations', portfolioController.getProjectTranslations);
+router.put('/reorder', authenticateToken, portfolioController.bulkReorder);
 
 router.post('/',
   authenticateToken,

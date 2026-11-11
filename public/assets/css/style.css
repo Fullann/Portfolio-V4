@@ -4134,3 +4134,67 @@ textarea.form-input::-webkit-resizer {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ============================================
+   🔍 BARRE DE RECHERCHE & FILTRES DU BLOG
+   ============================================ */
+.blog-filter-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+.blog-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--eerie-black-2);
+  border: 1px solid var(--jet);
+  border-radius: 14px;
+  padding: 10px 16px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.blog-search-box:focus-within {
+  border-color: var(--orange-yellow-crayola);
+  box-shadow: 0 0 0 3px rgba(255, 219, 112, 0.12);
+}
+
+.blog-search-box ion-icon {
+  color: var(--orange-yellow-crayola);
+  font-size: 18px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.blog-search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--white-2);
+  font-size: var(--fs-6);
+  font-family: inherit;
+}
+
+.blog-search-input::placeholder {
+  color: var(--light-gray-70);
+}
+
+.blog-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.blog-empty-state {
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--light-gray-70);
+  font-size: var(--fs-6);
+  background: var(--eerie-black-2);
+  border: 1px dashed var(--jet);
+  border-radius: 16px;
+  margin-top: 10px;
+}

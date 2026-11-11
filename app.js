@@ -133,7 +133,7 @@ try {
   app.get('/rss.xml', seoRoutes.rss);
   app.get('/og-image', seoRoutes.ogImage);
   console.log('✅ Routes SEO chargées');
-} catch (e) {
+} catch {
   console.warn('⚠️ Routes SEO non trouvées');
   
   // Fallback pour SEO
@@ -158,7 +158,7 @@ try {
   const blogsController = require('./controllers/blogs.controller');
   app.get('/blog/:slug', blogsController.renderBlogPage);
   console.log('✅ Routes blogs chargées');
-} catch (e) {
+} catch {
   console.warn('⚠️ Controllers blogs non trouvés');
 }
 
@@ -166,7 +166,7 @@ try {
   const personalInfoController = require('./controllers/personalInfo.controller');
   app.get('/download-cv', personalInfoController.downloadCV);
   console.log('✅ Route CV chargée');
-} catch (e) {
+} catch {
   console.warn('⚠️ Controller personalInfo non trouvé');
 }
 

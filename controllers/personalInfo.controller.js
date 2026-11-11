@@ -4,7 +4,7 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const { formatPersonalInfo } = require('../utils/formatters');
 
-exports.getPersonalInfo = catchAsync(async (req, res, next) => {
+exports.getPersonalInfo = catchAsync(async (req, res, _next) => {
   const personalInfo = await dbOperations.personalInfo.get();
   const formatted = formatPersonalInfo(personalInfo);
   
@@ -15,7 +15,7 @@ exports.getPersonalInfo = catchAsync(async (req, res, next) => {
   res.json(formatted);
 });
 
-exports.updatePersonalInfo = catchAsync(async (req, res, next) => {
+exports.updatePersonalInfo = catchAsync(async (req, res, _next) => {
   const { name, title, email, phone, birthday, location, aboutText, translations } = req.body;
 
   const updateData = { name, title, email, phone, birthday, location };
@@ -69,6 +69,7 @@ exports.updatePersonalInfo = catchAsync(async (req, res, next) => {
 
 exports.downloadCV = catchAsync(async (req, res, next) => {
   const path = require('path');
+  const fs = require('fs');
   const personalInfo = await dbOperations.personalInfo.get();
 
   if (personalInfo && personalInfo.cv_file) {
@@ -80,6 +81,10 @@ exports.downloadCV = catchAsync(async (req, res, next) => {
     // Vérification que le fichier résolu est bien dans le dossier autorisé
     if (!filePath.startsWith(docsDir)) {
       return next(new AppError('Accès interdit', 403));
+    }
+
+    if (!fs.existsSync(filePath)) {
+      return next(new AppError('Fichier CV introuvable sur le serveur', 404));
     }
 
     res.download(filePath, 'CV.pdf');

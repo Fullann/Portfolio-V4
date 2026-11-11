@@ -66,7 +66,7 @@ async function processSingleFile(fileObj) {
     if (fs.existsSync(originalPath) && originalPath !== outputPath) {
       try {
         fs.unlinkSync(originalPath);
-      } catch (e) {
+      } catch {
         // Ignorer erreur suppression temporaire
       }
     }

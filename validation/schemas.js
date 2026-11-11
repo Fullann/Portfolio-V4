@@ -73,7 +73,7 @@ const testimonialSchema = z.object({
 // Schema pour les blogs
 const blogSchema = z.object({
   title: z.string()
-    .min(5, 'Le titre doit contenir au moins 5 caractères')
+    .min(3, 'Le titre doit contenir au moins 3 caractères')
     .max(255, 'Le titre est trop long')
     .trim(),
   category: z.string()
@@ -81,12 +81,13 @@ const blogSchema = z.object({
     .max(255, 'La catégorie est trop longue')
     .trim(),
   excerpt: z.string()
-    .min(20, 'L\'extrait doit contenir au moins 20 caractères')
-    .max(500, 'L\'extrait est trop long')
-    .trim(),
+    .min(5, 'L\'extrait doit contenir au moins 5 caractères')
+    .max(1000, 'L\'extrait est trop long')
+    .trim()
+    .optional(),
   content: z.string()
-    .min(50, 'Le contenu doit contenir au moins 50 caractères')
-    .max(50000, 'Le contenu est trop long')
+    .min(10, 'Le contenu doit contenir au moins 10 caractères')
+    .max(100000, 'Le contenu est trop long')
     .trim(),
   author: z.string()
     .max(255, 'Le nom de l\'auteur est trop long')
@@ -94,8 +95,12 @@ const blogSchema = z.object({
     .optional(),
   imageUrl: safeImageUrlSchema,
   image: safeImageUrlSchema,
+  is_published: z.union([z.boolean(), z.number(), z.string()]).optional(),
+  isPublished: z.union([z.boolean(), z.number(), z.string()]).optional(),
   translations: z.any().optional()
 });
+
+const blogUpdateSchema = blogSchema.partial();
 
 // Middleware de validation
 const validate = (schema) => {
@@ -137,5 +142,6 @@ module.exports = {
   projectSchema,
   testimonialSchema,
   blogSchema,
+  blogUpdateSchema,
   validate
 };

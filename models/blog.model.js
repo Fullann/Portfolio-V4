@@ -18,9 +18,10 @@ const blogModel = {
     return rows[0];
   },
   create: async (data) => {
+    const isPublished = data.is_published !== undefined ? (data.is_published ? 1 : 0) : 1;
     const [result] = await pool.execute(
-      `INSERT INTO blogs (title, category, excerpt, content, image, date, author, slug)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO blogs (title, category, excerpt, content, image, date, author, slug, is_published)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.title,
         data.category,
@@ -30,9 +31,10 @@ const blogModel = {
         data.date,
         data.author,
         data.slug,
+        isPublished,
       ]
     );
-    return { id: result.insertId, ...data };
+    return { id: result.insertId, ...data, is_published: isPublished };
   },
   update: async (id, data) => {
     await safeUpdate("blogs", id, data, {
@@ -43,12 +45,26 @@ const blogModel = {
       image: "image",
       date: "date",
       author: "author",
-      slug: "slug"
+      slug: "slug",
+      isPublished: "is_published",
+      is_published: "is_published"
     });
+    return blogModel.getById(id);
+  },
+  togglePublished: async (id, isPublished) => {
+    const val = (isPublished === '1' || isPublished === 1 || isPublished === true || isPublished === 'true') ? 1 : 0;
+    await pool.execute(
+      "UPDATE blogs SET is_published = ? WHERE id = ?",
+      [val, Number(id)]
+    );
     return blogModel.getById(id);
   },
   delete: async (id) => {
     const [result] = await pool.execute("DELETE FROM blogs WHERE id = ?", [id]);
+    await pool.execute(
+      "DELETE FROM translations WHERE translation_key IN (?, ?, ?)",
+      [`blog_${id}_title`, `blog_${id}_excerpt`, `blog_${id}_content`]
+    );
     return result;
   },
   updateCategoryReferences: async (oldName, newName) => {
@@ -60,12 +76,13 @@ const blogModel = {
   },
   deleteAll: async () => {
     const [result] = await pool.execute("DELETE FROM blogs");
+    await pool.execute("DELETE FROM translations WHERE translation_key LIKE 'blog\\_%'");
     return result;
   },
   getTranslations: async (blogId) => {
     const [rows] = await pool.execute(
-      "SELECT lang_code, translation_key, translation_value FROM translations WHERE translation_key LIKE ?",
-      [`blog_${blogId}_%`]
+      "SELECT lang_code, translation_key, translation_value FROM translations WHERE translation_key IN (?, ?, ?)",
+      [`blog_${blogId}_title`, `blog_${blogId}_excerpt`, `blog_${blogId}_content`]
     );
     
     // Convert to { en: { title: "...", content: "..." }, es: { ... } }

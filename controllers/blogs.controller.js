@@ -42,7 +42,7 @@ exports.getBlogBySlug = catchAsync(async (req, res, next) => {
 });
 
 exports.createBlog = catchAsync(async (req, res, _next) => {
-  const { title, category, excerpt, content, author, translations, imageUrl, image: bodyImage } = req.body;
+  const { title, category, excerpt, content, author, translations, imageUrl, image: bodyImage, is_published, isPublished } = req.body;
   let image = req.file ? `/assets/images/${req.file.filename}` : (imageUrl || bodyImage || null);
   if (image) {
     image = normalizeGitHubUrl(image);
@@ -50,6 +50,10 @@ exports.createBlog = catchAsync(async (req, res, _next) => {
 
   const processedContent = normalizeGitHubUrlsInMarkdown(content || '');
   const slug = toSlug(title);
+  const rawPublished = is_published !== undefined ? is_published : isPublished;
+  const publishedFlag = rawPublished !== undefined
+    ? (rawPublished === '0' || rawPublished === 0 || rawPublished === false || rawPublished === 'false' ? 0 : 1)
+    : 1;
 
   const newBlog = await dbOperations.blogs.create({
     title,
@@ -59,7 +63,8 @@ exports.createBlog = catchAsync(async (req, res, _next) => {
     image,
     date: new Date().toISOString().split('T')[0],
     author: author || 'Admin',
-    slug
+    slug,
+    is_published: publishedFlag
   });
 
   if (translations && translations !== 'undefined' && translations !== 'null') {
@@ -73,7 +78,7 @@ exports.createBlog = catchAsync(async (req, res, _next) => {
 
 exports.updateBlog = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const { title, category, excerpt, content, author, translations, imageUrl, image: bodyImage } = req.body;
+  const { title, category, excerpt, content, author, translations, imageUrl, image: bodyImage, is_published, isPublished } = req.body;
 
   const updateData = { title, category, excerpt, author };
 
@@ -83,6 +88,11 @@ exports.updateBlog = catchAsync(async (req, res, next) => {
 
   if (content !== undefined) {
     updateData.content = normalizeGitHubUrlsInMarkdown(content);
+  }
+
+  const rawPublished = is_published !== undefined ? is_published : isPublished;
+  if (rawPublished !== undefined) {
+    updateData.is_published = (rawPublished === '0' || rawPublished === 0 || rawPublished === false || rawPublished === 'false') ? 0 : 1;
   }
 
   if (req.file) {
@@ -106,6 +116,20 @@ exports.updateBlog = catchAsync(async (req, res, next) => {
   res.json(updatedBlog);
 });
 
+exports.togglePublished = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { is_published, isPublished } = req.body;
+  const val = is_published !== undefined ? is_published : isPublished;
+
+  const updatedBlog = await dbOperations.blogs.togglePublished(id, val);
+  if (!updatedBlog) {
+    return next(new AppError('Blog non trouvé', 404));
+  }
+
+  await updateHtmlFile();
+  res.json(updatedBlog);
+});
+
 exports.deleteBlog = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
@@ -118,8 +142,9 @@ exports.renderBlogPage = catchAsync(async (req, res, _next) => {
   const { slug } = req.params;
   const { lang } = req.query;
   const blog = await dbOperations.blogs.getBySlug(slug);
+  const isAdminPreview = Boolean(req.cookies && req.cookies.admin_token);
 
-  if (!blog) {
+  if (!blog || (blog.is_published === 0 && !isAdminPreview)) {
     return res.status(404).send(`<!DOCTYPE html>
 <html lang="fr" class="dark">
 <head>
@@ -219,6 +244,11 @@ exports.renderBlogPage = catchAsync(async (req, res, _next) => {
   </div>
 </body>
 </html>`);
+  }
+
+  // Enregistrer une vue anonyme sur l'article (hors aperçu brouillon)
+  if (blog.is_published !== 0 && dbOperations.analytics && typeof dbOperations.analytics.trackEvent === 'function') {
+    dbOperations.analytics.trackEvent('blog_view', blog.title).catch(() => {});
   }
 
   // Traductions éventuelles
@@ -334,6 +364,27 @@ exports.renderBlogPage = catchAsync(async (req, res, _next) => {
 <meta name="twitter:title" content="${safeTitle}">
 <meta name="twitter:description" content="${pageDescription}">
 <meta name="twitter:image" content="${blogImageUrl}">
+
+<!-- JSON-LD Structured Data (Schema.org) -->
+<script type="application/ld+json">
+${JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": blog.title,
+  "description": blog.excerpt || blog.title,
+  "image": blogImageUrl,
+  "datePublished": blog.date || new Date().toISOString().split('T')[0],
+  "wordCount": wordCount,
+  "author": {
+    "@type": "Person",
+    "name": blog.author || "Admin"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": fullArticleUrl
+  }
+}).replace(/<\//g, '<\\/')}
+</script>
 
 <!-- Favicon -->
 <link rel="shortcut icon" href="/assets/images/icon.ico" type="image/x-icon">

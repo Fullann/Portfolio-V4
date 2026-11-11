@@ -1,5 +1,15 @@
 "use strict";
 
+function escapeHtmlClient(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 // Element toggle function
 const elementToggleFunc = function (elem) {
   elem.classList.toggle("active");
@@ -148,13 +158,19 @@ function applyTranslations() {
     }
   });
 
-  // 1.5 HTML (innerHTML)
+  // 1.5 HTML (innerHTML) — échappement XSS par paragraphe tout en conservant les éléments enfants (CTA / badges)
   document.querySelectorAll("[data-i18n-html]").forEach((el) => {
     const key = el.getAttribute("data-i18n-html");
     if (translations[key] !== undefined && translations[key] !== null) {
       const val = String(translations[key]);
-      const formattedHTML = val.split('\n\n').map(p => `<p>${p}</p>`).join('');
+      const paragraphs = val.split('\n\n').filter(Boolean);
+      // Préserver le badge de disponibilité et les boutons CTA s'ils sont présents dans .about-text
+      const availabilityBadge = el.querySelector(".availability-badge");
+      const ctaGroup = el.querySelector(".cta-group");
+      const formattedHTML = paragraphs.map(p => `<p>${escapeHtmlClient(p)}</p>`).join('');
       el.innerHTML = formattedHTML;
+      if (availabilityBadge) el.appendChild(availabilityBadge);
+      if (ctaGroup) el.appendChild(ctaGroup);
     }
   });
   
@@ -308,8 +324,8 @@ for (let i = 0; i < selectItems.length; i++) {
   });
 }
 
-// Filter variables
-const filterItems = document.querySelectorAll("[data-filter-item]");
+// Filter variables (cibler uniquement la liste du Portfolio pour ne pas masquer les projets de l'onglet À propos)
+const filterItems = document.querySelectorAll("#portfolio-project-list [data-filter-item]");
 
 const filterFunc = function (selectedValue) {
   filterItems.forEach((item) => {
@@ -333,8 +349,6 @@ const filterFunc = function (selectedValue) {
       item.style.display = "none";
     }
   });
-
-  const visibleItems = document.querySelectorAll("[data-filter-item].active");
 };
 
 // Add event in all filter button items for large screen
@@ -376,53 +390,101 @@ for (let i = 0; i < formInputs.length; i++) {
 }
 
 // ============================================
-// PAGE NAVIGATION
+// PAGE NAVIGATION & ROUTAGE PAR HASH URL
 // ============================================
 
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
+const HASH_TO_PAGE = {
+  about: "à propos",
+  "a-propos": "à propos",
+  "à propos": "à propos",
+  parcours: "parcours",
+  resume: "parcours",
+  portfolio: "portfolio",
+  blog: "blog",
+  contact: "contact",
+};
+
+const PAGE_TO_HASH = {
+  "à propos": "",
+  parcours: "#parcours",
+  portfolio: "#portfolio",
+  blog: "#blog",
+  contact: "#contact",
+};
+
+function activatePage(target, updateHistory = true) {
+  const normalizedTarget = (target || "").toLowerCase().trim();
+  let matched = false;
+
+  pages.forEach((page) => {
+    const pageData = page.dataset.page.toLowerCase();
+
+    if (normalizedTarget === pageData) {
+      matched = true;
+      page.classList.add("active");
+      window.scrollTo(0, 0);
+
+      // Réinitialiser le filtre quand on arrive sur Portfolio
+      if (pageData === "portfolio") {
+        setTimeout(() => {
+          filterFunc("all");
+
+          if (filterBtn.length > 0) {
+            filterBtn.forEach((btn) => btn.classList.remove("active"));
+            filterBtn[0].classList.add("active");
+          }
+        }, 50);
+      }
+
+      // S'assurer que les événements de clic sur les projets sont attachés
+      if (pageData === "à propos" || pageData === "portfolio") {
+        setTimeout(attachProjectClickEvents, 100);
+      }
+    } else {
+      page.classList.remove("active");
+    }
+  });
+
+  if (!matched) return;
+
+  navigationLinks.forEach((navLink) => {
+    const linkTarget = (navLink.dataset.navTarget || navLink.innerHTML).toLowerCase().trim();
+    if (linkTarget === normalizedTarget) {
+      navLink.classList.add("active");
+    } else {
+      navLink.classList.remove("active");
+    }
+  });
+
+  if (updateHistory && window.history && window.history.replaceState) {
+    const newHash = PAGE_TO_HASH[normalizedTarget] ?? "";
+    const newUrl = window.location.pathname + window.location.search + newHash;
+    window.history.replaceState(null, "", newUrl);
+  }
+}
+
 navigationLinks.forEach((link) => {
   link.addEventListener("click", function () {
-    // Utiliser data-nav-target (invariant selon la langue) ou innerHTML en fallback
     const target = this.dataset.navTarget || this.innerHTML.toLowerCase().trim();
-
-    pages.forEach((page) => {
-      const pageData = page.dataset.page.toLowerCase();
-
-      if (target === pageData) {
-        page.classList.add("active");
-        link.classList.add("active");
-        window.scrollTo(0, 0);
-
-        // Réinitialiser le filtre quand on arrive sur Portfolio
-        if (pageData === "portfolio") {
-          setTimeout(() => {
-            filterFunc("all");
-
-            if (filterBtn.length > 0) {
-              filterBtn.forEach((btn) => btn.classList.remove("active"));
-              filterBtn[0].classList.add("active");
-            }
-          }, 50);
-        }
-
-        // Réattacher les événements de clic sur les projets
-        if (pageData === "à propos" || pageData === "portfolio") {
-          setTimeout(attachProjectClickEvents, 100);
-        }
-      } else {
-        page.classList.remove("active");
-      }
-    });
-
-    navigationLinks.forEach((navLink) => {
-      if (navLink !== link) {
-        navLink.classList.remove("active");
-      }
-    });
+    activatePage(target, true);
   });
 });
+
+function handleInitialHashNavigation() {
+  const rawHash = decodeURIComponent(window.location.hash || "")
+    .replace(/^#/, "")
+    .toLowerCase()
+    .trim();
+  if (rawHash && HASH_TO_PAGE[rawHash]) {
+    activatePage(HASH_TO_PAGE[rawHash], false);
+  }
+}
+
+window.addEventListener("DOMContentLoaded", handleInitialHashNavigation);
+window.addEventListener("hashchange", handleInitialHashNavigation);
 
 // ============================================
 // THEME MANAGER
@@ -837,12 +899,12 @@ function attachProjectClickEvents() {
   // Sélectionner TOUS les projets (À propos + Portfolio)
   const allProjectItems = document.querySelectorAll("[data-project-item]");
 
-  allProjectItems.forEach((item, index) => {
-    // Supprimer l'ancien événement pour éviter les doublons
-    const newItem = item.cloneNode(true);
-    item.parentNode.replaceChild(newItem, item);
+  allProjectItems.forEach((item) => {
+    // Éviter d'attacher l'événement plusieurs fois sans cloner le nœud (préserve les écouteurs Analytics)
+    if (item.dataset.modalBound === "1") return;
+    item.dataset.modalBound = "1";
 
-    newItem.addEventListener("click", function (e) {
+    item.addEventListener("click", function (e) {
       e.preventDefault();
       e.stopPropagation();
 
@@ -882,11 +944,11 @@ function attachProjectClickEvents() {
           console.warn("⚠️ projectModalCategory introuvable");
         }
 
-        // Mettre à jour la description
+        // Mettre à jour la description (échappée contre les injections XSS)
         if (projectModalDescription) {
           const descriptionText =
             description?.textContent || "Aucune description disponible";
-          projectModalDescription.innerHTML = `<p>${descriptionText}</p>`;
+          projectModalDescription.innerHTML = `<p>${escapeHtmlClient(descriptionText)}</p>`;
         } else {
           console.warn("⚠️ projectModalDescription introuvable");
         }
@@ -896,14 +958,14 @@ function attachProjectClickEvents() {
           let actionsHTML = "";
 
           if (repoLink && repoLink.textContent.trim()) {
-            actionsHTML += `<a href="${repoLink.textContent}" target="_blank" class="project-modal-btn">
+            actionsHTML += `<a href="${escapeHtmlClient(repoLink.textContent.trim())}" target="_blank" rel="noopener noreferrer" class="project-modal-btn">
               <ion-icon name="logo-github"></ion-icon>
               <span>Voir le code</span>
             </a>`;
           }
 
           if (liveLink && liveLink.textContent.trim()) {
-            actionsHTML += `<a href="${liveLink.textContent}" target="_blank" class="project-modal-btn secondary">
+            actionsHTML += `<a href="${escapeHtmlClient(liveLink.textContent.trim())}" target="_blank" rel="noopener noreferrer" class="project-modal-btn secondary">
               <ion-icon name="eye-outline"></ion-icon>
               <span>Voir le site</span>
             </a>`;
@@ -983,13 +1045,17 @@ document.addEventListener("DOMContentLoaded", function () {
     
     if (!list || !btn || !container) return;
     
-    // Obtenir tous les éléments visibles (selon les filtres actuels pour le portfolio)
+    // Obtenir tous les éléments éligibles (non filtrés pour le portfolio)
     let visibleItems = Array.from(list.querySelectorAll(itemSelector)).filter(
-      item => window.getComputedStyle(item).display !== "none" && !item.classList.contains("filtered-out")
+      item => !item.classList.contains("filtered-out")
     );
     
-    // Si moins d'éléments que la limite, cacher le bouton
+    // Si moins d'éléments que la limite, afficher tous les éléments éligibles et cacher le bouton
     if (visibleItems.length <= ITEMS_PER_PAGE) {
+      visibleItems.forEach((item) => {
+        item.style.display = "block";
+        setTimeout(() => item.classList.add("revealed"), 50);
+      });
       container.style.display = "none";
       return;
     }
@@ -1020,15 +1086,62 @@ document.addEventListener("DOMContentLoaded", function () {
     // Initialiser
     updateDisplay();
     
-    // Bouton Voir Plus
-    btn.addEventListener("click", () => {
+    // Bouton Voir Plus (utiliser onclick pour éviter d'empiler les addEventListener à chaque filtrage)
+    btn.onclick = () => {
       currentPage++;
       updateDisplay();
-    });
+    };
   }
 
-  // Initialisation Blog
-  initPagination("blog-posts-list", "[data-blog-item]", "blog-load-more", "blog-pagination");
+  // Initialisation Blog (avec recherche et filtre par catégorie)
+  const applyBlogFilterAndPagination = () => {
+    const searchInput = document.getElementById("blog-search-input");
+    const activeCatBtn = document.querySelector("[data-blog-cat].active");
+    const query = (searchInput ? searchInput.value : "").toLowerCase().trim();
+    const selectedCat = activeCatBtn ? (activeCatBtn.dataset.blogCat || "all").toLowerCase().trim() : "all";
+    const allBlogItems = document.querySelectorAll("#blog-posts-list [data-blog-item]");
+    const emptyState = document.getElementById("blog-empty-state");
+
+    let matchCount = 0;
+    allBlogItems.forEach((item) => {
+      item.classList.remove("filtered-out");
+      const itemCat = (item.dataset.blogCategory || "").toLowerCase();
+      const titleText = (item.querySelector(".blog-item-title")?.textContent || "").toLowerCase();
+      const excerptText = (item.querySelector(".blog-text")?.textContent || "").toLowerCase();
+
+      const matchesCat = selectedCat === "all" || itemCat === selectedCat;
+      const matchesQuery = !query || titleText.includes(query) || excerptText.includes(query) || itemCat.includes(query);
+
+      if (!matchesCat || !matchesQuery) {
+        item.classList.add("filtered-out");
+        item.style.display = "none";
+      } else {
+        matchCount++;
+      }
+    });
+
+    if (emptyState) {
+      emptyState.style.display = (allBlogItems.length > 0 && matchCount === 0) ? "block" : "none";
+    }
+
+    initPagination("blog-posts-list", "[data-blog-item]:not(.filtered-out)", "blog-load-more", "blog-pagination");
+  };
+
+  applyBlogFilterAndPagination();
+
+  const blogSearchInput = document.getElementById("blog-search-input");
+  if (blogSearchInput) {
+    blogSearchInput.addEventListener("input", applyBlogFilterAndPagination);
+  }
+
+  const blogCatBtns = document.querySelectorAll("[data-blog-cat]");
+  blogCatBtns.forEach((btn) => {
+    btn.addEventListener("click", function () {
+      blogCatBtns.forEach((b) => b.classList.remove("active"));
+      this.classList.add("active");
+      applyBlogFilterAndPagination();
+    });
+  });
   
   // Initialisation Portfolio
   // Le portfolio est plus complexe car filtrable. 
@@ -1156,31 +1269,27 @@ async function initGitHubWidget() {
   const bioEl = document.getElementById('github-bio');
   const avatarEl = document.getElementById('github-avatar');
 
-  try {
-    // 1. Récupération profil
-    const userRes = await fetch(`https://api.github.com/users/${username}`);
-    if (userRes.ok) {
-      const userData = await userRes.json();
+  const cacheKey = `gh_widget_cache_${username}`;
+  const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+  const renderGitHubData = (userData, repos) => {
+    if (userData) {
       if (reposCountEl) reposCountEl.textContent = userData.public_repos ?? '-';
       if (followersCountEl) followersCountEl.textContent = userData.followers ?? '-';
       if (bioEl && userData.bio) bioEl.textContent = userData.bio;
       if (avatarEl && userData.avatar_url) avatarEl.src = userData.avatar_url;
     }
 
-    // 2. Récupération dépôts récents
-    const reposRes = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=6`);
-    if (!reposRes.ok) throw new Error('API GitHub indisponible');
-
-    const repos = await reposRes.json();
-    if (!Array.isArray(repos)) throw new Error('Format invalide');
-
-    // Calculer le total des étoiles
+    // Calculer le total des étoiles sur l'ensemble des dépôts publics récupérés
     const totalStars = repos.reduce((acc, r) => acc + (r.stargazers_count || 0), 0);
     if (starsCountEl) starsCountEl.textContent = totalStars;
 
-    // Filtrer pour afficher jusqu'à 4 dépôts pertinents
-    const displayRepos = repos.filter(r => !r.fork).slice(0, 4);
-    const finalRepos = displayRepos.length > 0 ? displayRepos : repos.slice(0, 4);
+    // Filtrer pour afficher jusqu'à 4 dépôts pertinents (non-forks triés par mise à jour)
+    const sortedRepos = [...repos].sort(
+      (a, b) => new Date(b.pushed_at || b.updated_at || 0) - new Date(a.pushed_at || a.updated_at || 0)
+    );
+    const displayRepos = sortedRepos.filter(r => !r.fork).slice(0, 4);
+    const finalRepos = displayRepos.length > 0 ? displayRepos : sortedRepos.slice(0, 4);
 
     if (grid) {
       if (finalRepos.length === 0) {
@@ -1190,43 +1299,90 @@ async function initGitHubWidget() {
           <div class="github-repo-card">
             <div>
               <div class="github-repo-header">
-                <a href="${repo.html_url}" target="_blank" rel="noopener noreferrer" class="github-repo-name">
+                <a href="${escapeHtmlClient(repo.html_url)}" target="_blank" rel="noopener noreferrer" class="github-repo-name">
                   <ion-icon name="folder-outline"></ion-icon>
-                  <span>${repo.name}</span>
+                  <span>${escapeHtmlClient(repo.name)}</span>
                 </a>
                 <ion-icon name="open-outline" style="font-size: 14px; color: var(--light-gray-70);"></ion-icon>
               </div>
-              <p class="github-repo-desc">${repo.description || 'Aucune description fournie.'}</p>
+              <p class="github-repo-desc">${escapeHtmlClient(repo.description || 'Aucune description fournie.')}</p>
             </div>
             <div class="github-repo-meta">
               ${repo.language ? `
                 <span class="github-repo-lang">
                   <span class="github-lang-dot"></span>
-                  <span>${repo.language}</span>
+                  <span>${escapeHtmlClient(repo.language)}</span>
                 </span>
               ` : ''}
-              <span>⭐ ${repo.stargazers_count || 0}</span>
-              <span>🍴 ${repo.forks_count || 0}</span>
+              <span>⭐ ${Number(repo.stargazers_count) || 0}</span>
+              <span>🍴 ${Number(repo.forks_count) || 0}</span>
             </div>
           </div>
         `).join('');
       }
     }
-  } catch (err) {
+  };
+
+  try {
+    // 0. Vérifier le cache sessionStorage pour éviter le rate-limit GitHub (60 req/h)
+    try {
+      const cachedRaw = sessionStorage.getItem(cacheKey);
+      if (cachedRaw) {
+        const cached = JSON.parse(cachedRaw);
+        if (cached && cached.timestamp && Date.now() - cached.timestamp < CACHE_TTL_MS && Array.isArray(cached.repos)) {
+          renderGitHubData(cached.userData, cached.repos);
+          return;
+        }
+      }
+    } catch {
+      // Ignorer erreur de lecture sessionStorage
+    }
+
+    // 1. Récupération profil
+    let userData = null;
+    const userRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}`);
+    if (userRes.ok) {
+      userData = await userRes.json();
+    }
+
+    // 2. Récupération de l'ensemble des dépôts publics (jusqu'à 100 pour un total d'étoiles exact)
+    const reposRes = await fetch(`https://api.github.com/users/${encodeURIComponent(username)}/repos?sort=updated&per_page=100`);
+    if (!reposRes.ok) throw new Error('API GitHub indisponible');
+
+    const repos = await reposRes.json();
+    if (!Array.isArray(repos)) throw new Error('Format invalide');
+
+    renderGitHubData(userData, repos);
+
+    try {
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        timestamp: Date.now(),
+        userData,
+        repos
+      }));
+    } catch {
+      // Ignorer quota sessionStorage
+    }
+  } catch {
     if (grid) {
+      const safeUser = escapeHtmlClient(username);
       grid.innerHTML = `
         <div class="col-span-full p-4 rounded-lg bg-dark-800 text-center text-sm text-gray-400">
-          <p>Consultez mes contributions et dépôts directement sur <a href="https://github.com/${username}" target="_blank" rel="noopener noreferrer" class="text-amber-400 underline">github.com/${username}</a></p>
+          <p>Consultez mes contributions et dépôts directement sur <a href="https://github.com/${safeUser}" target="_blank" rel="noopener noreferrer" class="text-amber-400 underline">github.com/${safeUser}</a></p>
         </div>
       `;
     }
   }
 }
 
-// Démarrer les widgets interactifs au chargement du DOM
+// Démarrer les widgets interactifs et le Service Worker au chargement du DOM
 document.addEventListener('DOMContentLoaded', () => {
   initAnalytics();
   initGitHubWidget();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 });
 
 

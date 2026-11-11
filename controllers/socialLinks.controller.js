@@ -4,12 +4,12 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 
-exports.getAllSocialLinks = catchAsync(async (req, res, next) => {
+exports.getAllSocialLinks = catchAsync(async (req, res, _next) => {
   const socialLinks = await dbOperations.socialLinks.getAll();
   res.json(socialLinks);
 });
 
-exports.createSocialLink = catchAsync(async (req, res, next) => {
+exports.createSocialLink = catchAsync(async (req, res, _next) => {
   const { name, icon, url } = req.body;
 
   const newSocialLink = await dbOperations.socialLinks.create({ name, icon, url });
@@ -32,7 +32,7 @@ exports.updateSocialLink = catchAsync(async (req, res, next) => {
   res.json(updatedSocialLink);
 });
 
-exports.deleteSocialLink = catchAsync(async (req, res, next) => {
+exports.deleteSocialLink = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.socialLinks.delete(id);

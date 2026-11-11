@@ -4,12 +4,12 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 
-exports.getAllClients = catchAsync(async (req, res, next) => {
+exports.getAllClients = catchAsync(async (req, res, _next) => {
   const clients = await dbOperations.clients.getAll();
   res.json(clients);
 });
 
-exports.createClient = catchAsync(async (req, res, next) => {
+exports.createClient = catchAsync(async (req, res, _next) => {
   const { name, website, description } = req.body;
   const logo = req.file ? `/assets/images/${req.file.filename}` : null;
 
@@ -44,7 +44,7 @@ exports.updateClient = catchAsync(async (req, res, next) => {
   res.json(updatedClient);
 });
 
-exports.deleteClient = catchAsync(async (req, res, next) => {
+exports.deleteClient = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.clients.delete(id);

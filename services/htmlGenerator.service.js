@@ -68,7 +68,7 @@ async function updateHtmlFile() {
       allTechnologies,
       clients: data.clients,
       categories: data.categories,
-      blogs: (data.blogs || []).map(b => ({ ...b, image: normalizeGitHubUrl(b.image) })),
+      blogs: (data.blogs || []).filter(b => b.is_published !== 0).map(b => ({ ...b, image: normalizeGitHubUrl(b.image) })),
       version: Date.now(),
       socialLinks: data.socialLinks,
       education: data.education,

@@ -1,18 +1,17 @@
-const AppError = require("../utils/AppError");
 const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 const path = require('path');
 const fs = require('fs').promises;
 
-exports.getLastUpdate = catchAsync(async (req, res, next) => {
+exports.getLastUpdate = catchAsync(async (req, res, _next) => {
   res.json({
     updated: false,
     lastUpdate: Date.now()
   });
 });
 
-exports.resetAllData = catchAsync(async (req, res, next) => {
+exports.resetAllData = catchAsync(async (req, res, _next) => {
   console.log(`🗑️ Suppression de toutes les données par: ${req.user?.username || 'Inconnu'}`);
 
   // Supprimer toutes les données
@@ -43,11 +42,17 @@ exports.resetAllData = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAccountInfo = catchAsync(async (req, res, next) => {
+exports.getAccountInfo = catchAsync(async (req, res, _next) => {
   const admin = await dbOperations.admin.getByUsername(req.user.username);
 
   if (!admin) {
-    return next(new AppError('Compte non trouvé', 404));
+    // Support des sessions authentifiées via Nextcloud OAuth2 dont l'identifiant n'est pas dans admin_users
+    return res.json({
+      id: req.user.id || 1,
+      username: req.user.username,
+      auth_provider: 'nextcloud',
+      created_at: null
+    });
   }
 
   res.json({
@@ -59,7 +64,7 @@ exports.getAccountInfo = catchAsync(async (req, res, next) => {
 
 
 
-exports.getOptimizationStats = catchAsync(async (req, res, next) => {
+exports.getOptimizationStats = catchAsync(async (req, res, _next) => {
   const imagesDir = path.join(__dirname, '..', 'public', 'assets', 'images');
 
   let totalImages = 0;

@@ -50,13 +50,14 @@ async function initializeDatabase() {
       "ADD COLUMN filter_category VARCHAR(255)",
       "ADD COLUMN is_current_work INT DEFAULT 0",
       "ADD COLUMN is_visible INT DEFAULT 1",
-      "ADD COLUMN technologies TEXT"
+      "ADD COLUMN technologies TEXT",
+      "ADD COLUMN display_order INT DEFAULT 0"
     ];
 
     for (const col of portfolioColumns) {
       try {
         await connection.execute(`ALTER TABLE portfolio_projects ${col}`);
-      } catch (e) {
+      } catch {
         // Ignorer si la colonne existe déjà
       }
     }
@@ -92,9 +93,16 @@ async function initializeDatabase() {
         date VARCHAR(20),
         author VARCHAR(255),
         slug VARCHAR(255) UNIQUE,
+        is_published TINYINT(1) DEFAULT 1,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    try {
+      await connection.execute("ALTER TABLE blogs ADD COLUMN is_published TINYINT(1) DEFAULT 1");
+    } catch {
+      // Ignorer si la colonne existe déjà
+    }
 
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS personal_info (
@@ -147,11 +155,11 @@ async function initializeDatabase() {
     // Migrations de colonnes pour tables existantes
     try {
       await connection.execute("ALTER TABLE education ADD COLUMN display_order INT DEFAULT 0");
-    } catch (e) { /* ignore if column exists */ }
+    } catch { /* ignore if column exists */ }
 
     try {
       await connection.execute("ALTER TABLE experience ADD COLUMN display_order INT DEFAULT 0");
-    } catch (e) { /* ignore if column exists */ }
+    } catch { /* ignore if column exists */ }
 
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS certifications (
@@ -179,11 +187,11 @@ async function initializeDatabase() {
 
     try {
       await connection.execute("ALTER TABLE skills ADD COLUMN category VARCHAR(100) DEFAULT 'Frontend'");
-    } catch (e) { /* ignore if column exists */ }
+    } catch { /* ignore if column exists */ }
 
     try {
       await connection.execute("ALTER TABLE skills ADD COLUMN icon VARCHAR(255) DEFAULT ''");
-    } catch (e) { /* ignore if column exists */ }
+    } catch { /* ignore if column exists */ }
 
     await connection.execute(`
       CREATE TABLE IF NOT EXISTS analytics_events (
@@ -248,7 +256,7 @@ async function initializeDatabase() {
 
     try {
       await connection.execute("ALTER TABLE translations MODIFY COLUMN translation_value LONGTEXT NOT NULL");
-    } catch (e) {
+    } catch {
       // Ignorer l'erreur
     }
 

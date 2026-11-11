@@ -42,7 +42,7 @@ try {
   delete globalThis.Headers;
   delete globalThis.Request;
   delete globalThis.Response;
-} catch (_) {
+} catch {
   // Non critique — certains environnements ne permettent pas la suppression
 }
 

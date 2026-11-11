@@ -4,12 +4,12 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 
-exports.getAllTestimonials = catchAsync(async (req, res, next) => {
+exports.getAllTestimonials = catchAsync(async (req, res, _next) => {
   const testimonials = await dbOperations.testimonials.getAll();
   res.json(testimonials);
 });
 
-exports.createTestimonial = catchAsync(async (req, res, next) => {
+exports.createTestimonial = catchAsync(async (req, res, _next) => {
   const { name, text, date } = req.body;
   const avatar = req.file 
     ? `/assets/images/${req.file.filename}` 
@@ -46,7 +46,7 @@ exports.updateTestimonial = catchAsync(async (req, res, next) => {
   res.json(updatedTestimonial);
 });
 
-exports.deleteTestimonial = catchAsync(async (req, res, next) => {
+exports.deleteTestimonial = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.testimonials.delete(id);

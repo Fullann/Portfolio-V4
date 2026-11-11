@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node --require ./compat.cjs --max-old-space-size=256 server.js",
     "dev": "nodemon server.js",
-    "optimize-images": "node scripts/optimize-images.js",
+    "optimize-images": "node scripts/optimize-existing-images.js",
     "lint": "eslint .",
     "db:check": "node scripts/check-and-fix-db.js"
   },

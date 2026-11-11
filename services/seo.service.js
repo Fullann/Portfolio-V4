@@ -2,10 +2,12 @@ const { dbOperations } = require('../config/database');
 
 async function generateSitemap() {
   // Récupérer base_url depuis les settings DB
-  const baseUrl = await dbOperations.settings.get('base_url') || 'http://localhost:3000';
+  const rawBaseUrl = await dbOperations.settings.get('base_url') || 'http://localhost:3000';
+  const baseUrl = rawBaseUrl.replace(/\/$/, '');
   
   try {
-    const blogs = await dbOperations.blogs.getAll();
+    const allBlogs = await dbOperations.blogs.getAll();
+    const blogs = allBlogs.filter(b => b.is_published !== 0);
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -28,7 +30,7 @@ async function generateSitemap() {
       if (blog.date) {
         try { 
           lastmod = new Date(blog.date).toISOString(); 
-        } catch(_e) { 
+        } catch { 
           // Utilise la date par défaut en cas d'erreur de parsing
         }
       }
@@ -71,10 +73,12 @@ Sitemap: ${baseUrl}/sitemap.xml
 }
 
 const sharp = require('sharp');
+const { escapeHtml } = require('../utils/sanitize');
 
 async function generateOgImage(title) {
   const width = 1200;
   const height = 630;
+  const safeTitle = escapeHtml(String(title || 'Portfolio').slice(0, 90));
   
   // Create an SVG with the text
   // We use standard web safe fonts like Arial or Helvetica
@@ -89,7 +93,7 @@ async function generateOgImage(title) {
       <rect width="100%" height="100%" fill="url(#bg)" />
       
       <text x="50%" y="45%" font-family="sans-serif" font-size="64" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">
-        ${title}
+        ${safeTitle}
       </text>
       
       <text x="50%" y="85%" font-family="sans-serif" font-size="32" fill="#94A3B8" text-anchor="middle">

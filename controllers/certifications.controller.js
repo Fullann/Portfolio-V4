@@ -3,7 +3,7 @@ const catchAsync = require("../utils/catchAsync");
 const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
-exports.getAllCertifications = catchAsync(async (req, res, next) => {
+exports.getAllCertifications = catchAsync(async (req, res, _next) => {
   const certifications = await dbOperations.certifications.getAll();
   res.json(certifications);
 });
@@ -17,7 +17,7 @@ exports.getCertificationById = catchAsync(async (req, res, next) => {
   res.json(certification);
 });
 
-exports.createCertification = catchAsync(async (req, res, next) => {
+exports.createCertification = catchAsync(async (req, res, _next) => {
   const { title, issuer, date, credentialUrl, credential_url } = req.body;
   const logo = req.file ? `/assets/images/${req.file.filename}` : (req.body.logo || '');
 
@@ -61,7 +61,7 @@ exports.updateCertification = catchAsync(async (req, res, next) => {
   res.json(updatedCertification);
 });
 
-exports.deleteCertification = catchAsync(async (req, res, next) => {
+exports.deleteCertification = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.certifications.delete(id);
@@ -69,13 +69,13 @@ exports.deleteCertification = catchAsync(async (req, res, next) => {
   res.json({ success: true });
 });
 
-exports.moveUp = catchAsync(async (req, res, next) => {
+exports.moveUp = catchAsync(async (req, res, _next) => {
   await dbOperations.certifications.moveUp(req.params.id);
   await updateHtmlFile();
   res.json({ success: true, message: 'Ordre mis à jour' });
 });
 
-exports.moveDown = catchAsync(async (req, res, next) => {
+exports.moveDown = catchAsync(async (req, res, _next) => {
   await dbOperations.certifications.moveDown(req.params.id);
   await updateHtmlFile();
   res.json({ success: true, message: 'Ordre mis à jour' });

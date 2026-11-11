@@ -569,6 +569,8 @@ async function handleBlogSubmit(e) {
   formData.append("excerpt", document.getElementById("blog-excerpt").value);
   formData.append("content", document.getElementById("blog-content").value);
   formData.append("author", document.getElementById("blog-author").value);
+  const isPublishedEl = document.getElementById("blog-is-published");
+  formData.append("is_published", !isPublishedEl || isPublishedEl.checked ? "1" : "0");
 
   const blogUrlInput = document.getElementById("blog-image-url");
   if (blogUrlInput && blogUrlInput.value.trim()) {
@@ -1329,7 +1331,10 @@ async function loadPortfolioProjects() {
           }
           <div class="p-4">
             <div class="flex items-center justify-between gap-2 mb-2">
-              <h3 class="font-bold text-white text-base line-clamp-1">${project.title}</h3>
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="drag-handle cursor-move px-1.5 py-0.5 text-gray-400 hover:text-white rounded bg-dark-900/60 border border-gray-700 text-xs select-none" title="Glisser pour réordonner">☰</span>
+                <h3 class="font-bold text-white text-base line-clamp-1">${project.title}</h3>
+              </div>
             </div>
             <p class="text-sm text-gray-400 mb-3 line-clamp-2">${project.description || "Pas de description"}</p>
             <div class="flex items-center justify-between gap-2 mb-3">
@@ -1375,6 +1380,8 @@ async function loadPortfolioProjects() {
     `,
       )
       .join("");
+
+    initSortable("portfolio-list", "/api/portfolio-projects/reorder");
   } catch (error) {
     console.error("Erreur:", error);
   }
@@ -1467,7 +1474,21 @@ async function loadBlogs() {
               : ""
           }
           <div class="flex-1">
-            <h3 class="font-bold text-white text-lg mb-2">${blog.title}</h3>
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <h3 class="font-bold text-white text-lg">${blog.title}</h3>
+              <button
+                type="button"
+                onclick="toggleBlogPublished(${blog.id}, ${blog.is_published === 0 ? 1 : 0})"
+                class="px-2.5 py-1 rounded-full text-xs font-semibold transition ${
+                  blog.is_published === 0
+                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30"
+                    : "bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30"
+                }"
+                title="Cliquer pour basculer Brouillon / Publié"
+              >
+                ${blog.is_published === 0 ? "📝 Brouillon" : "✅ Publié"}
+              </button>
+            </div>
             <p class="text-sm text-primary mb-2">${blog.category} • ${blog.author || "Admin"}</p>
             <p class="text-sm text-gray-400 mb-3 line-clamp-2">${blog.excerpt}</p>
             <div class="flex gap-2">
@@ -1993,6 +2014,8 @@ function openProjectModal() {
 function openBlogModal() {
   currentEditingId = null;
   document.getElementById("blog-form").reset();
+  const isPublishedEl = document.getElementById("blog-is-published");
+  if (isPublishedEl) isPublishedEl.checked = true;
   const urlInput = document.getElementById("blog-image-url");
   if (urlInput) urlInput.value = "";
   updateAdminImagePreview("blog-image-preview", "");
@@ -2194,6 +2217,8 @@ async function editBlog(id) {
       document.getElementById("blog-excerpt").value = blog.excerpt;
       document.getElementById("blog-content").value = blog.content;
       document.getElementById("blog-author").value = blog.author || "";
+      const isPublishedEl = document.getElementById("blog-is-published");
+      if (isPublishedEl) isPublishedEl.checked = blog.is_published !== 0;
 
       const urlInput = document.getElementById("blog-image-url");
       if (urlInput) urlInput.value = (blog.image && blog.image.startsWith("http")) ? blog.image : "";
@@ -3160,4 +3185,83 @@ function initSortable(listId, endpoint) {
       }
     }
   });
+}
+
+async function toggleBlogPublished(id, isPublished) {
+  try {
+    const response = await fetchWithAuth(`/api/blogs/${id}/toggle-published`, {
+      method: "PATCH",
+      body: JSON.stringify({ is_published: isPublished }),
+    });
+    if (response.ok) {
+      showNotification(
+        isPublished ? "Article publié !" : "Article passé en brouillon",
+        "success"
+      );
+      await loadBlogs();
+    } else {
+      showNotification("Erreur lors du changement de statut", "error");
+    }
+  } catch (error) {
+    console.error("Erreur:", error);
+    showNotification("Erreur lors du changement de statut", "error");
+  }
+}
+
+async function downloadDatabaseBackup() {
+  try {
+    const response = await fetchWithAuth("/api/admin/backup");
+    if (!response.ok) {
+      throw new Error("Impossible de télécharger la sauvegarde");
+    }
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `portfolio_backup_${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+    showNotification("Sauvegarde téléchargée avec succès", "success");
+  } catch (error) {
+    console.error("Erreur sauvegarde:", error);
+    showNotification("Erreur lors de l'export de la sauvegarde", "error");
+  }
+}
+
+async function restoreDatabaseBackup() {
+  const input = document.getElementById("backup-restore-input");
+  if (!input || !input.files || !input.files[0]) {
+    showNotification("Veuillez sélectionner un fichier JSON", "error");
+    return;
+  }
+
+  if (
+    !confirm(
+      "Attention : la restauration écrasera les données actuelles des tables contenues dans le fichier JSON. Continuer ?"
+    )
+  ) {
+    return;
+  }
+
+  try {
+    const fileText = await input.files[0].text();
+    const payload = JSON.parse(fileText);
+    const response = await fetchWithAuth("/api/admin/backup/restore", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    if (response.ok) {
+      showNotification("Base de données restaurée avec succès !", "success");
+      input.value = "";
+      await loadAllData();
+    } else {
+      showNotification(result.error || "Erreur lors de la restauration", "error");
+    }
+  } catch (error) {
+    console.error("Erreur restauration:", error);
+    showNotification("Fichier JSON invalide ou erreur serveur", "error");
+  }
 }

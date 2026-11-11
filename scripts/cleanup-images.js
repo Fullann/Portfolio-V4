@@ -328,7 +328,7 @@ async function main() {
     displayStats(allFiles.length, usedImages, unusedFiles.length);
     
     // Supprimer ou simuler
-    const result = await deleteUnusedFiles(allFiles, usedImages, !shouldDelete || !forceDelete);
+    await deleteUnusedFiles(allFiles, usedImages, !shouldDelete || !forceDelete);
     
     // Résumé final
     if (!shouldDelete || !forceDelete) {

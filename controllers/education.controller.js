@@ -4,12 +4,12 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 
-exports.getAllEducation = catchAsync(async (req, res, next) => {
+exports.getAllEducation = catchAsync(async (req, res, _next) => {
   const education = await dbOperations.education.getAll();
   res.json(education);
 });
 
-exports.createEducation = catchAsync(async (req, res, next) => {
+exports.createEducation = catchAsync(async (req, res, _next) => {
   const { institution, period, description } = req.body;
 
   const newEducation = await dbOperations.education.create({ institution, period, description });
@@ -32,7 +32,7 @@ exports.updateEducation = catchAsync(async (req, res, next) => {
   res.json(updatedEducation);
 });
 
-exports.deleteEducation = catchAsync(async (req, res, next) => {
+exports.deleteEducation = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.education.delete(id);
@@ -40,12 +40,12 @@ exports.deleteEducation = catchAsync(async (req, res, next) => {
   res.json({ success: true });
 });
 
-exports.moveUp = catchAsync(async (req, res, next) => {
+exports.moveUp = catchAsync(async (req, res, _next) => {
   await dbOperations.education.moveUp(req.params.id);
   res.json({ success: true, message: 'Ordre mis à jour' });
 });
 
-exports.moveDown = catchAsync(async (req, res, next) => {
+exports.moveDown = catchAsync(async (req, res, _next) => {
   await dbOperations.education.moveDown(req.params.id);
   res.json({ success: true, message: 'Ordre mis à jour' });
 });

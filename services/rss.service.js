@@ -4,14 +4,16 @@ const { dbOperations } = require('../config/database');
  * Génère un flux RSS 2.0 pour les articles de blog.
  */
 async function generateRssFeed() {
-  const baseUrl = await dbOperations.settings.get('base_url') || 'http://localhost:3000';
+  const rawBaseUrl = await dbOperations.settings.get('base_url') || 'http://localhost:3000';
+  const baseUrl = rawBaseUrl.replace(/\/$/, '');
   const siteName = await dbOperations.settings.get('site_name') || 'Mon Portfolio';
   const siteDesc = await dbOperations.settings.get('site_description') || 'Articles récents de mon blog';
   
-  const blogs = await dbOperations.blogs.getAll();
+  const allBlogs = await dbOperations.blogs.getAll();
+  const blogs = allBlogs.filter(b => b.is_published !== 0);
 
   const escapeXml = (unsafe) => {
-    return unsafe.replace(/[<>&'"]/g, (c) => {
+    return String(unsafe ?? '').replace(/[<>&'"]/g, (c) => {
       switch (c) {
         case '<': return '&lt;';
         case '>': return '&gt;';

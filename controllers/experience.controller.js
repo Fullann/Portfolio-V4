@@ -4,12 +4,12 @@ const { dbOperations } = require('../config/database');
 const { updateHtmlFile } = require('../services/htmlGenerator.service');
 
 
-exports.getAllExperience = catchAsync(async (req, res, next) => {
+exports.getAllExperience = catchAsync(async (req, res, _next) => {
   const experience = await dbOperations.experience.getAll();
   res.json(experience);
 });
 
-exports.createExperience = catchAsync(async (req, res, next) => {
+exports.createExperience = catchAsync(async (req, res, _next) => {
   const { position, period, description } = req.body;
 
   const newExperience = await dbOperations.experience.create({ position, period, description });
@@ -32,7 +32,7 @@ exports.updateExperience = catchAsync(async (req, res, next) => {
   res.json(updatedExperience);
 });
 
-exports.deleteExperience = catchAsync(async (req, res, next) => {
+exports.deleteExperience = catchAsync(async (req, res, _next) => {
   const { id } = req.params;
 
   await dbOperations.experience.delete(id);
@@ -40,12 +40,12 @@ exports.deleteExperience = catchAsync(async (req, res, next) => {
   res.json({ success: true });
 });
 
-exports.moveUp = catchAsync(async (req, res, next) => {
+exports.moveUp = catchAsync(async (req, res, _next) => {
   await dbOperations.experience.moveUp(req.params.id);
   res.json({ success: true, message: 'Ordre mis à jour' });
 });
 
-exports.moveDown = catchAsync(async (req, res, next) => {
+exports.moveDown = catchAsync(async (req, res, _next) => {
   await dbOperations.experience.moveDown(req.params.id);
   res.json({ success: true, message: 'Ordre mis à jour' });
 });

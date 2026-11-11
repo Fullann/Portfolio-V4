@@ -33,6 +33,24 @@
     <!-- RSS Feed -->
     <link rel="alternate" type="application/rss+xml" title="<%= siteName %> - Flux RSS" href="/rss.xml" />
 
+    <!-- JSON-LD Structured Data (Schema.org) -->
+    <script type="application/ld+json">
+      <%- JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": formattedPersonalInfo.name,
+        "jobTitle": formattedPersonalInfo.title || "Développeur Web",
+        "url": `${baseUrl}/`,
+        "image": avatarUrl,
+        "description": siteDesc,
+        "address": formattedPersonalInfo.location ? {
+          "@type": "PostalAddress",
+          "addressLocality": formattedPersonalInfo.location
+        } : undefined,
+        "sameAs": (socialLinks || []).map(l => l.url).filter(Boolean)
+      }) %>
+    </script>
+
     <!--
     - favicon
   -->
@@ -198,7 +216,7 @@
           <ul class="social-list">
             <% for (let link of socialLinks) { %>
             <li class="social-item">
-              <a href="<%= link.url %>" class="social-link" target="_blank" rel="noopener noreferrer">
+              <a href="<%= link.url %>" class="social-link" target="_blank" rel="noopener noreferrer" aria-label="<%= link.name || link.icon %>" title="<%= link.name || link.icon %>">
                 <ion-icon name="<%= link.icon %>"></ion-icon>
               </a>
             </li>
@@ -274,19 +292,19 @@
             <ul class="service-list">
               <% for (let project of heroProjects) { %>
               <li class="project-item active" data-filter-item data-category="<%= project.filterCategory || project.category %>">
-                <a href="#" data-project-item>
+                <a href="#" data-project-item data-project-id="<%= project.id %>">
                   <figure class="project-img">
                     <div class="project-item-icon-box">
                       <ion-icon name="eye-outline"></ion-icon>
                     </div>
                     <img src="<%= project.image || '/assets/images/project-1.jpg' %>" alt="<%= project.title %>" loading="lazy" data-project-image>
                   </figure>
-                  <h3 class="project-title" data-project-title><%= project.title %></h3>
+                  <h3 class="project-title" data-project-title data-i18n="project_<%= project.id %>_title"><%= project.title %></h3>
                   <p class="project-category" data-project-category><%= project.category %></p>
                   
                   <!-- Données cachées pour la modal -->
                   <div style="display: none;">
-                    <span data-project-description><%= project.description || '' %></span>
+                    <span data-project-description data-i18n="project_<%= project.id %>_description"><%= project.description || '' %></span>
                     <span data-project-repo-link><%= project.repoLink || '' %></span>
                     <span data-project-live-link><%= project.liveLink || '' %></span>
                   </div>
@@ -327,7 +345,7 @@
             <div class="overlay" data-overlay></div>
 
             <section class="testimonials-modal">
-              <button class="modal-close-btn" data-modal-close-btn>
+              <button class="modal-close-btn" data-modal-close-btn aria-label="Fermer la fenêtre">
                 <ion-icon name="close-outline"></ion-icon>
               </button>
 
@@ -714,6 +732,31 @@
           </header>
 
           <section class="blog-posts">
+            <% 
+            const blogCategories = [...new Set((blogs || []).map(b => b.category).filter(Boolean))];
+            %>
+            <div class="blog-filter-toolbar">
+              <div class="blog-search-box">
+                <ion-icon name="search-outline"></ion-icon>
+                <input
+                  type="search"
+                  id="blog-search-input"
+                  class="blog-search-input"
+                  placeholder="Rechercher un article..."
+                  data-i18n-placeholder="blog.search_placeholder"
+                  aria-label="Rechercher un article"
+                />
+              </div>
+              <% if (blogCategories.length > 1) { %>
+              <div class="blog-category-pills" id="blog-category-pills">
+                <button type="button" class="tech-tag-btn active" data-blog-cat="all" data-i18n="portfolio.all">Tous</button>
+                <% for (let cat of blogCategories) { %>
+                <button type="button" class="tech-tag-btn" data-blog-cat="<%= cat.toLowerCase() %>"><%= cat %></button>
+                <% } %>
+              </div>
+              <% } %>
+            </div>
+
             <ul class="blog-posts-list" id="blog-posts-list">
               <% 
               const calculateReadingTime = (text) => {
@@ -724,7 +767,7 @@
               };
               for (let blog of blogs) { 
               %>
-              <li class="blog-post-item" data-blog-item>
+              <li class="blog-post-item" data-blog-item data-blog-category="<%= (blog.category || '').toLowerCase() %>">
                 <a href="/blog/<%= encodeURI(blog.slug) %>">
                   <figure class="blog-banner-box">
                     <img src="<%= blog.image || '/assets/images/blog-1.jpg' %>" alt="<%= blog.title %>" loading="lazy">
@@ -744,6 +787,7 @@
               </li>
               <% } %>
             </ul>
+            <p id="blog-empty-state" class="blog-empty-state" style="display: none;">Aucun article ne correspond à votre recherche.</p>
 
             <!-- Pagination controls -->
             <div class="pagination-container" id="blog-pagination" style="display: none; text-align: center; margin-top: 30px;">
@@ -752,7 +796,6 @@
                 <span data-i18n="blog.load_more">Charger plus d'articles</span>
               </button>
             </div>
-          </section>>
           </section>
         </article>
 
@@ -835,6 +878,7 @@
             <button
               class="project-modal-close-btn"
               data-project-modal-close-btn
+              aria-label="Fermer la fenêtre du projet"
             >
               <ion-icon name="close-outline"></ion-icon>
             </button>

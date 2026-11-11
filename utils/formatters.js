@@ -7,7 +7,7 @@ function formatPersonalInfo(dbData) {
   let aboutText;
   try {
     aboutText = JSON.parse(dbData.about_text || '[]');
-  } catch (error) {
+  } catch {
     if (dbData.about_text && typeof dbData.about_text === 'string') {
       aboutText = [dbData.about_text];
     } else {
@@ -45,7 +45,7 @@ async function formatPortfolioProject(dbData) {
       try {
         const parsed = JSON.parse(dbData.technologies);
         technologies = Array.isArray(parsed) ? parsed : dbData.technologies.split(',').map(t => t.trim()).filter(Boolean);
-      } catch (e) {
+      } catch {
         technologies = dbData.technologies.split(',').map(t => t.trim()).filter(Boolean);
       }
     } else if (Array.isArray(dbData.technologies)) {
@@ -63,6 +63,8 @@ async function formatPortfolioProject(dbData) {
     liveLink: dbData.live_link,
     filterCategory: dbData.filter_category || null,
     isCurrentWork: Number(dbData.is_current_work) || 0,
+    isVisible: dbData.is_visible !== undefined && dbData.is_visible !== null ? Number(dbData.is_visible) : 1,
+    displayOrder: Number(dbData.display_order) || 0,
     technologies,
     rawTechnologies: Array.isArray(technologies) ? technologies.join(', ') : (dbData.technologies || '')
   };
