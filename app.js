@@ -173,7 +173,7 @@ try {
 // Gestion des 404 :
 // - Les ressources statiques manquantes (assets, sw.js…) retournent 404 silencieusement
 // - Seules les vraies routes inconnues déclenchent AppError (loggée en dev)
-app.use('*', (req, res, next) => {
+app.use((req, res, next) => {
   const url = req.originalUrl;
   const isStaticAsset = url.startsWith('/assets/') ||
     url.startsWith('/admin/') ||
